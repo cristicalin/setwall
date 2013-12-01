@@ -5,6 +5,7 @@ import os
 import random
 import time
 import atexit
+import argparse
 
 from urllib2 import quote, unquote
 from apscheduler.scheduler import Scheduler
@@ -13,18 +14,24 @@ from gi.repository import Gtk as gtk
 from gi.repository import AppIndicator3 as appindicator
 from gi.repository import Notify as pynotify
 
+APP_NAME = "wallpaper-changer"
+BASE_ID = "com.kman"
+WALLPAPER_PATH = "path"
+WALLPAPER_INTERVAL = "interval"
+
+WALLPAPER_SETTING = "org.gnome.desktop.background"
+PICTURE_URI = "picture-uri"
+PICTURE_OPTIONS = "picture-options"
+
 
 class setwall:
 
-  WALLPAPER_SETTING = "org.gnome.desktop.background"
-  PICTURE_URI = "picture-uri"
-
-  def __init__(self):
-    self.SETTINGS = gio.Settings.new(self.WALLPAPER_SETTING)
+  def __init__(self, settings):
+    self.settings = settings
     self.notification = pynotify.Notification.new("", "", None)
  
   def get_wallpaper(self):
-    old_wallpaper = self.SETTINGS.get_string(self.PICTURE_URI)
+    old_wallpaper = self.settings.get_string(PICTURE_URI)
     tmp = old_wallpaper.split("/")
     return unquote(tmp[len(tmp)-1])
 
@@ -32,7 +39,7 @@ class setwall:
     old_wallpaper = self.get_wallpaper()
     new_file = filename.split("/")
     new_wallpaper = "file://%s" % quote(filename)
-    self.SETTINGS.set_string(self.PICTURE_URI, new_wallpaper)
+    self.settings.set_string(PICTURE_URI, new_wallpaper)
     self.notification.update(
       "Wallpaper changed",
       "<b>Old:</b> %s<br/><b>New:</b> %s" 
@@ -71,7 +78,7 @@ class filelist:
 
 def quit(item):
   gtk.main_quit()
-  sys.exit(0)
+#  sys.exit(0)
 
 def next_wallpaper(item):
   wp.set_wallpaper(file_list.get_next_file())
@@ -79,58 +86,87 @@ def next_wallpaper(item):
 def previous_wallpaper(item):
   wp.set_wallpaper(file_list.get_previous_file())
 
-APP_NAME = "wallpaper-changer"
-BASE_ID = "com.kman"
-WALLPAPER_PATH = "path"
-WALLPAPER_INTERVAL = "interval"
+def get_app_menu(settings):
+  menu = gtk.Menu()
+   
+  next_menu = gtk.MenuItem("Next Wallpaper")
+  next_menu.connect("activate", next_wallpaper)
+  menu.append(next_menu)
+  next_menu.show()
+
+  prev_menu = gtk.MenuItem("Previous Wallpaper")
+  prev_menu.connect("activate", previous_wallpaper)
+  menu.append(prev_menu)
+  prev_menu.show()
+
+  options_menu_item = gtk.MenuItem("Scaling Options");
+  menu.append(options_menu_item)
+  options_menu_item.show()
+  options_menu = gtk.Menu()
+
+  options_range = settings.get_range(PICTURE_OPTIONS)
+  for option in options_range[1]:
+    menu_option = gtk.MenuItem(option.title())
+    menu_option.connect("activate", 
+      lambda item, data: settings.set_string(PICTURE_OPTIONS, data), option)
+    options_menu.append(menu_option)
+    menu_option.show()
+
+  options_menu_item.set_submenu(options_menu)
+
+  separator = gtk.SeparatorMenuItem()
+  menu.append(separator)
+  separator.show()
+
+  quit_menu = gtk.MenuItem("Quit")
+  quit_menu.connect("activate", quit)
+  menu.append(quit_menu)
+  quit_menu.show()
+
+  return menu
 
 if __name__ == "__main__":
-#  try:
-    app = appindicator.Indicator.new(
-      APP_NAME,
-      "preferences-desktop-wallpaper",
-      appindicator.IndicatorCategory.APPLICATION_STATUS
-    )
-    app.set_status(appindicator.IndicatorStatus.ACTIVE)
-    pynotify.init(APP_NAME)
+  parser = argparse.ArgumentParser("Wallpaper Changer")
+  parser.add_argument("-p", "--path", type=str,
+                      help="Path in which wallpapers reside")
+  parser.add_argument("-i", "--interval", type=int,
+                      help="Time interval in seconds between switches")
+  args = parser.parse_args()
+#  print args
 
-    menu = gtk.Menu()
+  app = appindicator.Indicator.new(
+    APP_NAME, "preferences-desktop-wallpaper",
+    appindicator.IndicatorCategory.APPLICATION_STATUS
+  )
+  app.set_status(appindicator.IndicatorStatus.ACTIVE)
+  pynotify.init(APP_NAME)
+
+  wp_settings = gio.Settings.new(WALLPAPER_SETTING)
+  app.set_menu(get_app_menu(wp_settings))
+
+  app_settings = gio.Settings.new("%s.%s" % (BASE_ID, APP_NAME))
+  if args.path != None:
+    app_settings.set_string(WALLPAPER_PATH, args.path)
+  if args.path != None:
+    app_settings.set_int(WALLPAPER_INTERVAL, args.interval)
     
-    next_menu = gtk.MenuItem("Next Wallpaper")
-    next_menu.connect("activate", next_wallpaper)
-    menu.append(next_menu)
-    next_menu.show()
+  path = app_settings.get_string(WALLPAPER_PATH)
+  interval = app_settings.get_int(WALLPAPER_INTERVAL)
 
-    prev_menu = gtk.MenuItem("Previous Wallpaper")
-    prev_menu.connect("activate", previous_wallpaper)
-    menu.append(prev_menu)
-    prev_menu.show()
+#  print "Path: %s\nInterval %d\n" % (path, interval)
 
-    separator = gtk.SeparatorMenuItem()
-    menu.append(separator)
-    separator.show()
+  file_list = filelist(path)
+  wp = setwall(wp_settings)
+  file_list.set_index(wp.get_wallpaper())
+  sched = Scheduler()
 
-    quit_menu = gtk.MenuItem("Quit")
-    quit_menu.connect("activate", quit)
-    menu.append(quit_menu)
-    quit_menu.show()
+  @sched.interval_schedule(seconds=interval)
+  def next_wallpaper():
+    wp.set_wallpaper(file_list.get_next_file())
 
-    app.set_menu(menu)
+  atexit.register(lambda: sched.shutdown(wait=True))
 
-    app_settings = gio.Settings.new("%s.%s" % (BASE_ID, APP_NAME))
-    if len(sys.argv) > 2:
-      app_settings.set_string(WALLPAPER_PATH, sys.argv[1])
-      app_settings.set_int(WALLPAPER_INTERVAL, int(sys.argv[2]))
-    
-    path = app_settings.get_string(WALLPAPER_PATH)
-    interval = app_settings.get_int(WALLPAPER_INTERVAL)
+  sched.start()
+  gtk.main()
 
-    file_list = filelist(path)
-    wp = setwall()
-    file_list.set_index(wp.get_wallpaper())
-
-    gtk.main()
-
-#  except:
-    gtk.main_quit()
-    sys.exit(0)
+  sys.exit(0)
