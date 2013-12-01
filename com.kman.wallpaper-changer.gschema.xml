@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="com.kman.wallpaper-changer" path="/com/kman/wallpaper-changer/">
+    <key type="s" name="path">
+      <default>'/home/kman/Pictures'</default>
+      <summary>Wallpapers Path</summary>
+      <description>This is the path in which wallpaper files reside.</description>
+    </key>
+    <key type="i" name="interval">
+      <default>300</default>
+      <summary>Wallpapers Switch Interval</summary>
+      <description>This is the interval between wallpaper switches.</description>
+    </key>
+  </schema>
+</schemalist>

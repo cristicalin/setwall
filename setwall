@@ -4,12 +4,15 @@ import sys
 import os
 import random
 import time
+import atexit
 
 from urllib2 import quote, unquote
+from apscheduler.scheduler import Scheduler
 from gi.repository import Gio as gio
 from gi.repository import Gtk as gtk
 from gi.repository import AppIndicator3 as appindicator
 from gi.repository import Notify as pynotify
+
 
 class setwall:
 
@@ -79,6 +82,7 @@ def previous_wallpaper(item):
 APP_NAME = "wallpaper-changer"
 BASE_ID = "com.kman"
 WALLPAPER_PATH = "path"
+WALLPAPER_INTERVAL = "interval"
 
 if __name__ == "__main__":
 #  try:
@@ -114,10 +118,12 @@ if __name__ == "__main__":
     app.set_menu(menu)
 
     app_settings = gio.Settings.new("%s.%s" % (BASE_ID, APP_NAME))
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 2:
       app_settings.set_string(WALLPAPER_PATH, sys.argv[1])
+      app_settings.set_int(WALLPAPER_INTERVAL, int(sys.argv[2]))
     
     path = app_settings.get_string(WALLPAPER_PATH)
+    interval = app_settings.get_int(WALLPAPER_INTERVAL)
 
     file_list = filelist(path)
     wp = setwall()
