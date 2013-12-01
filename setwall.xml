@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="com.kman.wallpaper-changer" path="/apps/wallpaper-chhanger/">
+    <key type="s" name="path">
+      <default>/home/kman/Pictures</default>
+      <summary>Wallpapers Path</summary>
+      <description>This is the path in which wallpaper files reside.</description>
+    </key>
+  </schema>
+</schemalist>
