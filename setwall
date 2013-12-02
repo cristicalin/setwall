@@ -6,13 +6,15 @@ import random
 import time
 import atexit
 import argparse
+import pyinotify
 
 from urllib2 import quote, unquote
 from apscheduler.scheduler import Scheduler
 from gi.repository import Gio as gio
 from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
 from gi.repository import AppIndicator3 as appindicator
-from gi.repository import Notify as pynotify
+from gi.repository import Notify as notify
 
 # These need to be consistent with the gschema.xml file
 APP_NAME = "wallpaper-changer"
@@ -36,6 +38,11 @@ interval = 0
 app_settings = None
 play_icon = None
 stop_icon = None
+file_list = None
+pyin_notifier = None
+
+# allow other threads to execute
+gobject.threads_init()
 
 # Hack to implement pointer-like behavior in python
 # This is needed synce pygtk cannot update the data on a GtkMenuItem
@@ -60,7 +67,7 @@ class setwall:
 
   def __init__(self, settings):
     self.settings = settings
-    self.notification = pynotify.Notification.new("", "", None)
+    self.notification = notify.Notification.new("", "", None)
  
   def get_wallpaper(self):
     try:
@@ -111,19 +118,44 @@ class filelist:
     return tmp
 
   def set_index(self, file):
-     while self.LOCAL_COUNT < len(self.LOCAL_FILE_LIST):
-       if self.LOCAL_FILE_LIST[self.LOCAL_COUNT] == file:
-         return
-       self.LOCAL_COUNT += 1
+    while self.LOCAL_COUNT < len(self.LOCAL_FILE_LIST):
+      if self.LOCAL_FILE_LIST[self.LOCAL_COUNT] == file:
+        return
+      self.LOCAL_COUNT += 1
 
+  def add_file(self, file):
+    self.LOCAL_FILE_LIST.insert(self.LOCAL_COUNT+1, file)
+
+  def remove_file(self, file):
+    self.LOCAL_FILE_LIST.remove(file)
+
+# This is a handler used by PyINotify to watch contents of
+# wallpapers directory path and notify file_list of changes
+class handlereload(pyinotify.ProcessEvent):
+
+  def process_IN_CREATE(self, event):
+    global file_list
+    if not event.dir:
+      file_list.add_file(event.name)
+
+  def process_IN_DELETE(self, event):
+    global file_list
+    if not event.dir:
+      file_list.add_file(event.name)
+
+# Global functions start here
 def quit(item):
+  # we neet to stop both the notifier as well as the gtk main loop
+  global pyin_notifier
+  pyin_notifier.stop()
   gtk.main_quit()
-#  sys.exit(0)
 
 def next_wallpaper(item = None):
+  global file_list
   wp.set_wallpaper(file_list.get_next_file())
 
 def previous_wallpaper(item = None):
+  global file_list
   wp.set_wallpaper(file_list.get_previous_file())
 
 def toggle_schedule(item, schedule):
@@ -138,6 +170,8 @@ def toggle_schedule(item, schedule):
   schedule.set(not schedule.get())
   app_settings.set_boolean(WALLPAPER_SCHEDULE, schedule.get())
 
+# Build the application menu which is delivered
+# via the appindicator functionality
 def get_app_menu(settings, schedule):
   load_icons()
   menu = gtk.Menu()
@@ -198,7 +232,9 @@ def load_icons():
   stop_icon.set_from_icon_name(gtk.STOCK_MEDIA_STOP, gtk.IconSize.MENU)
   stop_icon.show()
 
+# Main application body
 if __name__ == "__main__":
+  # Parse the command line arguments
   parser = argparse.ArgumentParser("Wallpaper Changer")
   parser.add_argument("-p", "--path", type=str,
                       help="Path in which wallpapers reside")
@@ -208,6 +244,9 @@ if __name__ == "__main__":
                       help="Scheduled wallpaper changes")
   args = parser.parse_args()
 
+  # Store command line arguments in the settings for future reference
+  # This means that if we want to change something we only need
+  # to pass the correct command line value to the application one time
   app_settings = gio.Settings.new("%s.%s" % (BASE_ID, APP_NAME))
   if args.path != None:
     app_settings.set_string(WALLPAPER_PATH, args.path)
@@ -215,7 +254,10 @@ if __name__ == "__main__":
     app_settings.set_int(WALLPAPER_INTERVAL, args.interval)
   if args.schedule != None:
     app_settings.set_boolean(WALLPAPER_SCHEDULE, args.schedule)
-    
+   
+  # Get the values from the settings
+  # This ensures we have proper values even if no command lines
+  # was passed to the application
   path = app_settings.get_string(WALLPAPER_PATH)
   interval = app_settings.get_int(WALLPAPER_INTERVAL)
   schedule = ref(app_settings.get_boolean(WALLPAPER_SCHEDULE))
@@ -225,19 +267,38 @@ if __name__ == "__main__":
     appindicator.IndicatorCategory.APPLICATION_STATUS
   )
   app.set_status(appindicator.IndicatorStatus.ACTIVE)
-  pynotify.init(APP_NAME)
+  notify.init(APP_NAME)
 
+  # These are Gnome specific settings for wallpaper and we need
+  # a separate object to interact with them
   wp_settings = gio.Settings.new(WALLPAPER_SETTING)
   app.set_menu(get_app_menu(wp_settings, schedule))
 
+  # build the file list and create the wallpaper change object
   file_list = filelist(path)
   wp = setwall(wp_settings)
   file_list.set_index(wp.get_wallpaper())
+
+  # Initialize the notifier and watch the wallpaper folder for any changes
+  # we only register to the create and delete events
+  # we don't care about other events since they do not impact
+  # the list of files in the directory
+  pyin_wm = pyinotify.WatchManager()
+  pyin_mask = pyinotify.IN_DELETE | pyinotify.IN_CREATE
+  pyin_handler = handlereload()
+  pyin_notifier = pyinotify.ThreadedNotifier(pyin_wm, pyin_handler)
+  pyin_wdd = pyin_wm.add_watch(path, pyin_mask, rec=False)
+  pyin_notifier.start()
+
+  # Schedule periodic changes of the firewall
+  # we only start a job here if the we need to, user might want
+  # to start with this setting disabled
   sched = Scheduler()
   sched.start()
   if schedule.get():
     sched.add_interval_job(next_wallpaper, seconds=interval)
 
+  # make sure we properly clean up after ourselves 
   atexit.register(lambda: sched.shutdown(wait=True))
 
   gtk.main()
