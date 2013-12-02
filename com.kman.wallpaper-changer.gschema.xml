@@ -11,5 +11,10 @@
       <summary>Wallpapers Switch Interval</summary>
       <description>This is the interval between wallpaper switches.</description>
     </key>
+    <key type="b" name="schedule">
+      <default>true</default>
+      <summary>Scheduled Wallpaper Change</summary>
+      <description>Set this to true if you want to toggle automatic wallpaper changes.</description>
+    </key>
   </schema>
 </schemalist>
