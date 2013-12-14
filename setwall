@@ -8,6 +8,10 @@ import atexit
 import argparse
 import pyinotify
 
+import dbus
+import dbus.service
+import dbus.glib
+
 from urllib2 import quote, unquote
 from apscheduler.scheduler import Scheduler
 from gi.repository import Gio as gio
@@ -17,7 +21,8 @@ from gi.repository import AppIndicator3 as appindicator
 from gi.repository import Notify as notify
 
 # These need to be consistent with the gschema.xml file
-APP_NAME = "wallpaper-changer"
+APP_NAME = "wallpaper_changer"
+APP_PATH = "/com/kman"
 BASE_ID = "com.kman"
 WALLPAPER_PATH = "path"
 WALLPAPER_INTERVAL = "interval"
@@ -143,6 +148,30 @@ class handlereload(pyinotify.ProcessEvent):
     if not event.dir:
       file_list.add_file(event.name)
 
+# This is a handler class for the DBus messages, it allows
+# the application to receive next and previous messages
+class handledbus(dbus.service.Object):
+
+  global file_list
+
+  @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                       in_signature='', out_signature='')
+  def next(self):
+    wp.set_wallpaper(file_list.get_next_file())
+
+  @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                       in_signature='', out_signature='')
+  def previous(self):
+    wp.set_wallpaper(file_list.get_previous_file())
+
+  @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                       in_signature='', out_signature='')
+  def quit(self):
+    global pyin_notifier
+    pyin_notifier.stop()
+    gtk.main_quit()
+    
+
 # Global functions start here
 def quit(item):
   # we neet to stop both the notifier as well as the gtk main loop
@@ -247,7 +276,7 @@ if __name__ == "__main__":
   # Store command line arguments in the settings for future reference
   # This means that if we want to change something we only need
   # to pass the correct command line value to the application one time
-  app_settings = gio.Settings.new("%s.%s" % (BASE_ID, APP_NAME))
+  app_settings = gio.Settings.new("%s.%s" % (BASE_ID, APP_NAME.replace("_", "-")))
   if args.path != None:
     app_settings.set_string(WALLPAPER_PATH, args.path)
   if args.interval != None:
@@ -263,7 +292,7 @@ if __name__ == "__main__":
   schedule = ref(app_settings.get_boolean(WALLPAPER_SCHEDULE))
 
   app = appindicator.Indicator.new(
-    APP_NAME, "preferences-desktop-wallpaper",
+    APP_NAME.replace("_","-"), "preferences-desktop-wallpaper",
     appindicator.IndicatorCategory.APPLICATION_STATUS
   )
   app.set_status(appindicator.IndicatorStatus.ACTIVE)
@@ -300,6 +329,12 @@ if __name__ == "__main__":
 
   # make sure we properly clean up after ourselves 
   atexit.register(lambda: sched.shutdown(wait=True))
+
+  # initialize DBus
+  dbus.glib.init_threads()
+  session_bus = dbus.SessionBus()
+  session_name = dbus.service.BusName("%s.%s" % (BASE_ID, APP_NAME), session_bus)
+  session_object = handledbus(session_bus, "%s/%s" % (APP_PATH, APP_NAME))
 
   gtk.main()
 
