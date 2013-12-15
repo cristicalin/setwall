@@ -20,22 +20,8 @@ from gi.repository import GObject as gobject
 from gi.repository import AppIndicator3 as appindicator
 from gi.repository import Notify as notify
 
-# These need to be consistent with the gschema.xml file
-APP_NAME = "wallpaper_changer"
-APP_PATH = "/com/kman"
-BASE_ID = "com.kman"
-WALLPAPER_PATH = "path"
-WALLPAPER_INTERVAL = "interval"
-WALLPAPER_SCHEDULE = "schedule"
-
-# Other constants
-TEXT_CONTINUE = "Continue"
-TEXT_PAUSE = "Pause"
-
-# These are gnome specific parameters
-WALLPAPER_SETTING = "org.gnome.desktop.background"
-PICTURE_URI = "picture-uri"
-PICTURE_OPTIONS = "picture-options"
+# Local imports
+from globals import *
 
 # Global variables, dirty hack
 sched = None
@@ -47,6 +33,7 @@ file_list = None
 pyin_notifier = None
 
 # allow other threads to execute
+dbus.glib.init_threads()
 gobject.threads_init()
 
 # Hack to implement pointer-like behavior in python
@@ -331,7 +318,6 @@ if __name__ == "__main__":
   atexit.register(lambda: sched.shutdown(wait=True))
 
   # initialize DBus
-  dbus.glib.init_threads()
   session_bus = dbus.SessionBus()
   session_name = dbus.service.BusName("%s.%s" % (BASE_ID, APP_NAME), session_bus)
   session_object = handledbus(session_bus, "%s/%s" % (APP_PATH, APP_NAME))

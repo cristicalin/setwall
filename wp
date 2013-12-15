@@ -1,0 +1,23 @@
+#!/usr/bin/python
+
+import dbus
+import dbus.service
+import sys
+
+# Import global constants
+from globals import *
+
+if __name__ == '__main__':
+  try:
+    session_bus = dbus.SessionBus()
+    session_obj = session_bus.get_object(
+      "%s.%s" % (BASE_ID, APP_NAME),
+      "%s/%s" % (APP_PATH, APP_NAME)
+    )
+    exec "session_obj.%s()" % sys.argv[1:][0]
+  except dbus.DBusException as e:
+    print "Wallpaper Changer is could not be contacted"
+    exit(1)
+  except KeyError as e:
+    print "Usage: wp [next|previous|quit]"
+    exit(0)
