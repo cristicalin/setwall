@@ -3,6 +3,7 @@
   <!-- interface-requires gtk+ 3.0 -->
   <object class="GtkWindow" id="wcMain">
     <property name="can_focus">False</property>
+    <property name="resizable">False</property>
     <signal name="delete-event" handler="onClose" swapped="no"/>
     <child>
       <object class="GtkBox" id="box1">
@@ -14,11 +15,14 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="label_xalign">0</property>
+            <property name="label_yalign">0</property>
+            <property name="shadow_type">none</property>
             <child>
               <object class="GtkAlignment" id="alignment1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="left_padding">12</property>
+                <property name="left_padding">20</property>
+                <property name="right_padding">20</property>
                 <child>
                   <object class="GtkBox" id="box2">
                     <property name="visible">True</property>
@@ -114,18 +118,14 @@
                 </child>
               </object>
             </child>
-            <child type="label">
-              <object class="GtkLabel" id="lFrame">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;b&gt;Wallpaper Changer&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-              </object>
+            <child type="label_item">
+              <placeholder/>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
+            <property name="padding">5</property>
             <property name="position">0</property>
           </packing>
         </child>
@@ -133,6 +133,7 @@
           <object class="GtkButtonBox" id="buttonbox1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">10</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="btApply">
@@ -166,6 +167,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
+            <property name="padding">5</property>
             <property name="position">1</property>
           </packing>
         </child>
