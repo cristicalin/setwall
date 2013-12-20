@@ -17,3 +17,5 @@ WALLPAPER_SETTING = "org.gnome.desktop.background"
 PICTURE_URI = "picture-uri"
 PICTURE_OPTIONS = "picture-options"
 
+# Glade form file
+GLADE_FILE = "setwall.glade"

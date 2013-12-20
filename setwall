@@ -22,11 +22,13 @@ from gi.repository import Notify as notify
 
 # Local imports
 from globals import *
+from settings import *
 
 # Global variables, dirty hack
 sched = None
 interval = 0
 app_settings = None
+my_settings = None
 play_icon = None
 stop_icon = None
 file_list = None
@@ -186,6 +188,9 @@ def toggle_schedule(item, schedule):
   schedule.set(not schedule.get())
   app_settings.set_boolean(WALLPAPER_SCHEDULE, schedule.get())
 
+def show_settings(item = None):
+  my_settings.show_window()
+
 # Build the application menu which is delivered
 # via the appindicator functionality
 def get_app_menu(settings, schedule):
@@ -229,6 +234,10 @@ def get_app_menu(settings, schedule):
 
   menu.append(gtk.SeparatorMenuItem())
 
+  settings_menu = gtk.MenuItem("Settings")
+  settings_menu.connect("activate", show_settings)
+  menu.append(settings_menu)
+
   quit_menu = gtk.MenuItem("Quit")
   quit_menu.connect("activate", quit)
   menu.append(quit_menu)
@@ -270,6 +279,8 @@ if __name__ == "__main__":
     app_settings.set_int(WALLPAPER_INTERVAL, args.interval)
   if args.schedule != None:
     app_settings.set_boolean(WALLPAPER_SCHEDULE, args.schedule)
+
+  my_settings = settings()
    
   # Get the values from the settings
   # This ensures we have proper values even if no command lines
