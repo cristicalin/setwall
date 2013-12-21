@@ -26,7 +26,6 @@ from filelist import *
 # Global variables, dirty hack
 sched = None
 interval = 0
-app_settings = None
 my_settings = None
 play_icon = None
 stop_icon = None
@@ -43,23 +42,24 @@ gobject.threads_init()
 # if picture-uri in gsettings is null this will return None
 class setwall:
 
-  def __init__(self, settings):
-    self.settings = settings
+  def __init__(self):
     self.notification = notify.Notification.new("", "", None)
  
   def get_wallpaper(self):
     try:
-      old_wallpaper = self.settings.get_string(PICTURE_URI)
+      global my_settings
+      old_wallpaper = my_settings.get_wallpaper()
       tmp = old_wallpaper.split("/")
       return unquote(tmp[len(tmp)-1])
     except:
       return None
 
   def set_wallpaper(self, filename):
+    global my_settings
     old_wallpaper = self.get_wallpaper()
     new_file = filename.split("/")
     new_wallpaper = "file://%s" % quote(filename)
-    self.settings.set_string(PICTURE_URI, new_wallpaper)
+    my_settings.set_wallpaper(new_wallpaper)
     self.notification.update(
       "Wallpaper changed",
       "<b>Old:</b> %s<br/><b>New:</b> %s" 
@@ -109,6 +109,7 @@ def previous_wallpaper(item = None):
 
 def toggle_schedule(item):
   global schedule
+  global my_settings
   if schedule:
     sched.unschedule_func(next_wallpaper)
     item.set_image(play_icon)
@@ -118,15 +119,16 @@ def toggle_schedule(item):
     item.set_image(stop_icon)
     item.set_label(TEXT_PAUSE)
   schedule = not schedule
-  app_settings.set_boolean(WALLPAPER_SCHEDULE, schedule)
+  my_settings.set_wallpaper_schedule(schedule)
 
 def show_settings(item = None):
   my_settings.show_window()
 
 # Build the application menu which is delivered
 # via the appindicator functionality
-def get_app_menu(settings):
+def get_app_menu():
   global schedule
+  global my_settings
   load_icons()
   menu = gtk.Menu()
    
@@ -145,11 +147,11 @@ def get_app_menu(settings):
   menu.append(options_menu_item)
   options_menu = gtk.Menu()
 
-  options_range = settings.get_range(PICTURE_OPTIONS)
+  options_range = my_settings.get_wallpaper_options_range()
   for option in options_range[1]:
     menu_option = gtk.MenuItem(option.title())
     menu_option.connect("activate", 
-      lambda item, data: settings.set_string(PICTURE_OPTIONS, data), option)
+      lambda item, data: my_settings.set_wallpaper_options(data), option)
     options_menu.append(menu_option)
   options_menu_item.set_submenu(options_menu)
 
@@ -202,25 +204,14 @@ if __name__ == "__main__":
                       help="Scheduled wallpaper changes")
   args = parser.parse_args()
 
-  # Store command line arguments in the settings for future reference
-  # This means that if we want to change something we only need
-  # to pass the correct command line value to the application one time
-  app_settings = gio.Settings.new("%s.%s" % (BASE_ID, APP_NAME.replace("_", "-")))
-  if args.path != None:
-    app_settings.set_string(WALLPAPER_PATH, args.path)
-  if args.interval != None:
-    app_settings.set_int(WALLPAPER_INTERVAL, args.interval)
-  if args.schedule != None:
-    app_settings.set_boolean(WALLPAPER_SCHEDULE, args.schedule)
-
-  my_settings = settings()
+  my_settings = settings(args)
    
   # Get the values from the settings
   # This ensures we have proper values even if no command lines
   # was passed to the application
-  path = app_settings.get_string(WALLPAPER_PATH)
-  interval = app_settings.get_int(WALLPAPER_INTERVAL)
-  schedule = app_settings.get_boolean(WALLPAPER_SCHEDULE)
+  path = my_settings.get_wallpaper_path()
+  interval = my_settings.get_wallpaper_interval()
+  schedule = my_settings.get_wallpaper_schedule()
 
   app = appindicator.Indicator.new(
     APP_NAME.replace("_","-"), "preferences-desktop-wallpaper",
@@ -229,14 +220,11 @@ if __name__ == "__main__":
   app.set_status(appindicator.IndicatorStatus.ACTIVE)
   notify.init(APP_NAME)
 
-  # These are Gnome specific settings for wallpaper and we need
-  # a separate object to interact with them
-  wp_settings = gio.Settings.new(WALLPAPER_SETTING)
-  app.set_menu(get_app_menu(wp_settings))
+  app.set_menu(get_app_menu())
 
   # build the file list and create the wallpaper change object
   file_list = filelist(path)
-  wp = setwall(wp_settings)
+  wp = setwall()
   file_list.set_index(wp.get_wallpaper())
 
   # Schedule periodic changes of the firewall

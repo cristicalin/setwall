@@ -84,6 +84,8 @@ class filelist:
   def sort(self):
     self.LOCAL_FILE_LIST.sort()
 
+
+# For unit testing purposes only
 if __name__ == "__main__":
   fl = filelist(".")
   print fl.get_list()
