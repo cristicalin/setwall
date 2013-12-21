@@ -10,7 +10,6 @@ import dbus.glib
 
 from urllib2 import quote, unquote
 from apscheduler.scheduler import Scheduler
-from gi.repository import Gio as gio
 from gi.repository import Gtk as gtk
 from gi.repository import GObject as gobject
 from gi.repository import AppIndicator3 as appindicator

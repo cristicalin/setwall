@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 3.0 -->
+  <object class="GtkAdjustment" id="adjInterval">
+    <property name="upper">3600</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkListStore" id="lstPath"/>
   <object class="GtkWindow" id="wcMain">
     <property name="can_focus">False</property>
     <property name="resizable">False</property>
@@ -36,7 +42,7 @@
                           <object class="GtkLabel" id="lPath">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Path</property>
+                            <property name="label" translatable="yes">Wallpaperrs Path</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -45,9 +51,11 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkComboBox" id="cbPath">
+                          <object class="GtkComboBoxText" id="cbPath">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="entry_text_column">0</property>
+                            <property name="id_column">1</property>
                           </object>
                           <packing>
                             <property name="expand">True</property>
@@ -67,10 +75,10 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkLabel" id="lInterval">
+                          <object class="GtkLabel" id="lbInterval">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Interval</property>
+                            <property name="label" translatable="yes">Interval (seconds)</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -83,8 +91,12 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="invisible_char">•</property>
-                            <property name="input_purpose">pin</property>
+                            <property name="width_chars">5</property>
+                            <property name="input_purpose">number</property>
+                            <property name="adjustment">adjInterval</property>
+                            <property name="climb_rate">1</property>
                             <property name="snap_to_ticks">True</property>
+                            <property name="numeric">True</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
