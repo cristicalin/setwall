@@ -2,11 +2,9 @@
 
 import sys
 import os
-import random
 import time
 import atexit
 import argparse
-import pyinotify
 
 import dbus
 import dbus.service
@@ -23,6 +21,7 @@ from gi.repository import Notify as notify
 # Local imports
 from globals import *
 from settings import *
+from filelist import *
 
 # Global variables, dirty hack
 sched = None
@@ -32,7 +31,6 @@ my_settings = None
 play_icon = None
 stop_icon = None
 file_list = None
-pyin_notifier = None
 
 # allow other threads to execute
 dbus.glib.init_threads()
@@ -84,59 +82,6 @@ class setwall:
     )
     self.notification.show()
 
-# File list maintains a randomized list of files in a directory
-# and behaves like a circular list so get_next and get_previous
-# will never return an error.
-# By design, this assumes there is at least one file in the
-# directory it is monitoriing.
-class filelist:
-
-  def __init__(self, path):
-    self.LOCAL_COUNT = 0
-    self.DIR_PATH = path
-    self.LOCAL_FILE_LIST = os.listdir(self.DIR_PATH)
-    random.shuffle(self.LOCAL_FILE_LIST)
-
-  def get_next_file(self):
-    self.LOCAL_COUNT += 1
-    if self.LOCAL_COUNT >= len(self.LOCAL_FILE_LIST):
-      self.LOCAL_COUNT = 0
-    tmp = "%s/%s" % (self.DIR_PATH, self.LOCAL_FILE_LIST[self.LOCAL_COUNT])
-    return tmp
-
-  def get_previous_file(self):
-    self.LOCAL_COUNT -= 1
-    if self.LOCAL_COUNT < 0:
-      self.LOCAL_COUNT = len(self.LOCAL_FILE_LIST) - 1
-    tmp = "%s/%s" % (self.DIR_PATH, self.LOCAL_FILE_LIST[self.LOCAL_COUNT])
-    return tmp
-
-  def set_index(self, file):
-    while self.LOCAL_COUNT < len(self.LOCAL_FILE_LIST):
-      if self.LOCAL_FILE_LIST[self.LOCAL_COUNT] == file:
-        return
-      self.LOCAL_COUNT += 1
-
-  def add_file(self, file):
-    self.LOCAL_FILE_LIST.insert(self.LOCAL_COUNT+1, file)
-
-  def remove_file(self, file):
-    self.LOCAL_FILE_LIST.remove(file)
-
-# This is a handler used by PyINotify to watch contents of
-# wallpapers directory path and notify file_list of changes
-class handlereload(pyinotify.ProcessEvent):
-
-  def process_IN_CREATE(self, event):
-    global file_list
-    if not event.dir:
-      file_list.add_file(event.name)
-
-  def process_IN_DELETE(self, event):
-    global file_list
-    if not event.dir:
-      file_list.add_file(event.name)
-
 # This is a handler class for the DBus messages, it allows
 # the application to receive next and previous messages
 class handledbus(dbus.service.Object):
@@ -156,16 +101,16 @@ class handledbus(dbus.service.Object):
   @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
   def quit(self):
-    global pyin_notifier
-    pyin_notifier.stop()
+    global file_list
+    file_list.close()
     gtk.main_quit()
     
 
 # Global functions start here
 def quit(item):
   # we neet to stop both the notifier as well as the gtk main loop
-  global pyin_notifier
-  pyin_notifier.stop()
+  global file_list
+  file_list.close()
   gtk.main_quit()
 
 def next_wallpaper(item = None):
@@ -305,17 +250,6 @@ if __name__ == "__main__":
   file_list = filelist(path)
   wp = setwall(wp_settings)
   file_list.set_index(wp.get_wallpaper())
-
-  # Initialize the notifier and watch the wallpaper folder for any changes
-  # we only register to the create and delete events
-  # we don't care about other events since they do not impact
-  # the list of files in the directory
-  pyin_wm = pyinotify.WatchManager()
-  pyin_mask = pyinotify.IN_DELETE | pyinotify.IN_CREATE
-  pyin_handler = handlereload()
-  pyin_notifier = pyinotify.ThreadedNotifier(pyin_wm, pyin_handler)
-  pyin_wdd = pyin_wm.add_watch(path, pyin_mask, rec=False)
-  pyin_notifier.start()
 
   # Schedule periodic changes of the firewall
   # we only start a job here if the we need to, user might want
