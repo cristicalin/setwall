@@ -31,25 +31,11 @@ my_settings = None
 play_icon = None
 stop_icon = None
 file_list = None
+schedule = True
 
 # allow other threads to execute
 dbus.glib.init_threads()
 gobject.threads_init()
-
-# Hack to implement pointer-like behavior in python
-# This is needed synce pygtk cannot update the data on a GtkMenuItem
-# so the menu item is passed as a reference and the contents in the
-# reference is updated when the menu value is toggled
-class ref:
-  
-  def __init__(self, obj):
-    self.obj = obj
-
-  def get(self):
-    return self.obj
-
-  def set(self, obj):
-    self.obj = obj
 
 # This handles setting the wallpaper on the Gnome desktop
 # and returning the name of the current wallpaper file
@@ -121,8 +107,9 @@ def previous_wallpaper(item = None):
   global file_list
   wp.set_wallpaper(file_list.get_previous_file())
 
-def toggle_schedule(item, schedule):
-  if schedule.get():
+def toggle_schedule(item):
+  global schedule
+  if schedule:
     sched.unschedule_func(next_wallpaper)
     item.set_image(play_icon)
     item.set_label(TEXT_CONTINUE)
@@ -130,15 +117,16 @@ def toggle_schedule(item, schedule):
     sched.add_interval_job(next_wallpaper, seconds=interval)
     item.set_image(stop_icon)
     item.set_label(TEXT_PAUSE)
-  schedule.set(not schedule.get())
-  app_settings.set_boolean(WALLPAPER_SCHEDULE, schedule.get())
+  schedule = not schedule
+  app_settings.set_boolean(WALLPAPER_SCHEDULE, schedule)
 
 def show_settings(item = None):
   my_settings.show_window()
 
 # Build the application menu which is delivered
 # via the appindicator functionality
-def get_app_menu(settings, schedule):
+def get_app_menu(settings):
+  global schedule
   load_icons()
   menu = gtk.Menu()
    
@@ -167,11 +155,11 @@ def get_app_menu(settings, schedule):
 
   toggle_text = TEXT_CONTINUE
   toggle_icon = play_icon
-  if schedule.get():
+  if schedule:
     toggle_text = TEXT_PAUSE
     toggle_icon = stop_icon
   toggle_menu = gtk.ImageMenuItem()
-  toggle_menu.connect("activate", toggle_schedule, schedule)
+  toggle_menu.connect("activate", toggle_schedule)
   toggle_menu.set_always_show_image(True)
   toggle_menu.set_image(toggle_icon)
   toggle_menu.set_label(toggle_text)
@@ -232,7 +220,7 @@ if __name__ == "__main__":
   # was passed to the application
   path = app_settings.get_string(WALLPAPER_PATH)
   interval = app_settings.get_int(WALLPAPER_INTERVAL)
-  schedule = ref(app_settings.get_boolean(WALLPAPER_SCHEDULE))
+  schedule = app_settings.get_boolean(WALLPAPER_SCHEDULE)
 
   app = appindicator.Indicator.new(
     APP_NAME.replace("_","-"), "preferences-desktop-wallpaper",
@@ -244,7 +232,7 @@ if __name__ == "__main__":
   # These are Gnome specific settings for wallpaper and we need
   # a separate object to interact with them
   wp_settings = gio.Settings.new(WALLPAPER_SETTING)
-  app.set_menu(get_app_menu(wp_settings, schedule))
+  app.set_menu(get_app_menu(wp_settings))
 
   # build the file list and create the wallpaper change object
   file_list = filelist(path)
@@ -256,7 +244,7 @@ if __name__ == "__main__":
   # to start with this setting disabled
   sched = Scheduler()
   sched.start()
-  if schedule.get():
+  if schedule:
     sched.add_interval_job(next_wallpaper, seconds=interval)
 
   # make sure we properly clean up after ourselves 
