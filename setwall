@@ -1,8 +1,6 @@
 #!/usr/bin/python
 
 import sys
-import os
-import time
 import atexit
 import argparse
 
@@ -25,12 +23,11 @@ from filelist import *
 
 # Global variables, dirty hack
 sched = None
-interval = 0
 my_settings = None
 play_icon = None
 stop_icon = None
 file_list = None
-schedule = True
+toggle_menu = None
 
 # allow other threads to execute
 dbus.glib.init_threads()
@@ -72,28 +69,29 @@ class setwall:
 # the application to receive next and previous messages
 class handledbus(dbus.service.Object):
 
-  global file_list
-
   @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
   def next(self):
-    wp.set_wallpaper(file_list.get_next_file())
+    next_wallpaper()
 
   @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
   def previous(self):
-    wp.set_wallpaper(file_list.get_previous_file())
+    previous_wallpaper()
 
   @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
-  def quit(self):
-    global file_list
-    file_list.close()
-    gtk.main_quit()
+  def toggle(self):
+    global toggle_menu
+    toggle_schedule(toggle_menu)
     
-
+  @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                       in_signature='', out_signature='')
+  def quit(self):
+    quit_app()
+    
 # Global functions start here
-def quit(item):
+def quit_app(item = None):
   # we neet to stop both the notifier as well as the gtk main loop
   global file_list
   file_list.close()
@@ -107,19 +105,17 @@ def previous_wallpaper(item = None):
   global file_list
   wp.set_wallpaper(file_list.get_previous_file())
 
-def toggle_schedule(item):
-  global schedule
+def toggle_schedule(item = None):
   global my_settings
-  if schedule:
+  if my_settings.get_wallpaper_schedule():
     sched.unschedule_func(next_wallpaper)
     item.set_image(play_icon)
     item.set_label(TEXT_CONTINUE)
   else:
-    sched.add_interval_job(next_wallpaper, seconds=interval)
+    sched.add_interval_job(next_wallpaper, seconds=my_settings.get_wallpaper_interval())
     item.set_image(stop_icon)
     item.set_label(TEXT_PAUSE)
-  schedule = not schedule
-  my_settings.set_wallpaper_schedule(schedule)
+  my_settings.set_wallpaper_schedule(not my_settings.get_wallpaper_schedule())
 
 def show_settings(item = None):
   my_settings.show_window()
@@ -127,7 +123,6 @@ def show_settings(item = None):
 # Build the application menu which is delivered
 # via the appindicator functionality
 def get_app_menu():
-  global schedule
   global my_settings
   load_icons()
   menu = gtk.Menu()
@@ -157,9 +152,10 @@ def get_app_menu():
 
   toggle_text = TEXT_CONTINUE
   toggle_icon = play_icon
-  if schedule:
+  if my_settings.get_wallpaper_schedule():
     toggle_text = TEXT_PAUSE
     toggle_icon = stop_icon
+  global toggle_menu
   toggle_menu = gtk.ImageMenuItem()
   toggle_menu.connect("activate", toggle_schedule)
   toggle_menu.set_always_show_image(True)
@@ -174,7 +170,7 @@ def get_app_menu():
   menu.append(settings_menu)
 
   quit_menu = gtk.MenuItem("Quit")
-  quit_menu.connect("activate", quit)
+  quit_menu.connect("activate", quit_app)
   menu.append(quit_menu)
 
   menu.show_all()
@@ -203,16 +199,8 @@ if __name__ == "__main__":
   parser.add_argument("-s", "--schedule", type=bool,
                       help="Scheduled wallpaper changes")
   args = parser.parse_args()
-
   my_settings = settings(args)
    
-  # Get the values from the settings
-  # This ensures we have proper values even if no command lines
-  # was passed to the application
-  path = my_settings.get_wallpaper_path()
-  interval = my_settings.get_wallpaper_interval()
-  schedule = my_settings.get_wallpaper_schedule()
-
   app = appindicator.Indicator.new(
     APP_NAME.replace("_","-"), "preferences-desktop-wallpaper",
     appindicator.IndicatorCategory.APPLICATION_STATUS
@@ -223,7 +211,7 @@ if __name__ == "__main__":
   app.set_menu(get_app_menu())
 
   # build the file list and create the wallpaper change object
-  file_list = filelist(path)
+  file_list = filelist(my_settings.get_wallpaper_path())
   wp = setwall()
   file_list.set_index(wp.get_wallpaper())
 
@@ -232,8 +220,9 @@ if __name__ == "__main__":
   # to start with this setting disabled
   sched = Scheduler()
   sched.start()
-  if schedule:
-    sched.add_interval_job(next_wallpaper, seconds=interval)
+  if my_settings.get_wallpaper_schedule():
+    sched.add_interval_job(next_wallpaper,
+                           seconds=my_settings.get_wallpaper_interval())
 
   # make sure we properly clean up after ourselves 
   atexit.register(lambda: sched.shutdown(wait=True))

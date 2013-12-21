@@ -83,7 +83,7 @@ class settings:
     return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_SCHEDULE)
 
   def set_wallpaper_schedule(self, wallpaper_schedule):
-    self.APP_SETTINGS.get_boolean(globals.WALLPAPER_SCHEDULE,
+    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_SCHEDULE,
                                   wallpaper_schedule)
 
   def get_wallpaper(self):
