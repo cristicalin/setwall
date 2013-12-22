@@ -187,6 +187,19 @@ def load_icons():
   stop_icon.set_from_icon_name(gtk.STOCK_MEDIA_STOP, gtk.IconSize.MENU)
   stop_icon.show()
 
+# Load and process settings, will be also called
+# when apply is pressed in the settings dialog
+def load_settings():
+  global file_list
+  global my_settings
+  global sched
+  file_list.load(my_settings.get_wallpaper_path())
+  for job in sched.get_jobs():
+    sched.unschedule_job(job)
+  if my_settings.get_wallpaper_schedule():
+    sched.add_interval_job(next_wallpaper,
+                           seconds=my_settings.get_wallpaper_interval())
+
 # Main application body
 if __name__ == "__main__":
   # Parse the command line arguments
@@ -198,30 +211,27 @@ if __name__ == "__main__":
   parser.add_argument("-s", "--schedule", type=bool,
                       help="Scheduled wallpaper changes")
   args = parser.parse_args()
-  my_settings = settings(args)
+  my_settings = settings(args = args, save_callback = load_settings)
    
   app = appindicator.Indicator.new(
     APP_NAME.replace("_","-"), "preferences-desktop-wallpaper",
     appindicator.IndicatorCategory.APPLICATION_STATUS
   )
   app.set_status(appindicator.IndicatorStatus.ACTIVE)
-  notify.init(APP_NAME)
-
   app.set_menu(get_app_menu())
-
-  # build the file list and create the wallpaper change object
-  file_list = filelist(my_settings.get_wallpaper_path())
-  wp = setwall()
-  file_list.set_index(wp.get_wallpaper())
+  notify.init(APP_NAME)
 
   # Schedule periodic changes of the firewall
   # we only start a job here if the we need to, user might want
   # to start with this setting disabled
   sched = Scheduler()
   sched.start()
-  if my_settings.get_wallpaper_schedule():
-    sched.add_interval_job(next_wallpaper,
-                           seconds=my_settings.get_wallpaper_interval())
+  
+  # build the file list and create the wallpaper change object
+  file_list = filelist()
+  load_settings()
+  wp = setwall()
+  file_list.set_index(wp.get_wallpaper())
 
   # make sure we properly clean up after ourselves 
   atexit.register(lambda: sched.shutdown(wait=True))

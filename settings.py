@@ -2,6 +2,7 @@
 
 import sys
 import os
+import re
 
 from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
@@ -20,12 +21,16 @@ class settings:
       self.settings = settings
 
     def onApplyClicked(self, *args):
+      self.settings.save()
       self.settings.hide_window()
 
     def onClose(self, *args):
       self.settings.hide_window()
 
-  def __init__(self, args = None):
+    def onPathChanged(self, *args):
+      self.settings.set_path(args[0].get_active_text())
+
+  def __init__(self, args = None, save_callback = None):
     self.APP_SETTINGS = gio.Settings.new("%s.%s" % (globals.BASE_ID,
                                                     globals.APP_NAME.replace("_", "-")))
     # Store command line arguments in the settings for future reference
@@ -50,12 +55,15 @@ class settings:
                                             globals.GLADE_FILE))
     except:
       self.BUILDER.add_from_file(globals.GLADE_FILE)
-    self.BUILDER.connect_signals(self.handler(self))
+    self.HANDLER = self.handler(self)
+    self.BUILDER.connect_signals(self.HANDLER)
 
     self.WINDOW = self.BUILDER.get_object("wcMain")
     self.WINDOW.set_title(" ".join([word.capitalize() 
                           for word in globals.APP_NAME.split("_")]))
     self.WINDOW.move(gdk.Screen.width()-self.WINDOW.get_size()[0], 0)
+
+    self.SAVE_CALLBACK = save_callback
     self.ckSchedule = self.BUILDER.get_object("ckSchedule")
     self.spInterval = self.BUILDER.get_object("spInterval")
     self.cbPath = self.BUILDER.get_object("cbPath")
@@ -63,16 +71,43 @@ class settings:
   def show_window(self):
     self.ckSchedule.set_active(self.get_wallpaper_schedule())
     self.spInterval.set_value(self.get_wallpaper_interval())
-    self.cbPath.get_model().clear()
-    self.build_path("%s/" % self.get_wallpaper_path())
-    self.cbPath.set_active(0)
+    self.set_path(self.get_wallpaper_path())
     self.WINDOW.show_all()
 
+  # We need to have the handlers blocked while we update the list
+  def set_path(self, dirname):
+    self.cbPath.handler_block_by_func(self.HANDLER.onPathChanged)
+    self.cbPath.get_model().clear()
+    names_list = os.listdir(dirname)
+    names_list.sort()
+    for name in names_list:
+      path = os.path.join(dirname, name)
+      if os.path.isdir(path) and re.search('^\.', name) is None:
+        self.cbPath.append_text(path)
+    position = len(self.cbPath.get_model())
+    self.cbPath.append_text(dirname)
+    self.build_path(dirname)
+    self.cbPath.set_active(position)
+    self.cbPath.handler_unblock_by_func(self.HANDLER.onPathChanged)
+
+  # recursively build the down path
   def build_path(self, path):
     if len(path)>1:
       d = os.path.dirname(path)
       self.cbPath.append_text(d)
       self.build_path(d)
+
+  # save the settings
+  def save(self):
+    path = self.cbPath.get_active_text()
+    if (os.path.isdir(path)):
+      self.set_wallpaper_path(path)
+    interval = self.spInterval.get_value()
+    self.set_wallpaper_interval(interval)
+    schedule = self.ckSchedule.get_active()
+    self.set_wallpaper_schedule(schedule)
+    if self.SAVE_CALLBACK is not None:
+      self.SAVE_CALLBACK()
 
   def hide_window(self):
     self.WINDOW.hide()
@@ -94,7 +129,7 @@ class settings:
     return self.APP_SETTINGS.get_int(globals.WALLPAPER_INTERVAL)
 
   def set_wallpaper_interval(self, wallpaper_interval):
-    self.APP_SETTINGS.get_int(globals.WALLPAPER_INTERVAL,
+    self.APP_SETTINGS.set_int(globals.WALLPAPER_INTERVAL,
                               wallpaper_interval)
 
   def get_wallpaper_schedule(self):
@@ -120,7 +155,11 @@ class settings:
 # for unit testing purposes only
 if __name__ == "__main__":
 
-  s = settings()
+  def callback():
+    print "callback() called"
+    exit(0)
+
+  s = settings(save_callback = callback)
   s.show_window()
 
   gtk.main()

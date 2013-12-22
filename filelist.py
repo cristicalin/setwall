@@ -26,11 +26,7 @@ class filelist:
       if not event.dir:
         self.LIST.remove_file(event.name)
 
-  def __init__(self, path):
-    self.LOCAL_COUNT = 0
-    self.DIR_PATH = path
-    self.LOCAL_FILE_LIST = os.listdir(self.DIR_PATH)
-
+  def __init__(self):
     # Initialize the notifier and watch the folder for any changes
     # we only register to the create and delete events
     # we don't care about other events since they do not impact
@@ -38,10 +34,22 @@ class filelist:
     self.WATCH_MANAGER = pyinotify.WatchManager()
     self.NOTIFIER = pyinotify.ThreadedNotifier(self.WATCH_MANAGER,
                                                self.handlereload(self))
-    self.WATCH_MANAGER.add_watch(self.DIR_PATH,
-                      pyinotify.IN_DELETE | pyinotify.IN_CREATE,
-                      rec=False)
     self.NOTIFIER.start()
+    self.DIR_PATH = None
+
+  def load(self, path):
+    if path != self.DIR_PATH:
+      self.LOCAL_COUNT = 0
+      if self.DIR_PATH is not None:
+        self.WATCH_MANAGER.del_watch(self.DIR_PATH,
+                                     pyinotify.IN_DELETE | pyinotify.IN_CREATE,
+                                     rec=False)
+      self.DIR_PATH = path
+      self.LOCAL_FILE_LIST = os.listdir(self.DIR_PATH)
+      self.WATCH_MANAGER.add_watch(self.DIR_PATH,
+                                   pyinotify.IN_DELETE | pyinotify.IN_CREATE,
+                                   rec=False)
+      self.randomize()
 
   def close(self):
     # This is to make sure we stop the inotify upon cleanup
