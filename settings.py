@@ -2,7 +2,6 @@
 
 import sys
 import os
-import re
 
 from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
@@ -82,7 +81,7 @@ class settings:
     names_list.sort()
     for name in names_list:
       path = os.path.join(dirname, name)
-      if os.path.isdir(path) and re.search('^\.', name) is None:
+      if os.path.isdir(path) and not name.startswith("."):
         self.cbPath.append_text(path)
     position = len(self.cbPath.get_model())
     self.cbPath.append_text(dirname)

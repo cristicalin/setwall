@@ -104,17 +104,21 @@ def previous_wallpaper(item = None):
   global file_list
   wp.set_wallpaper(file_list.get_previous_file())
 
-def toggle_schedule(item = None):
+def toggle_schedule(item = None, toggle = True):
   global my_settings
+  if toggle:
+    my_settings.set_wallpaper_schedule(not my_settings.get_wallpaper_schedule())
   if my_settings.get_wallpaper_schedule():
-    sched.unschedule_func(next_wallpaper)
-    item.set_image(play_icon)
-    item.set_label(TEXT_CONTINUE)
-  else:
-    sched.add_interval_job(next_wallpaper, seconds=my_settings.get_wallpaper_interval())
+    if toggle:
+      sched.add_interval_job(next_wallpaper,
+                             seconds=my_settings.get_wallpaper_interval())
     item.set_image(stop_icon)
     item.set_label(TEXT_PAUSE)
-  my_settings.set_wallpaper_schedule(not my_settings.get_wallpaper_schedule())
+  else:
+    if toggle:
+      sched.unschedule_func(next_wallpaper)
+    item.set_image(play_icon)
+    item.set_label(TEXT_CONTINUE)
 
 def show_settings(item = None):
   my_settings.show_window()
@@ -149,17 +153,10 @@ def get_app_menu():
     options_menu.append(menu_option)
   options_menu_item.set_submenu(options_menu)
 
-  toggle_text = TEXT_CONTINUE
-  toggle_icon = play_icon
-  if my_settings.get_wallpaper_schedule():
-    toggle_text = TEXT_PAUSE
-    toggle_icon = stop_icon
   global toggle_menu
-  toggle_menu = gtk.ImageMenuItem()
+  toggle_menu = gtk.ImageMenuItem(" ")
   toggle_menu.connect("activate", toggle_schedule)
   toggle_menu.set_always_show_image(True)
-  toggle_menu.set_image(toggle_icon)
-  toggle_menu.set_label(toggle_text)
   menu.append(toggle_menu)
 
   menu.append(gtk.SeparatorMenuItem())
@@ -193,12 +190,14 @@ def load_settings():
   global file_list
   global my_settings
   global sched
+  global toggle_menu
   file_list.load(my_settings.get_wallpaper_path())
   for job in sched.get_jobs():
     sched.unschedule_job(job)
   if my_settings.get_wallpaper_schedule():
     sched.add_interval_job(next_wallpaper,
                            seconds=my_settings.get_wallpaper_interval())
+  toggle_schedule(toggle_menu, False)
 
 # Main application body
 if __name__ == "__main__":
