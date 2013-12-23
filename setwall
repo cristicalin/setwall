@@ -218,14 +218,13 @@ if __name__ == "__main__":
   )
   app.set_status(appindicator.IndicatorStatus.ACTIVE)
   app.set_menu(get_app_menu())
-  notify.init(APP_NAME)
-
+  
   # Schedule periodic changes of the firewall
   # we only start a job here if the we need to, user might want
   # to start with this setting disabled
   sched = Scheduler()
-  sched.start()
-  
+  notify.init(APP_NAME)
+
   # build the file list and create the wallpaper change object
   file_list = filelist()
   load_settings()
@@ -237,9 +236,19 @@ if __name__ == "__main__":
 
   # initialize DBus
   session_bus = dbus.SessionBus()
+
+  try:
+    running_obj = session_bus.get_object("%s.%s" % (BASE_ID, APP_NAME),
+                                         "%s/%s" % (APP_PATH, APP_NAME))
+    running_obj.quit()
+  except dbus.DBusException as e:
+    None
+
   session_name = dbus.service.BusName("%s.%s" % (BASE_ID, APP_NAME), session_bus)
   session_object = handledbus(session_bus, "%s/%s" % (APP_PATH, APP_NAME))
 
+  sched.start()
+  
   gtk.main()
 
   sys.exit(0)
