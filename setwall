@@ -10,6 +10,7 @@ import dbus.glib
 
 from urllib2 import quote, unquote
 from apscheduler.scheduler import Scheduler
+
 from gi.repository import Gtk as gtk
 from gi.repository import GObject as gobject
 from gi.repository import AppIndicator3 as appindicator
@@ -46,7 +47,7 @@ class setwall:
       global my_settings
       old_wallpaper = my_settings.get_wallpaper()
       tmp = old_wallpaper.split("/")
-      return unquote(tmp[len(tmp)-1])
+      return unquote(tmp[-1])
     except:
       return None
 
@@ -59,7 +60,7 @@ class setwall:
     self.notification.update(
       "Wallpaper changed",
       "<b>Old:</b> %s<br/><b>New:</b> %s" 
-      % (old_wallpaper, new_file[len(new_file)-1]),
+      % (old_wallpaper, new_file[-1]),
       None
     )
     self.notification.show()
@@ -146,10 +147,14 @@ def get_app_menu():
   options_menu = gtk.Menu()
 
   options_range = my_settings.get_wallpaper_options_range()
+  options_group = []
   for option in options_range[1]:
-    menu_option = gtk.MenuItem(option.title())
+    menu_option = gtk.RadioMenuItem.new_with_label(options_group, option.title())
     menu_option.connect("activate", 
       lambda item, data: my_settings.set_wallpaper_options(data), option)
+    options_group = menu_option.get_group()
+    if option == my_settings.get_wallpaper_options():
+      menu_option.set_active(True)
     options_menu.append(menu_option)
   options_menu_item.set_submenu(options_menu)
 

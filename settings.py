@@ -147,6 +147,9 @@ class settings:
   def get_wallpaper_options_range(self):
     return self.WALLPAPER_SETTINGS.get_range(globals.PICTURE_OPTIONS)
 
+  def get_wallpaper_options(self):
+    return self.WALLPAPER_SETTINGS.get_string(globals.PICTURE_OPTIONS)
+
   def set_wallpaper_options(self, options):
     self.WALLPAPER_SETTINGS.set_string(globals.PICTURE_OPTIONS, options)
 
