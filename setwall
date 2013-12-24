@@ -67,7 +67,8 @@ class setwall:
                                      pixbuf.InterpType.BILINEAR)
     self.notification.update("Wallpaper changed",
                              "<b>Old:</b> %s<br/><b>New:</b> %s" %
-                             (old_wallpaper, new_file[-1]),
+                             (shorten(old_wallpaper, 32),
+			      shorten(new_file[-1], 32)),
                              None)
     self.notification.set_icon_from_pixbuf(resized_icon)
     my_settings.set_wallpaper(new_wallpaper)
@@ -97,7 +98,13 @@ class handledbus(dbus.service.Object):
                        in_signature='', out_signature='')
   def quit(self):
     quit_app()
-    
+
+# Shorten long file names
+def shorten(data, length):
+  info = (data[:int(length/2)-1] + '..' + 
+          data[-(int(length/2)-1):]) if len(data) > length else data
+  return info
+
 # Global functions start here
 def quit_app(item = None):
   # we neet to stop both the notifier as well as the gtk main loop
