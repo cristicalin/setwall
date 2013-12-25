@@ -3,6 +3,7 @@
 # These need to be consistent with the gschema.xml file
 APP_NAME = "wallpaper_changer"
 APP_PATH = "/com/kman"
+APP_ICON = "preferences-desktop-wallpaper"
 BASE_ID = "com.kman"
 WALLPAPER_PATH = "path"
 WALLPAPER_INTERVAL = "interval"

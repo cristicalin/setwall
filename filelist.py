@@ -18,7 +18,7 @@ class filelist:
     def __init__(self, list):
       self.LIST = list
       
-    def process_IN_CREATE(self, event):
+    def process_IN_CLOSE_WRITE(self, event):
       if not event.dir:
         self.LIST.add_file(event.name)
 
@@ -26,7 +26,7 @@ class filelist:
       if not event.dir:
         self.LIST.remove_file(event.name)
 
-  def __init__(self):
+  def __init__(self, callback = None):
     # Initialize the notifier and watch the folder for any changes
     # we only register to the create and delete events
     # we don't care about other events since they do not impact
@@ -36,18 +36,19 @@ class filelist:
                                                self.handlereload(self))
     self.NOTIFIER.start()
     self.DIR_PATH = None
+    self.CALLBACK = callback
 
   def load(self, path):
     if path != self.DIR_PATH:
       self.LOCAL_COUNT = 0
       if self.DIR_PATH is not None:
         self.WATCH_MANAGER.del_watch(self.DIR_PATH,
-                                     pyinotify.IN_DELETE | pyinotify.IN_CREATE,
+                                     pyinotify.IN_DELETE | pyinotify.IN_CLOSE_WRITE,
                                      rec=False)
       self.DIR_PATH = path
       self.LOCAL_FILE_LIST = os.listdir(self.DIR_PATH)
       self.WATCH_MANAGER.add_watch(self.DIR_PATH,
-                                   pyinotify.IN_DELETE | pyinotify.IN_CREATE,
+                                   pyinotify.IN_DELETE | pyinotify.IN_CLOSE_WRITE,
                                    rec=False)
       self.randomize()
 
@@ -79,9 +80,13 @@ class filelist:
 
   def add_file(self, file):
     self.LOCAL_FILE_LIST.insert(self.LOCAL_COUNT+1, file)
+    if self.CALLBACK is not None:
+      self.CALLBACK("add", "%s/%s" % (self.DIR_PATH, file))
 
   def remove_file(self, file):
     self.LOCAL_FILE_LIST.remove(file)
+    if self.CALLBACK is not None:
+      self.CALLBACK("remove", "%s/%s" % (self.DIR_PATH, file))
 
   def get_list(self):
     return self.LOCAL_FILE_LIST
@@ -95,6 +100,11 @@ class filelist:
 
 # For unit testing purposes only
 if __name__ == "__main__":
-  fl = filelist(".")
+
+  def callback(action, file):
+    print "%s: %s" % (action, file)
+
+  fl = filelist(callback)
+  fl.load(".")
   print fl.get_list()
   fl.close()

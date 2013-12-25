@@ -32,6 +32,7 @@ play_icon = None
 stop_icon = None
 file_list = None
 toggle_menu = None
+wp = None
 
 # allow other threads to execute
 dbus.glib.init_threads()
@@ -60,18 +61,24 @@ class setwall:
     old_wallpaper = self.get_wallpaper()
     new_file = filename.split("/")
     new_wallpaper = "file://%s" % quote(filename)
-    wallpaper_file = gio.File.new_for_uri(new_wallpaper)
-    icon = pixbuf.Pixbuf.new_from_stream(wallpaper_file.read(None), None)
-    scale = icon.get_width() / icon.get_height()
-    resized_icon = icon.scale_simple(64, 64/scale,
-                                     pixbuf.InterpType.BILINEAR)
-    self.notification.update("Wallpaper changed",
-                             "<b>Old:</b> %s<br/><b>New:</b> %s" %
-                             (shorten(old_wallpaper, 32),
-			      shorten(new_file[-1], 32)),
-                             None)
-    self.notification.set_icon_from_pixbuf(resized_icon)
     my_settings.set_wallpaper(new_wallpaper)
+    self.show_notification("Wallpaper changed",
+                           "<b>Old:</b> %s<br/><b>New:</b> %s" %
+                           (shorten(old_wallpaper, 32),
+			    shorten(new_file[-1], 32)),
+			   new_wallpaper)
+
+  def show_notification(self, title, message, filename):
+    if filename is not None:
+      file = gio.File.new_for_uri(filename)
+      icon = pixbuf.Pixbuf.new_from_stream(file.read(None), None)
+      scale = icon.get_width() / icon.get_height()
+      resized_icon = icon.scale_simple(64, 64/scale,
+                                       pixbuf.InterpType.BILINEAR)
+      self.notification.set_icon_from_pixbuf(resized_icon)
+      self.notification.update(title, message, None)
+    else:
+      self.notification.update(title, message, globals.APP_ICON)
     self.notification.show()
 
 # This is a handler class for the DBus messages, it allows
@@ -114,10 +121,12 @@ def quit_app(item = None):
 
 def next_wallpaper(item = None):
   global file_list
+  global wp
   wp.set_wallpaper(file_list.get_next_file())
 
 def previous_wallpaper(item = None):
   global file_list
+  global wp
   wp.set_wallpaper(file_list.get_previous_file())
 
 def toggle_schedule(item = None, toggle = True):
@@ -138,6 +147,17 @@ def toggle_schedule(item = None, toggle = True):
 
 def show_settings(item = None):
   my_settings.show_window()
+
+def file_change_callback(action, filename):
+  global wp
+  if action == "add":
+    wp.show_notification("Wallpaper Added",
+                         "New file: %s" % filename.split("/")[-1],
+			 "file://%s" % quote(filename))
+  elif action == "remove":
+    wp.show_notification("Wallpaper Removed",
+                         "Removed file: %s" % filename.split("/")[-1],
+			 None)
 
 # Build the application menu which is delivered
 # via the appindicator functionality
@@ -235,7 +255,7 @@ if __name__ == "__main__":
   my_settings = settings(args = args, save_callback = load_settings)
    
   app = appindicator.Indicator.new(
-    APP_NAME.replace("_","-"), "preferences-desktop-wallpaper",
+    APP_NAME.replace("_","-"), globals.APP_ICON,
     appindicator.IndicatorCategory.APPLICATION_STATUS
   )
   app.set_status(appindicator.IndicatorStatus.ACTIVE)
@@ -248,7 +268,7 @@ if __name__ == "__main__":
   notify.init(APP_NAME)
 
   # build the file list and create the wallpaper change object
-  file_list = filelist()
+  file_list = filelist(file_change_callback)
   load_settings()
   wp = setwall()
   file_list.set_index(wp.get_wallpaper())
