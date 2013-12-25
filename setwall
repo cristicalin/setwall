@@ -167,17 +167,17 @@ def get_app_menu():
   menu = gtk.Menu()
    
   next_menu = gtk.MenuItem()
-  next_menu.set_label("Next Wallpaper")
+  next_menu.set_label("Next")
   next_menu.connect("activate", next_wallpaper)
   menu.append(next_menu)
 
   prev_menu = gtk.MenuItem()
-  prev_menu.set_label("Previous Wallpaper")
+  prev_menu.set_label("Previous")
   prev_menu.connect("activate", previous_wallpaper)
   menu.append(prev_menu)
 
   options_menu_item = gtk.MenuItem()
-  options_menu_item.set_label("Scaling Options");
+  options_menu_item.set_label("Options");
   menu.append(options_menu_item)
   options_menu = gtk.Menu()
 
