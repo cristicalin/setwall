@@ -156,7 +156,7 @@ def file_change_callback(action, filename):
 			 "file://%s" % quote(filename))
   elif action == "remove":
     wp.show_notification("Wallpaper Removed",
-                         "Removed file: %s" % filename.split("/")[-1],
+                         "Removed file: %s" % shorten(filename.split("/")[-1], 32),
 			 None)
 
 # Build the application menu which is delivered
