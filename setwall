@@ -152,7 +152,7 @@ def file_change_callback(action, filename):
   global wp
   if action == "add":
     wp.show_notification("Wallpaper Added",
-                         "New file: %s" % filename.split("/")[-1],
+                         "New file: %s" % shorten(filename.split("/")[-1], 32),
 			 "file://%s" % quote(filename))
   elif action == "remove":
     wp.show_notification("Wallpaper Removed",
