@@ -5,6 +5,7 @@ from __future__ import division
 import sys
 import atexit
 import argparse
+import logging
 
 import dbus
 import dbus.service
@@ -33,6 +34,9 @@ stop_icon = None
 file_list = None
 toggle_menu = None
 wp = None
+
+# make apscheduler happy
+logging.basicConfig(format=globals.LOG_FORMAT)
 
 # allow other threads to execute
 dbus.glib.init_threads()
@@ -98,8 +102,13 @@ class handledbus(dbus.service.Object):
   @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
   def toggle(self):
-    global toggle_menu
-    toggle_schedule(toggle_menu)
+    toggle_schedule()
+    
+  @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                       in_signature='', out_signature='')
+  def randomize(self):
+    global file_list
+    file_list.randomize()
     
   @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
@@ -130,6 +139,9 @@ def previous_wallpaper(item = None):
   wp.set_wallpaper(file_list.get_previous_file())
 
 def toggle_schedule(item = None, toggle = True):
+  global toggle_menu
+  if item is None:
+    item = toggle_menu
   global my_settings
   if toggle:
     my_settings.set_wallpaper_schedule(not my_settings.get_wallpaper_schedule())
@@ -232,14 +244,13 @@ def load_settings():
   global file_list
   global my_settings
   global sched
-  global toggle_menu
   file_list.load(my_settings.get_wallpaper_path())
   for job in sched.get_jobs():
     sched.unschedule_job(job)
   if my_settings.get_wallpaper_schedule():
     sched.add_interval_job(next_wallpaper,
                            seconds=my_settings.get_wallpaper_interval())
-  toggle_schedule(toggle_menu, False)
+  toggle_schedule(toggle=False)
 
 # Main application body
 if __name__ == "__main__":

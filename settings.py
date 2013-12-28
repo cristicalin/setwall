@@ -60,6 +60,9 @@ class settings:
     self.WINDOW = self.BUILDER.get_object("wcMain")
     self.WINDOW.set_title(" ".join([word.capitalize() 
                           for word in globals.APP_NAME.split("_")]))
+    window_icon = self.WINDOW.render_icon(gtk.STOCK_PREFERENCES,
+                                          gtk.IconSize.DIALOG)
+    self.WINDOW.set_icon(window_icon)
     self.WINDOW.move(gdk.Screen.width()-self.WINDOW.get_size()[0], 0)
 
     self.SAVE_CALLBACK = save_callback

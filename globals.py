@@ -20,3 +20,7 @@ PICTURE_OPTIONS = "picture-options"
 
 # Glade form file
 GLADE_FILE = "setwall.glade"
+
+# Logging formatter
+LOG_FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
+
