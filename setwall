@@ -112,6 +112,12 @@ class handledbus(dbus.service.Object):
     
   @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
+  def sort(self):
+    global file_list
+    file_list.sort()
+    
+  @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                       in_signature='', out_signature='')
   def quit(self):
     quit_app()
 
