@@ -108,7 +108,9 @@ class handledbus(dbus.service.Object):
                        in_signature='', out_signature='')
   def randomize(self):
     global file_list
+    global wp
     file_list.randomize()
+    file_list.set_index(wp.get_wallpaper())
     
   @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
