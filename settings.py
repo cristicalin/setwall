@@ -58,6 +58,7 @@ class settings:
     self.BUILDER.connect_signals(self.HANDLER)
 
     self.WINDOW = self.BUILDER.get_object("wcMain")
+    self.STATUS_BAR = self.BUILDER.get_object("stStatus")
     self.WINDOW.set_title(" ".join([word.capitalize() 
                           for word in globals.APP_NAME.split("_")]))
     window_icon = self.WINDOW.render_icon(gtk.STOCK_PREFERENCES,
@@ -74,6 +75,7 @@ class settings:
     self.ckSchedule.set_active(self.get_wallpaper_schedule())
     self.spInterval.set_value(self.get_wallpaper_interval())
     self.set_path(self.get_wallpaper_path())
+    self.STATUS_BAR.push(0, self.get_wallpaper())
     self.WINDOW.show_all()
 
   # We need to have the handlers blocked while we update the list
@@ -116,6 +118,9 @@ class settings:
 
   def get_window(self):
     return self.WINDOW
+
+  def get_status_bar(self):
+    return self.STATUS_BAR
 
   def get_builder(self):
     return self.BUILDER

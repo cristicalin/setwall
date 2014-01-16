@@ -108,15 +108,15 @@ class handledbus(dbus.service.Object):
                        in_signature='', out_signature='')
   def randomize(self):
     global file_list
-    global wp
     file_list.randomize()
-    file_list.set_index(wp.get_wallpaper())
+    set_index(file_list)
     
   @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
   def sort(self):
     global file_list
     file_list.sort()
+    set_index(file_list)
     
   @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
@@ -260,6 +260,12 @@ def load_settings():
                            seconds=my_settings.get_wallpaper_interval())
   toggle_schedule(toggle=False)
 
+# Set the file list index to the current wallpaper
+# this gets called multiple times so it became a function
+def set_index(list):
+  global wp
+  list.set_index(wp.get_wallpaper())
+
 # Main application body
 if __name__ == "__main__":
   # Parse the command line arguments
@@ -290,7 +296,7 @@ if __name__ == "__main__":
   file_list = filelist(file_change_callback)
   load_settings()
   wp = setwall()
-  file_list.set_index(wp.get_wallpaper())
+  set_index(file_list)
 
   # make sure we properly clean up after ourselves 
   atexit.register(lambda: sched.shutdown(wait=True))
