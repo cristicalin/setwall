@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# we need to support real division instead of
+# integer which is the Python default division
 from __future__ import division
 
 from urllib2 import quote, unquote
@@ -8,9 +10,7 @@ from gi.repository import Gio as gio
 from gi.repository import GdkPixbuf as pixbuf
 from gi.repository import Notify as notify
 
-# Local imports
-from globals import *
-from settings import *
+import globals
 
 # This handles setting the wallpaper on the Gnome desktop
 # and returning the name of the current wallpaper file
@@ -19,6 +19,7 @@ from settings import *
 class wallpapermanager:
 
   def __init__(self, my_settings):
+    notify.init(globals.APP_NAME)
     self.notification = notify.Notification.new("", "", None)
     self.SETTINGS = my_settings
 
@@ -43,8 +44,8 @@ class wallpapermanager:
     self.SETTINGS.set_wallpaper(new_wallpaper)
     self.show_notification("Wallpaper changed",
                            "<b>Old:</b> %s<br/><b>New:</b> %s" %
-                           (shorten(old_wallpaper, 32),
-			    shorten(new_file[-1], 32)),
+                           (self.shorten(old_wallpaper, 32),
+			    self.shorten(new_file[-1], 32)),
 			   new_wallpaper)
 
   def show_notification(self, title, message, filename):
@@ -61,6 +62,7 @@ class wallpapermanager:
     self.notification.show()
 
 if __name__ == "__main__":
+  from settings import *
   s = settings()
   wpm = wallpapermanager(s)
   print wpm.get_wallpaper()
