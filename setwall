@@ -140,11 +140,13 @@ def next_wallpaper(item = None):
   global file_list
   global wp
   wp.set_wallpaper(file_list.get_next_file())
+  reset_schedule()
 
 def previous_wallpaper(item = None):
   global file_list
   global wp
   wp.set_wallpaper(file_list.get_previous_file())
+  reset_schedule()
 
 def toggle_schedule(item = None, toggle = True):
   global toggle_menu
@@ -246,18 +248,23 @@ def load_icons():
   stop_icon.set_from_icon_name(gtk.STOCK_MEDIA_STOP, gtk.IconSize.MENU)
   stop_icon.show()
 
-# Load and process settings, will be also called
-# when apply is pressed in the settings dialog
-def load_settings():
-  global file_list
+# Reset the schedule
+def reset_schedule():
   global my_settings
   global sched
-  file_list.load(my_settings.get_wallpaper_path())
   for job in sched.get_jobs():
     sched.unschedule_job(job)
   if my_settings.get_wallpaper_schedule():
     sched.add_interval_job(next_wallpaper,
                            seconds=my_settings.get_wallpaper_interval())
+
+# Load and process settings, will be also called
+# when apply is pressed in the settings dialog
+def load_settings():
+  global file_list
+  global my_settings
+  file_list.load(my_settings.get_wallpaper_path())
+  reset_schedule()
   toggle_schedule(toggle=False)
 
 # Set the file list index to the current wallpaper
