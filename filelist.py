@@ -60,23 +60,22 @@ class filelist:
 
   def get_next_file(self):
     self.LOCAL_COUNT += 1
-    if self.LOCAL_COUNT >= len(self.LOCAL_FILE_LIST):
-      self.LOCAL_COUNT = 0
+    self.LOCAL_COUNT %= len(self.LOCAL_FILE_LIST)
     tmp = "%s/%s" % (self.DIR_PATH, self.LOCAL_FILE_LIST[self.LOCAL_COUNT])
     return tmp
 
   def get_previous_file(self):
     self.LOCAL_COUNT -= 1
-    if self.LOCAL_COUNT < 0:
-      self.LOCAL_COUNT = len(self.LOCAL_FILE_LIST) - 1
+    self.LOCAL_COUNT %= len(self.LOCAL_FILE_LIST)
     tmp = "%s/%s" % (self.DIR_PATH, self.LOCAL_FILE_LIST[self.LOCAL_COUNT])
     return tmp
 
   def set_index(self, file):
-    while self.LOCAL_COUNT < len(self.LOCAL_FILE_LIST):
-      if self.LOCAL_FILE_LIST[self.LOCAL_COUNT] == file:
-        return
-      self.LOCAL_COUNT += 1
+    index = self.LOCAL_FILE_LIST.index(file)
+    if index > -1:
+      self.LOCAL_COUNT = index
+    else:
+      self.LOCAL_COUNT = 0
 
   def add_file(self, file):
     self.LOCAL_FILE_LIST.insert(self.LOCAL_COUNT+1, file)
