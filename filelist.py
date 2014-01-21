@@ -71,10 +71,9 @@ class filelist:
     return tmp
 
   def set_index(self, file):
-    index = self.LOCAL_FILE_LIST.index(file)
-    if index > -1:
-      self.LOCAL_COUNT = index
-    else:
+    try:
+      self.LOCAL_COUNT = self.LOCAL_FILE_LIST.index(file)
+    except ValueError:
       self.LOCAL_COUNT = 0
 
   def add_file(self, file):
