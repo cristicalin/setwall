@@ -146,6 +146,12 @@ class settings:
     self.APP_SETTINGS.set_boolean(globals.WALLPAPER_SCHEDULE,
                                   wallpaper_schedule)
 
+  def get_saved_list(self):
+    return self.APP_SETTINGS.get_string(globals.WALLPAPER_SAVED_LIST)
+
+  def set_saved_list(self, json):
+    self.APP_SETTINGS.set_string(globals.WALLPAPER_SAVED_LIST, json)
+
   def get_wallpaper(self):
     return self.WALLPAPER_SETTINGS.get_string(globals.PICTURE_URI)
 
@@ -161,7 +167,6 @@ class settings:
   def set_wallpaper_options(self, options):
     self.WALLPAPER_SETTINGS.set_string(globals.PICTURE_OPTIONS, options)
 
-
 # for unit testing purposes only
 if __name__ == "__main__":
 
@@ -170,6 +175,11 @@ if __name__ == "__main__":
     exit(0)
 
   s = settings(save_callback = callback)
+  print s.get_saved_list()
   s.show_window()
+  
+  #from json import JSONEncoder
+  #j = JSONEncoder()
+  #s.set_saved_list(j.encode([]))
 
   gtk.main()

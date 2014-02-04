@@ -16,5 +16,10 @@
       <summary>Scheduled Wallpaper Change</summary>
       <description>Set this to true if you want to toggle automatic wallpaper changes.</description>
     </key>
+    <key type="s" name="saved-list">
+      <default>'[]'</default>
+      <summary>Saved List</summary>
+      <description>Saved List of Wallpapers, do not edit this!</description>
+    </key>
   </schema>
 </schemalist>

@@ -8,6 +8,7 @@ BASE_ID = "com.kman"
 WALLPAPER_PATH = "path"
 WALLPAPER_INTERVAL = "interval"
 WALLPAPER_SCHEDULE = "schedule"
+WALLPAPER_SAVED_LIST = "saved-list"
 
 # Other constants
 TEXT_CONTINUE = "Continue"
@@ -22,5 +23,5 @@ PICTURE_OPTIONS = "picture-options"
 GLADE_FILE = "setwall.glade"
 
 # Logging formatter
-LOG_FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
+LOG_FORMAT = '%(asctime)-15s %(user)-8s %(message)s'
 

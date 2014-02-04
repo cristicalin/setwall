@@ -80,7 +80,9 @@ class handledbus(dbus.service.Object):
 def quit_app(item = None):
   # we neet to stop both the notifier as well as the gtk main loop
   global file_list
-  file_list.close()
+  global my_settings
+  json = file_list.close()
+  my_settings.set_saved_list(json)
   gtk.main_quit()
 
 def next_wallpaper(item = None):
@@ -210,7 +212,8 @@ def reset_schedule():
 def load_settings():
   global file_list
   global my_settings
-  file_list.load(my_settings.get_wallpaper_path())
+  file_list.load(my_settings.get_wallpaper_path(),
+                 my_settings.get_saved_list())
   reset_schedule()
   toggle_schedule(toggle=False)
 
@@ -222,6 +225,16 @@ def set_index(list):
 
 # Main application body
 if __name__ == "__main__":
+  # initialize DBus, we need to kill the previous instance as a first thing
+  session_bus = dbus.SessionBus()
+
+  try:
+    running_obj = session_bus.get_object("%s.%s" % (BASE_ID, APP_NAME),
+                                         "%s/%s" % (APP_PATH, APP_NAME))
+    running_obj.quit()
+  except dbus.DBusException as e:
+    None
+
   # Parse the command line arguments
   parser = argparse.ArgumentParser("Wallpaper Changer")
   parser.add_argument("-p", "--path", type=str,
@@ -253,16 +266,6 @@ if __name__ == "__main__":
 
   # make sure we properly clean up after ourselves 
   atexit.register(lambda: sched.shutdown(wait=True))
-
-  # initialize DBus
-  session_bus = dbus.SessionBus()
-
-  try:
-    running_obj = session_bus.get_object("%s.%s" % (BASE_ID, APP_NAME),
-                                         "%s/%s" % (APP_PATH, APP_NAME))
-    running_obj.quit()
-  except dbus.DBusException as e:
-    None
 
   session_name = dbus.service.BusName("%s.%s" % (BASE_ID, APP_NAME),
                                       session_bus)
