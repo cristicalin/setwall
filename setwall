@@ -61,15 +61,13 @@ class handledbus(dbus.service.Object):
                        in_signature='', out_signature='')
   def randomize(self):
     global file_list
-    file_list.randomize()
-    set_index(file_list)
+    reorder_func(file_list.randomize)
     
   @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
   def sort(self):
     global file_list
-    file_list.sort()
-    set_index(file_list)
+    reorder_func(file_list.sort)
     
   @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
@@ -80,9 +78,7 @@ class handledbus(dbus.service.Object):
 def quit_app(item = None):
   # we neet to stop both the notifier as well as the gtk main loop
   global file_list
-  global my_settings
-  json = file_list.close()
-  my_settings.set_saved_list(json)
+  file_list.close()
   gtk.main_quit()
 
 def next_wallpaper(item = None):
@@ -115,6 +111,11 @@ def toggle_schedule(item = None, toggle = True):
       sched.unschedule_func(next_wallpaper)
     item.set_image(play_icon)
     item.set_label(TEXT_CONTINUE)
+
+def reorder_func(func):
+  func()
+  set_index(file_list)
+  save_json()
 
 def show_settings(item = None):
   my_settings.show_window()
@@ -214,6 +215,7 @@ def load_settings():
   global my_settings
   file_list.load(my_settings.get_wallpaper_path(),
                  my_settings.get_saved_list())
+  save_json()
   reset_schedule()
   toggle_schedule(toggle=False)
 
@@ -222,6 +224,12 @@ def load_settings():
 def set_index(list):
   global wpm
   list.set_index(wpm.get_wallpaper())
+
+# Save the current file_list json format to the settings
+def save_json():
+  global my_settings
+  global file_list
+  my_settings.set_saved_list(file_list.get_json())
 
 # Main application body
 if __name__ == "__main__":

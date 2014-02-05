@@ -6,6 +6,8 @@ import pyinotify
 
 from simplejson import *
 
+import bst
+
 # File list maintains a randomized list of files in a directory
 # and behaves like a circular list so get_next and get_previous
 # will never return an error.
@@ -49,16 +51,16 @@ class filelist:
                                      rec=False)
       self.DIR_PATH = path
       temp = os.listdir(self.DIR_PATH)
+      temp_tree = bst.bst(temp)
       if json is not None:
         jd = JSONDecoder()
 	self.LOCAL_FILE_LIST = jd.decode(json)
 	# reconcile the JSON with the files actually in the folder
 	for my_file in self.LOCAL_FILE_LIST:
-	  if my_file in temp:
+	  if temp_tree.search(my_file) == my_file:
 	    temp.remove(my_file)
 	  else:
 	    self.LOCAL_FILE_LIST.remove(my_file)
-	    print my_file
 	self.LOCAL_FILE_LIST += temp
       else:
         self.LOCAL_FILE_LIST = temp
@@ -67,13 +69,15 @@ class filelist:
                                    pyinotify.IN_DELETE | pyinotify.IN_CLOSE_WRITE,
                                    rec=False)
 
+  def get_json(self):
+    je = JSONEncoder()
+    return je.encode(self.LOCAL_FILE_LIST)
+
   def close(self):
     # This is to make sure we stop the inotify upon cleanup
     # unfortuantely Python does not guarantee the call to __del__
     # so I had to create this miserable hack
     self.NOTIFIER.stop()
-    je = JSONEncoder()
-    return je.encode(self.LOCAL_FILE_LIST)
 
   def get_next_file(self):
     self.LOCAL_COUNT += 1
