@@ -124,6 +124,6 @@ if __name__ == "__main__":
   fl = filelist(callback)
   fl.load(".")
   l = fl.get_list()
-  o = fl.close()
-  j = JSONDecoder()
-  print j.decode(o)
+  fl.close()
+
+  print l

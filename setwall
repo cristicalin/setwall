@@ -213,8 +213,11 @@ def reset_schedule():
 def load_settings():
   global file_list
   global my_settings
-  file_list.load(my_settings.get_wallpaper_path(),
-                 my_settings.get_saved_list())
+  if my_settings.get_wallpaper_save():
+    file_list.load(my_settings.get_wallpaper_path(),
+                   my_settings.get_saved_list())
+  else:
+    file_list.load(my_settings.get_wallpaper_path())
   save_json()
   reset_schedule()
   toggle_schedule(toggle=False)
@@ -229,7 +232,8 @@ def set_index(list):
 def save_json():
   global my_settings
   global file_list
-  my_settings.set_saved_list(file_list.get_json())
+  if my_settings.get_wallpaper_save():
+    my_settings.set_saved_list(file_list.get_json())
 
 # Main application body
 if __name__ == "__main__":
