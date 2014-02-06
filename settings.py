@@ -77,6 +77,7 @@ class settings:
     self.ckLoadSavedList = self.BUILDER.get_object("ckLoadSavedList")
     self.spInterval = self.BUILDER.get_object("spInterval")
     self.cbPath = self.BUILDER.get_object("cbPath")
+    self.imgPreview = self.BUILDER.get_object("imgPreview")
 
   def show_window(self):
     self.ckSchedule.set_active(self.get_wallpaper_schedule())
