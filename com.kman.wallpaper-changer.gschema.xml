@@ -16,6 +16,11 @@
       <summary>Scheduled Wallpaper Change</summary>
       <description>Set this to true if you want to toggle automatic wallpaper changes.</description>
     </key>
+    <key type="b" name="save">
+      <default>true</default>
+      <summary>Save Previous Wallpaper List</summary>
+      <description>Set this to true if you want to the previous list, otherwise it will be recreated on each start.</description>
+    </key>
     <key type="s" name="saved-list">
       <default>'[]'</default>
       <summary>Saved List</summary>

@@ -29,6 +29,12 @@ class settings:
     def onPathChanged(self, *args):
       self.settings.set_path(args[0].get_active_text())
 
+    def onPrevious(self, *args):
+      print "onPrevious() not yet implemented"
+
+    def onNext(self, *args):
+      print "onNext() not yet implemented"
+
   def __init__(self, args = None, save_callback = None):
     self.APP_SETTINGS = gio.Settings.new("%s.%s" % (globals.BASE_ID,
                                                     globals.APP_NAME.replace("_", "-")))
@@ -68,11 +74,13 @@ class settings:
 
     self.SAVE_CALLBACK = save_callback
     self.ckSchedule = self.BUILDER.get_object("ckSchedule")
+    self.ckLoadSavedList = self.BUILDER.get_object("ckLoadSavedList")
     self.spInterval = self.BUILDER.get_object("spInterval")
     self.cbPath = self.BUILDER.get_object("cbPath")
 
   def show_window(self):
     self.ckSchedule.set_active(self.get_wallpaper_schedule())
+    self.ckLoadSavedList.set_active(self.get_wallpaper_save())
     self.spInterval.set_value(self.get_wallpaper_interval())
     self.set_path(self.get_wallpaper_path())
     self.STATUS_BAR.push(0, self.get_wallpaper())
@@ -110,6 +118,8 @@ class settings:
     self.set_wallpaper_interval(interval)
     schedule = self.ckSchedule.get_active()
     self.set_wallpaper_schedule(schedule)
+    save = self.ckLoadSavedList.get_active()
+    self.set_wallpaper_save(save)
     if self.SAVE_CALLBACK is not None:
       self.SAVE_CALLBACK()
 
@@ -145,6 +155,13 @@ class settings:
   def set_wallpaper_schedule(self, wallpaper_schedule):
     self.APP_SETTINGS.set_boolean(globals.WALLPAPER_SCHEDULE,
                                   wallpaper_schedule)
+
+  def get_wallpaper_save(self):
+    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_SAVE)
+
+  def set_wallpaper_save(self, wallpaper_save):
+    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_SAVE,
+                                  wallpaper_save)
 
   def get_saved_list(self):
     return self.APP_SETTINGS.get_string(globals.WALLPAPER_SAVED_LIST)

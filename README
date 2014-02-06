@@ -1,0 +1,9 @@
+Installing the schema file, this is necessary for the gsettings to work:
+
+$ sudo cp com.kman.wallpaper-changer.gschema.xml /usr/share/glib-2.0/schemas/
+$ sudo chown root:root /usr/share/glib-2.0/schemas/com.kman.wallpaper-changer.gschema.xml
+$ sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
+
+You can check by using gseetings command:
+
+gsettings list-keys com.kman.wallpaper-changer

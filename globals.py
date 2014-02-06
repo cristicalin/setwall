@@ -9,6 +9,7 @@ WALLPAPER_PATH = "path"
 WALLPAPER_INTERVAL = "interval"
 WALLPAPER_SCHEDULE = "schedule"
 WALLPAPER_SAVED_LIST = "saved-list"
+WALLPAPER_SAVE = "save"
 
 # Other constants
 TEXT_CONTINUE = "Continue"
