@@ -3,6 +3,39 @@
 # This is an implementation of binary search tree
 # optimized for searching content
 class bst:
+  
+  def __init__(self, value=None):
+    self.root = node(value)
+
+  def __str__(self):
+    return str(self.root)
+
+  def as_list(self):
+    if self.root is not None:
+      return self.root.as_list()
+    else:
+      return []
+
+  def insert(self, value):
+    self.root.insert(value)
+
+  def search(self, value):
+    return self.root.search(value)
+
+  def extract(self, value):
+    if self.root is None:
+      return None
+    elif self.root.value == value:
+      temp_root = node()
+      temp_root.left = self.root
+      result = self.root.extract(value, temp_root)
+      self.root = temp_root.left
+      return result
+    else:
+      return self.root.extract(value, self.root)
+
+# The node implementation
+class node:
 
   # class constructuctor, takes single value or a list
   def __init__(self, value=None, root=None):
@@ -35,30 +68,18 @@ class bst:
   def isEmpty(self):
     return self.left == self.right == self.value == None
 
-  # check if this node is root
-  def isRoot(self):
-    return self.root is None
-
-  # checl if this node is a leaf
-  def isLeaf(self):
-    return self.left == self.right == None
-
-  # check if this node is right handed
-  def isRightHanded(self):
-    return self.left == None
-
   # insert an element in the right position in the tree
   def insert(self, value):
     if self.isEmpty():
       self.value = value
     elif value < self.value:
       if self.left is None:
-        self.left = bst(value, self)
+        self.left = node(value, self)
       else:
         self.left.insert(value)
     else:
       if self.right is None:
-        self.right = bst(value, self)
+        self.right = node(value, self)
       else:
         self.right.insert(value)
 
@@ -87,20 +108,13 @@ class bst:
   # and swap the right most element for the current value
   def extract(self, value, parent):
     if self.isEmpty():
-      print "Fake-1"
       return None
     elif value < self.value:
       if self.left is not None:
         return self.left.extract(value, self)
-      else:
-        print "Fake-2"
-        return None
     elif value > self.value:
       if self.right is not None:
         return self.right.extract(value, self)
-      else:
-        print "Fake-3: %s %s %s" % (value, self.value, parent)
-        return None
     else:
       # found the element, need to find the right most one
       result = self.value
@@ -131,6 +145,6 @@ if __name__ == "__main__":
   a = bst(l)
   random.shuffle(l)
   for i in l:
-    print a.extract(i, a)
+    print a.extract(i)
   print a.as_list()
 

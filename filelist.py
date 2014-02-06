@@ -57,11 +57,9 @@ class filelist:
 	self.LOCAL_FILE_LIST = jd.decode(json)
 	# reconcile the JSON with the files actually in the folder
 	for my_file in self.LOCAL_FILE_LIST:
-	  if temp_tree.search(my_file) == my_file:
-	    temp.remove(my_file)
-	  else:
+	  if temp_tree.extract(my_file) != my_file:
 	    self.LOCAL_FILE_LIST.remove(my_file)
-	self.LOCAL_FILE_LIST += temp
+	self.LOCAL_FILE_LIST += temp_tree.as_list()
       else:
         self.LOCAL_FILE_LIST = temp
 	self.randomize()
