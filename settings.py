@@ -103,9 +103,9 @@ class settings:
     preview_width = globals.PREVIEW_WIDTH
     preview_height = globals.PREVIEW_HEIGHT
     if scale < globals.PREVIEW_SCALE:
-      preview_height = preview_width / scale
-    else:
       preview_width = preview_height * scale
+    else:
+      preview_height = preview_width / scale
     preview = picture.scale_simple(preview_width, preview_height,
                                    pixbuf.InterpType.BILINEAR)
     self.imgPreview.set_from_pixbuf(preview)
