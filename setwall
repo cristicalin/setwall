@@ -30,6 +30,10 @@ stop_icon = None
 file_list = None
 toggle_menu = None
 wpm = None
+indicator = None
+session_bus = None
+session_name = None
+session_object = None
 
 # make apscheduler happy
 logging.basicConfig(format=LOG_FORMAT)
@@ -248,7 +252,16 @@ def save_json():
     my_settings.set_saved_list(file_list.get_json())
 
 # Main application body
-if __name__ == "__main__":
+def main():
+  global my_settings
+  global file_list
+  global sched
+  global wpm
+  global indicator
+  global session_bus
+  global session_name
+  global session_object
+
   # initialize DBus, we need to kill the previous instance as a first thing
   session_bus = dbus.SessionBus()
 
@@ -270,12 +283,12 @@ if __name__ == "__main__":
   args = parser.parse_args()
   my_settings = settings(args = args, save_callback = load_settings)
    
-  app = appindicator.Indicator.new(
+  indicator = appindicator.Indicator.new(
     APP_NAME.replace("_","-"), APP_ICON,
     appindicator.IndicatorCategory.APPLICATION_STATUS
   )
-  app.set_status(appindicator.IndicatorStatus.ACTIVE)
-  app.set_menu(get_app_menu())
+  indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
+  indicator.set_menu(get_app_menu())
   
   # Schedule periodic changes of the firewall
   # we only start a job here if the we need to, user might want
@@ -301,7 +314,9 @@ if __name__ == "__main__":
   session_bus.add_signal_receiver(screen_saver_handler,
                                   dbus_interface = globals.SCREEN_SAVER_NAME,
                                   signal_name = globals.SCREEN_SAVER_SIGNAL)
-  
-  gtk.main()
 
+# main 
+if __name__ == "__main__":
+  main()
+  gtk.main()
   sys.exit(0)
