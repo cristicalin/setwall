@@ -1,11 +1,14 @@
 #!/usr/bin/python
 
+from __future__ import division
+
 import sys
 import os
 
 from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
 from gi.repository import Gio as gio
+from gi.repository import GdkPixbuf as pixbuf
 
 import globals
 
@@ -17,27 +20,33 @@ class settings:
   class handler:
 
     def __init__(self, settings):
-      self.settings = settings
+      self.SETTINGS = settings
 
     def onApplyClicked(self, *args):
-      self.settings.save()
-      self.settings.hide_window()
+      self.SETTINGS.save()
+      self.SETTINGS.hide_window()
 
     def onClose(self, *args):
-      self.settings.hide_window()
+      self.SETTINGS.hide_window()
+      self.SETTINGS.APP.set_index()
 
     def onPathChanged(self, *args):
-      self.settings.set_path(args[0].get_active_text())
+      self.SETTINGS.set_path(args[0].get_active_text())
 
     def onPrevious(self, *args):
-      print "onPrevious() not yet implemented"
+      filename = "file://%s" % self.SETTINGS.APP.FILE_LIST.get_previous_file()
+      self.SETTINGS.STATUS_BAR.push(0, filename)
+      self.SETTINGS.show_preview(filename)
 
     def onNext(self, *args):
-      print "onNext() not yet implemented"
+      filename = "file://%s" % self.SETTINGS.APP.FILE_LIST.get_next_file()
+      self.SETTINGS.STATUS_BAR.push(0, filename)
+      self.SETTINGS.show_preview(filename)
 
-  def __init__(self, args = None, save_callback = None):
+  def __init__(self, args = None, app = None):
     self.APP_SETTINGS = gio.Settings.new("%s.%s" % (globals.BASE_ID,
                                                     globals.APP_NAME.replace("_", "-")))
+    self.APP = app
     # Store command line arguments in the settings for future reference
     # This means that if we want to change something we only need
     # to pass the correct command line value to the application one time
@@ -65,14 +74,11 @@ class settings:
 
     self.WINDOW = self.BUILDER.get_object("wcMain")
     self.STATUS_BAR = self.BUILDER.get_object("stStatus")
-    self.WINDOW.set_title(" ".join([word.capitalize() 
-                          for word in globals.APP_NAME.split("_")]))
+    self.WINDOW.set_title(globals.APP_FRIENDLY_NAME)
     window_icon = self.WINDOW.render_icon(gtk.STOCK_PREFERENCES,
                                           gtk.IconSize.DIALOG)
     self.WINDOW.set_icon(window_icon)
-    self.WINDOW.move(gdk.Screen.width()-self.WINDOW.get_size()[0], 0)
 
-    self.SAVE_CALLBACK = save_callback
     self.ckSchedule = self.BUILDER.get_object("ckSchedule")
     self.ckLoadSavedList = self.BUILDER.get_object("ckLoadSavedList")
     self.spInterval = self.BUILDER.get_object("spInterval")
@@ -80,12 +86,31 @@ class settings:
     self.imgPreview = self.BUILDER.get_object("imgPreview")
 
   def show_window(self):
+    self.WINDOW.move(gdk.Screen.width()-self.WINDOW.get_size()[0]-50, 50)
     self.ckSchedule.set_active(self.get_wallpaper_schedule())
     self.ckLoadSavedList.set_active(self.get_wallpaper_save())
     self.spInterval.set_value(self.get_wallpaper_interval())
     self.set_path(self.get_wallpaper_path())
-    self.STATUS_BAR.push(0, self.get_wallpaper())
+    filename = "file://%s" % self.APP.FILE_LIST.get_current_file()
+    self.STATUS_BAR.push(0, filename)
+    self.show_preview(filename)
     self.WINDOW.show_all()
+
+  def show_preview(self, filename):
+    image_file = gio.File.new_for_uri(filename)
+    picture = pixbuf.Pixbuf.new_from_stream(image_file.read(None), None)
+    scale = picture.get_width() / picture.get_height()
+    preview_width = globals.PREVIEW_WIDTH
+    preview_height = globals.PREVIEW_HEIGHT
+    if scale < globals.PREVIEW_SCALE:
+      preview_height = preview_width / scale
+    else:
+      preview_width = preview_height * scale
+    preview = picture.scale_simple(preview_width, preview_height,
+                                   pixbuf.InterpType.BILINEAR)
+    self.imgPreview.set_from_pixbuf(preview)
+    self.imgPreview.show()
+
 
   # We need to have the handlers blocked while we update the list
   def set_path(self, dirname):
@@ -121,8 +146,8 @@ class settings:
     self.set_wallpaper_schedule(schedule)
     save = self.ckLoadSavedList.get_active()
     self.set_wallpaper_save(save)
-    if self.SAVE_CALLBACK is not None:
-      self.SAVE_CALLBACK()
+    if self.APP is not None:
+      self.APP.load_settings(True)
 
   def hide_window(self):
     self.WINDOW.hide()
@@ -188,11 +213,12 @@ class settings:
 # for unit testing purposes only
 if __name__ == "__main__":
 
-  def callback():
-    print "callback() called"
-    exit(0)
+  class callback:
+    def load_settings(self, reload):
+      print "callback(%d) called" % reload
+      exit(0)
 
-  s = settings(save_callback = callback)
+  s = settings(app = callback())
   print s.get_saved_list()
   s.show_window()
   

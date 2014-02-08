@@ -65,7 +65,7 @@ class application:
   
     def reorder_func(self, func):
       func()
-      self.APP.set_index(self.APP.FILE_LIST)
+      self.APP.set_index()
       self.APP.save_json()
 
   # application class constructor
@@ -77,8 +77,7 @@ class application:
     logging.basicConfig(format=LOG_FORMAT)
 
     # Parse the command line arguments
-    parser = argparse.ArgumentParser(" ".join(map(lambda s: s.capitalize(),
-                                                  APP_NAME.split("_"))))
+    parser = argparse.ArgumentParser(APP_FRIENDLY_NAME)
     parser.add_argument("-p", "--path", type=str,
                         help="Path in which wallpapers reside")
     parser.add_argument("-i", "--interval", type=int,
@@ -86,7 +85,7 @@ class application:
     parser.add_argument("-s", "--schedule", type=bool,
                         help="Scheduled wallpaper changes")
     args = parser.parse_args()
-    self.SETTINGS = settings(args = args, save_callback = self.load_settings)
+    self.SETTINGS = settings(args = args, app = self)
     
     self.load_icons()
     self.INDICAOR = appindicator.Indicator.new(APP_NAME.replace("_","-"),
@@ -110,10 +109,10 @@ class application:
                                          dbus_interface = SCREEN_SAVER_NAME,
                                          signal_name = SCREEN_SAVER_SIGNAL)
     
-    self.FILE_LIST = filelist(self.file_change_callback)
+    self.FILE_LIST = filelist(self)
     self.load_settings()
     self.WALLPAPER_MANAGER = wallpapermanager(self.SETTINGS)
-    self.set_index(self.FILE_LIST)
+    self.set_index()
     self.SCHEDULER.start()
 
   # Greacefuly quit the application
@@ -157,7 +156,7 @@ class application:
   def show_settings(self, item = None):
     self.SETTINGS.show_window()
 
-  def file_change_callback(self, action, filename):
+  def file_changed(self, action, filename):
     if action == "add":
       self.WALLPAPER_MANAGER.show_notification(
         "Wallpaper Added",
@@ -243,21 +242,23 @@ class application:
 
   # Load and process settings, will be also called
   # when apply is pressed in the settings dialog
-  def load_settings(self):
+  def load_settings(self, reload = False):
     if self.SETTINGS.get_wallpaper_save():
       self.FILE_LIST.load(self.SETTINGS.get_wallpaper_path(),
                           self.SETTINGS.get_saved_list())
     else:
       self.FILE_LIST.load(self.SETTINGS.get_wallpaper_path())
+    if reload:
+      self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_current_file())
     self.save_json()
     self.reset_schedule()
     self.toggle_schedule(toggle=False)
 
   # Set the file list index to the current wallpaper
   # this gets called multiple times so it became a function
-  def set_index(self, list):
+  def set_index(self):
     try:
-      list.set_index(self.WALLPAPER_MANAGER.get_wallpaper())
+      self.FILE_LIST.set_index(self.WALLPAPER_MANAGER.get_wallpaper())
     except Exception as e:
       None
 

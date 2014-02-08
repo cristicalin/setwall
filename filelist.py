@@ -30,7 +30,7 @@ class filelist:
       if not event.dir:
         self.LIST.remove_file(event.name)
 
-  def __init__(self, callback = None):
+  def __init__(self, app = None):
     # Initialize the notifier and watch the folder for any changes
     # we only register to the create and delete events
     # we don't care about other events since they do not impact
@@ -40,7 +40,7 @@ class filelist:
                                                self.handlereload(self))
     self.NOTIFIER.start()
     self.DIR_PATH = None
-    self.CALLBACK = callback
+    self.APP = app
 
   def load(self, path, json = None):
     if path != self.DIR_PATH:
@@ -80,12 +80,14 @@ class filelist:
   def get_next_file(self):
     self.LOCAL_COUNT += 1
     self.LOCAL_COUNT %= len(self.LOCAL_FILE_LIST)
-    tmp = "%s/%s" % (self.DIR_PATH, self.LOCAL_FILE_LIST[self.LOCAL_COUNT])
-    return tmp
+    return self.get_current_file()
 
   def get_previous_file(self):
     self.LOCAL_COUNT -= 1
     self.LOCAL_COUNT %= len(self.LOCAL_FILE_LIST)
+    return self.get_current_file()
+
+  def get_current_file(self):
     tmp = "%s/%s" % (self.DIR_PATH, self.LOCAL_FILE_LIST[self.LOCAL_COUNT])
     return tmp
 
@@ -97,13 +99,13 @@ class filelist:
 
   def add_file(self, file):
     self.LOCAL_FILE_LIST.insert(self.LOCAL_COUNT+1, file)
-    if self.CALLBACK is not None:
-      self.CALLBACK("add", "%s/%s" % (self.DIR_PATH, file))
+    if self.APP is not None:
+      self.APP.file_changed("add", "%s/%s" % (self.DIR_PATH, file))
 
   def remove_file(self, file):
     self.LOCAL_FILE_LIST.remove(file)
-    if self.CALLBACK is not None:
-      self.CALLBACK("remove", "%s/%s" % (self.DIR_PATH, file))
+    if self.APP is not None:
+      self.APP.file_changed("remove", "%s/%s" % (self.DIR_PATH, file))
 
   def get_list(self):
     return self.LOCAL_FILE_LIST
@@ -118,12 +120,14 @@ class filelist:
 # For unit testing purposes only
 if __name__ == "__main__":
 
-  def callback(action, file):
-    print "%s: %s" % (action, file)
+  class callback:
+    def file_changed(action, file):
+      print "file_changed(%s: %s)" % (action, file)
 
-  fl = filelist(callback)
+  fl = filelist(callback())
   fl.load(".")
   l = fl.get_list()
   fl.close()
 
   print l
+  print fl.get_current_file()
