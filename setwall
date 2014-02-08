@@ -22,301 +22,257 @@ from settings import *
 from filelist import *
 from wallpapermanager import *
 
-# Global variables, dirty hack
-sched = None
-my_settings = None
-play_icon = None
-stop_icon = None
-file_list = None
-toggle_menu = None
-wpm = None
-indicator = None
-session_bus = None
-session_name = None
-session_object = None
+# This is the main application class
+class application:
 
-# make apscheduler happy
-logging.basicConfig(format=LOG_FORMAT)
+  # This is a handler class for the DBus messages, it allows
+  # the application to receive next and previous messages
+  class handledbus(dbus.service.Object):
 
-# allow other threads to execute
-dbus.glib.init_threads()
-gobject.threads_init()
+    def __init__(self, bus, app):
+      self.APP = app
+      dbus.service.Object.__init__(self, bus, "%s/%s" % (APP_PATH, APP_NAME))
 
-# This is a handler class for the DBus messages, it allows
-# the application to receive next and previous messages
-class handledbus(dbus.service.Object):
+    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                         in_signature='', out_signature='')
+    def next(self):
+      self.APP.next_wallpaper()
 
-  @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                        in_signature='', out_signature='')
-  def next(self):
-    next_wallpaper()
+    def previous(self):
+      self.APP.previous_wallpaper()
 
-  @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                       in_signature='', out_signature='')
-  def previous(self):
-    previous_wallpaper()
-
-  @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                       in_signature='', out_signature='')
-  def toggle(self):
-    toggle_schedule()
+    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                         in_signature='', out_signature='')
+    def toggle(self):
+      self.APP.toggle_schedule()
     
-  @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                       in_signature='', out_signature='')
-  def randomize(self):
-    global file_list
-    reorder_func(file_list.randomize)
+    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                         in_signature='', out_signature='')
+    def randomize(self):
+      self.reorder_func(self.APP.FILE_LIST.randomize)
     
-  @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                       in_signature='', out_signature='')
-  def sort(self):
-    global file_list
-    reorder_func(file_list.sort)
+    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                         in_signature='', out_signature='')
+    def sort(self):
+      self.reorder_func(self.APP.FILE_LIST.sort)
     
-  @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                       in_signature='', out_signature='')
-  def quit(self):
-    quit_app()
-
-# Global functions start here
-def quit_app(item = None):
-  # we neet to stop both the notifier as well as the gtk main loop
-  global file_list
-  file_list.close()
-  gtk.main_quit()
-
-def next_wallpaper(item = None):
-  global file_list
-  global wpm
-  wpm.set_wallpaper(file_list.get_next_file())
-  reset_schedule()
-
-def previous_wallpaper(item = None):
-  global file_list
-  global wpm
-  wpm.set_wallpaper(file_list.get_previous_file())
-  reset_schedule()
-
-def toggle_schedule(item = None, toggle = True):
-  global toggle_menu
-  global my_settings
-  global sched
-  if item is None:
-    item = toggle_menu
-  if toggle:
-    my_settings.set_wallpaper_schedule(not my_settings.get_wallpaper_schedule())
-  if my_settings.get_wallpaper_schedule():
-    if toggle:
-      sched.add_interval_job(next_wallpaper,
-                             seconds=my_settings.get_wallpaper_interval())
-    item.set_image(stop_icon)
-    item.set_label(TEXT_PAUSE)
-  else:
-    if toggle:
-      sched.unschedule_func(next_wallpaper)
-    item.set_image(play_icon)
-    item.set_label(TEXT_CONTINUE)
-
-# suspend schedule while screen saver / lock is in place
-def screen_saver_handler(active):
-  global my_settings
-  global sched
-  if my_settings.get_wallpaper_schedule():
-    if active:
-      sched.unschedule_func(next_wallpaper)
-    else:
-      sched.add_interval_job(next_wallpaper,
-                             seconds=my_settings.get_wallpaper_interval())
-
-def reorder_func(func):
-  func()
-  set_index(file_list)
-  save_json()
-
-def show_settings(item = None):
-  my_settings.show_window()
-
-def file_change_callback(action, filename):
-  global wpm
-  if action == "add":
-    wpm.show_notification("Wallpaper Added",
-                         "New file: %s" % wpm.shorten(filename.split("/")[-1], 32),
-			 "file://%s" % quote(filename))
-  elif action == "remove":
-    wpm.show_notification("Wallpaper Removed",
-                         "Removed file: %s" % wpm.shorten(filename.split("/")[-1], 32),
-			 None)
-
-# Build the application menu which is delivered
-# via the appindicator functionality
-def get_app_menu():
-  global my_settings
-  load_icons()
-  menu = gtk.Menu()
-   
-  next_menu = gtk.MenuItem()
-  next_menu.set_label("Next")
-  next_menu.connect("activate", next_wallpaper)
-  menu.append(next_menu)
-
-  prev_menu = gtk.MenuItem()
-  prev_menu.set_label("Previous")
-  prev_menu.connect("activate", previous_wallpaper)
-  menu.append(prev_menu)
-
-  options_menu_item = gtk.MenuItem()
-  options_menu_item.set_label("Options");
-  menu.append(options_menu_item)
-  options_menu = gtk.Menu()
-
-  options_range = my_settings.get_wallpaper_options_range()
-  options_group = []
-  for option in options_range[1]:
-    menu_option = gtk.RadioMenuItem.new_with_label(options_group,
-                                                   option.title())
-    menu_option.connect("activate", 
-                        lambda item, data: my_settings.set_wallpaper_options(data),
-			option)
-    options_group = menu_option.get_group()
-    if option == my_settings.get_wallpaper_options():
-      menu_option.set_active(True)
-    options_menu.append(menu_option)
-  options_menu_item.set_submenu(options_menu)
-
-  global toggle_menu
-  toggle_menu = gtk.ImageMenuItem(" ")
-  toggle_menu.connect("activate", toggle_schedule)
-  toggle_menu.set_always_show_image(True)
-  menu.append(toggle_menu)
-
-  menu.append(gtk.SeparatorMenuItem())
-
-  settings_menu = gtk.MenuItem("Settings")
-  settings_menu.connect("activate", show_settings)
-  menu.append(settings_menu)
-
-  quit_menu = gtk.MenuItem("Quit")
-  quit_menu.connect("activate", quit_app)
-  menu.append(quit_menu)
-
-  menu.show_all()
-  return menu
-
-# Keep icons stored in memory so we don't have to
-# reload them each time the menu is toggled
-def load_icons():
-  global play_icon
-  play_icon = gtk.Image()
-  play_icon.set_from_icon_name(gtk.STOCK_MEDIA_PLAY, gtk.IconSize.MENU)
-  play_icon.show()
-  global stop_icon 
-  stop_icon = gtk.Image()
-  stop_icon.set_from_icon_name(gtk.STOCK_MEDIA_STOP, gtk.IconSize.MENU)
-  stop_icon.show()
-
-# Reset the schedule
-def reset_schedule():
-  global my_settings
-  global sched
-  for job in sched.get_jobs():
-    sched.unschedule_job(job)
-  if my_settings.get_wallpaper_schedule():
-    sched.add_interval_job(next_wallpaper,
-                           seconds=my_settings.get_wallpaper_interval())
-
-# Load and process settings, will be also called
-# when apply is pressed in the settings dialog
-def load_settings():
-  global file_list
-  global my_settings
-  if my_settings.get_wallpaper_save():
-    file_list.load(my_settings.get_wallpaper_path(),
-                   my_settings.get_saved_list())
-  else:
-    file_list.load(my_settings.get_wallpaper_path())
-  save_json()
-  reset_schedule()
-  toggle_schedule(toggle=False)
-
-# Set the file list index to the current wallpaper
-# this gets called multiple times so it became a function
-def set_index(list):
-  global wpm
-  list.set_index(wpm.get_wallpaper())
-
-# Save the current file_list json format to the settings
-def save_json():
-  global my_settings
-  global file_list
-  if my_settings.get_wallpaper_save():
-    my_settings.set_saved_list(file_list.get_json())
-
-# Main application body
-def main():
-  global my_settings
-  global file_list
-  global sched
-  global wpm
-  global indicator
-  global session_bus
-  global session_name
-  global session_object
-
-  # initialize DBus, we need to kill the previous instance as a first thing
-  session_bus = dbus.SessionBus()
-
-  try:
-    running_obj = session_bus.get_object("%s.%s" % (BASE_ID, APP_NAME),
-                                         "%s/%s" % (APP_PATH, APP_NAME))
-    running_obj.quit()
-  except dbus.DBusException as e:
-    None
-
-  # Parse the command line arguments
-  parser = argparse.ArgumentParser("Wallpaper Changer")
-  parser.add_argument("-p", "--path", type=str,
-                      help="Path in which wallpapers reside")
-  parser.add_argument("-i", "--interval", type=int,
-                      help="Time interval in seconds between switches")
-  parser.add_argument("-s", "--schedule", type=bool,
-                      help="Scheduled wallpaper changes")
-  args = parser.parse_args()
-  my_settings = settings(args = args, save_callback = load_settings)
-   
-  indicator = appindicator.Indicator.new(
-    APP_NAME.replace("_","-"), APP_ICON,
-    appindicator.IndicatorCategory.APPLICATION_STATUS
-  )
-  indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
-  indicator.set_menu(get_app_menu())
+    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                         in_signature='', out_signature='')
+    def quit(self):
+      self.APP.quit_app()
   
-  # Schedule periodic changes of the firewall
-  # we only start a job here if the we need to, user might want
-  # to start with this setting disabled
-  sched = Scheduler()
+    def reorder_func(self, func):
+      func()
+      self.APP.set_index(self.APP.FILE_LIST)
+      self.APP.save_json()
 
-  # build the file list and create the wallpaper change object
-  file_list = filelist(file_change_callback)
-  load_settings()
-  wpm = wallpapermanager(my_settings)
-  set_index(file_list)
+  # application class constructor
+  def __init__(self):
+    self.SCHEDULER = Scheduler()
+    # make sure we properly clean up after ourselves 
+    atexit.register(lambda: self.SCHEDULER.shutdown(wait=True))
+    # make apscheduler happy
+    logging.basicConfig(format=LOG_FORMAT)
 
-  # make sure we properly clean up after ourselves 
-  atexit.register(lambda: sched.shutdown(wait=True))
+    # Parse the command line arguments
+    parser = argparse.ArgumentParser(" ".join(map(lambda s: s.capitalize(),
+                                                  APP_NAME.split("_"))))
+    parser.add_argument("-p", "--path", type=str,
+                        help="Path in which wallpapers reside")
+    parser.add_argument("-i", "--interval", type=int,
+                        help="Time interval in seconds between switches")
+    parser.add_argument("-s", "--schedule", type=bool,
+                        help="Scheduled wallpaper changes")
+    args = parser.parse_args()
+    self.SETTINGS = settings(args = args, save_callback = self.load_settings)
+    
+    self.load_icons()
+    self.INDICAOR = appindicator.Indicator.new(APP_NAME.replace("_","-"),
+                                               APP_ICON,
+                                               appindicator.IndicatorCategory.APPLICATION_STATUS)
+    self.INDICAOR.set_status(appindicator.IndicatorStatus.ACTIVE)
+    self.INDICAOR.set_menu(self.get_app_menu())
+    
+    self.SESSION_BUS = dbus.SessionBus()
+    # we need to kill the previous instance as a first thing
+    try:
+      running_obj = self.SESSION_BUS.get_object("%s.%s" % (BASE_ID, APP_NAME),
+                                                "%s/%s" % (APP_PATH, APP_NAME))
+      running_obj.quit()
+    except dbus.DBusException as e:
+      None
+    self.SESSION_NAME = dbus.service.BusName("%s.%s" % (BASE_ID, APP_NAME),
+                                             self.SESSION_BUS)
+    self.SESSION_OBJECT = self.handledbus(self.SESSION_BUS, self)
+    self.SESSION_BUS.add_signal_receiver(self.screen_saver_handler,
+                                         dbus_interface = SCREEN_SAVER_NAME,
+                                         signal_name = SCREEN_SAVER_SIGNAL)
+    
+    self.FILE_LIST = filelist(self.file_change_callback)
+    self.load_settings()
+    self.WALLPAPER_MANAGER = wallpapermanager(self.SETTINGS)
+    self.set_index(self.FILE_LIST)
+    self.SCHEDULER.start()
 
-  session_name = dbus.service.BusName("%s.%s" % (BASE_ID, APP_NAME),
-                                      session_bus)
-  session_object = handledbus(session_bus,
-                              "%s/%s" % (APP_PATH, APP_NAME))
+  # Greacefuly quit the application
+  def quit_app(self,item = None):
+    # we neet to stop both the notifier as well as the gtk main loop
+    self.FILE_LIST.close()
+    gtk.main_quit()
 
-  sched.start()
+  def next_wallpaper(self, item = None):
+    self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_next_file())
+    self.reset_schedule()
 
-  session_bus.add_signal_receiver(screen_saver_handler,
-                                  dbus_interface = globals.SCREEN_SAVER_NAME,
-                                  signal_name = globals.SCREEN_SAVER_SIGNAL)
+  def previous_wallpaper(self, item = None):
+    self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_previous_file())
+    self.reset_schedule()
 
-# main 
+  def toggle_schedule(self, item = None, toggle = True):
+    if toggle:
+      self.SETTINGS.set_wallpaper_schedule(not self.SETTINGS.get_wallpaper_schedule())
+    if self.SETTINGS.get_wallpaper_schedule():
+      if toggle:
+        self.SCHEDULER.add_interval_job(self.next_wallpaper,
+                                        seconds=self.SETTINGS.get_wallpaper_interval())
+      self.TOGGLE_MENU.set_image(self.stop_icon)
+      self.TOGGLE_MENU.set_label(TEXT_PAUSE)
+    else:
+      if toggle:
+        self.SCHEDULER.unschedule_func(self.next_wallpaper)
+      self.TOGGLE_MENU.set_image(self.play_icon)
+      self.TOGGLE_MENU.set_label(TEXT_CONTINUE)
+
+  # suspend schedule while screen saver / lock is in place
+  def screen_saver_handler(self, active):
+    if self.SETTINGS.get_wallpaper_schedule():
+      if active:
+        self.SCHEDULER.unschedule_func(self.next_wallpaper)
+      else:
+        self.SCHEDULER.add_interval_job(self.next_wallpaper,
+                                        seconds=self.SETTINGS.get_wallpaper_interval())
+
+  def show_settings(self, item = None):
+    self.SETTINGS.show_window()
+
+  def file_change_callback(self, action, filename):
+    if action == "add":
+      self.WALLPAPER_MANAGER.show_notification(
+        "Wallpaper Added",
+        "New file: %s" % self.WALLPAPER_MANAGER.shorten(filename.split("/")[-1], 32),
+	"file://%s" % quote(filename)
+      )
+    elif action == "remove":
+      self.WALLPAPER_MANAGER.show_notification(
+        "Wallpaper Removed",
+        "Removed file: %s" % self.WALLPAPER_MANAGER.shorten(filename.split("/")[-1], 32),
+        None
+      )
+
+  # Build the application menu which is delivered
+  # via the appindicator functionality
+  def get_app_menu(self):
+    menu = gtk.Menu()
+   
+    next_menu = gtk.MenuItem()
+    next_menu.set_label("Next")
+    next_menu.connect("activate", self.next_wallpaper)
+    menu.append(next_menu)
+
+    prev_menu = gtk.MenuItem()
+    prev_menu.set_label("Previous")
+    prev_menu.connect("activate", self.previous_wallpaper)
+    menu.append(prev_menu)
+
+    options_menu_item = gtk.MenuItem()
+    options_menu_item.set_label("Options");
+    menu.append(options_menu_item)
+    options_menu = gtk.Menu()
+
+    options_range = self.SETTINGS.get_wallpaper_options_range()
+    options_group = []
+    for option in options_range[1]:
+      menu_option = gtk.RadioMenuItem.new_with_label(options_group,
+                                                     option.title())
+      menu_option.connect("activate", 
+                          lambda item, data: self.SETTINGS.set_wallpaper_options(data),
+			  option)
+      options_group = menu_option.get_group()
+      if option == self.SETTINGS.get_wallpaper_options():
+        menu_option.set_active(True)
+      options_menu.append(menu_option)
+    options_menu_item.set_submenu(options_menu)
+
+    self.TOGGLE_MENU = gtk.ImageMenuItem(" ")
+    self.TOGGLE_MENU.connect("activate", self.toggle_schedule)
+    self.TOGGLE_MENU.set_always_show_image(True)
+    menu.append(self.TOGGLE_MENU)
+
+    menu.append(gtk.SeparatorMenuItem())
+
+    settings_menu = gtk.MenuItem("Settings")
+    settings_menu.connect("activate", self.show_settings)
+    menu.append(settings_menu)
+
+    quit_menu = gtk.MenuItem("Quit")
+    quit_menu.connect("activate", self.quit_app)
+    menu.append(quit_menu)
+
+    menu.show_all()
+    return menu
+
+  # Keep icons stored in memory so we don't have to
+  # reload them each time the menu is toggled
+  def load_icons(self):
+    self.play_icon = gtk.Image()
+    self.play_icon.set_from_icon_name(gtk.STOCK_MEDIA_PLAY, gtk.IconSize.MENU)
+    self.play_icon.show()
+    self.stop_icon = gtk.Image()
+    self.stop_icon.set_from_icon_name(gtk.STOCK_MEDIA_STOP, gtk.IconSize.MENU)
+    self.stop_icon.show()
+
+  # Reset the schedule
+  def reset_schedule(self):
+    for job in self.SCHEDULER.get_jobs():
+      self.SCHEDULER.unschedule_job(job)
+    if self.SETTINGS.get_wallpaper_schedule():
+      self.SCHEDULER.add_interval_job(self.next_wallpaper,
+                                      seconds = self.SETTINGS.get_wallpaper_interval())
+
+  # Load and process settings, will be also called
+  # when apply is pressed in the settings dialog
+  def load_settings(self):
+    if self.SETTINGS.get_wallpaper_save():
+      self.FILE_LIST.load(self.SETTINGS.get_wallpaper_path(),
+                          self.SETTINGS.get_saved_list())
+    else:
+      self.FILE_LIST.load(self.SETTINGS.get_wallpaper_path())
+    self.save_json()
+    self.reset_schedule()
+    self.toggle_schedule(toggle=False)
+
+  # Set the file list index to the current wallpaper
+  # this gets called multiple times so it became a function
+  def set_index(self, list):
+    try:
+      list.set_index(self.WALLPAPER_MANAGER.get_wallpaper())
+    except Exception as e:
+      None
+
+  # Save the current file_list json format to the settings
+  def save_json(self):
+    if self.SETTINGS.get_wallpaper_save():
+      self.SETTINGS.set_saved_list(self.FILE_LIST.get_json())
+
+
+# main function call creates application object and starts processing
 if __name__ == "__main__":
-  main()
+  # allow other threads to execute
+  dbus.glib.init_threads()
+  gobject.threads_init()
+
+  app = application()
   gtk.main()
   sys.exit(0)
