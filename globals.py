@@ -20,6 +20,11 @@ WALLPAPER_SETTING = "org.gnome.desktop.background"
 PICTURE_URI = "picture-uri"
 PICTURE_OPTIONS = "picture-options"
 
+# ScreenSaver parameters
+SCREEN_SAVER_NAME = "org.gnome.ScreenSaver"
+SCREEN_SAVER_PATH = "/%s" % SCREEN_SAVER_NAME.replace(".", "/")
+SCREEN_SAVER_SIGNAL = "ActiveChanged"
+
 # Glade form file
 GLADE_FILE = "setwall.glade"
 

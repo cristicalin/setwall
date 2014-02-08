@@ -95,9 +95,10 @@ def previous_wallpaper(item = None):
 
 def toggle_schedule(item = None, toggle = True):
   global toggle_menu
+  global my_settings
+  global sched
   if item is None:
     item = toggle_menu
-  global my_settings
   if toggle:
     my_settings.set_wallpaper_schedule(not my_settings.get_wallpaper_schedule())
   if my_settings.get_wallpaper_schedule():
@@ -111,6 +112,17 @@ def toggle_schedule(item = None, toggle = True):
       sched.unschedule_func(next_wallpaper)
     item.set_image(play_icon)
     item.set_label(TEXT_CONTINUE)
+
+# suspend schedule while screen saver / lock is in place
+def screen_saver_handler(active):
+  global my_settings
+  global sched
+  if my_settings.get_wallpaper_schedule():
+    if active:
+      sched.unschedule_func(next_wallpaper)
+    else:
+      sched.add_interval_job(next_wallpaper,
+                             seconds=my_settings.get_wallpaper_interval())
 
 def reorder_func(func):
   func()
@@ -285,6 +297,10 @@ if __name__ == "__main__":
                               "%s/%s" % (APP_PATH, APP_NAME))
 
   sched.start()
+
+  session_bus.add_signal_receiver(screen_saver_handler,
+                                  dbus_interface = globals.SCREEN_SAVER_NAME,
+                                  signal_name = globals.SCREEN_SAVER_SIGNAL)
   
   gtk.main()
 
