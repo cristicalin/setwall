@@ -88,11 +88,11 @@ class application:
     self.SETTINGS = settings(args = args, app = self)
     
     self.load_icons()
-    self.INDICAOR = appindicator.Indicator.new(APP_NAME.replace("_","-"),
+    self.INDICATOR = appindicator.Indicator.new(APP_NAME.replace("_","-"),
                                                APP_ICON,
                                                appindicator.IndicatorCategory.APPLICATION_STATUS)
-    self.INDICAOR.set_status(appindicator.IndicatorStatus.ACTIVE)
-    self.INDICAOR.set_menu(self.get_app_menu())
+    self.INDICATOR.set_status(appindicator.IndicatorStatus.ACTIVE)
+    self.INDICATOR.set_menu(self.get_app_menu())
     
     self.SESSION_BUS = dbus.SessionBus()
     # we need to kill the previous instance as a first thing
