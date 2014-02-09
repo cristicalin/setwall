@@ -60,6 +60,11 @@ class application:
     
     @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                          in_signature='', out_signature='')
+    def reverse(self):
+      self.reorder_func(self.APP.FILE_LIST.reverse)
+    
+    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                         in_signature='', out_signature='')
     def quit(self):
       self.APP.quit_app()
   

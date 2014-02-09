@@ -116,6 +116,9 @@ class filelist:
   def sort(self):
     self.LOCAL_FILE_LIST.sort()
 
+  def reverse(self):
+    self.LOCAL_FILE_LIST.reverse()
+
 
 # For unit testing purposes only
 if __name__ == "__main__":
