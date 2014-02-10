@@ -35,5 +35,5 @@ PREVIEW_WIDTH = 240
 PREVIEW_HEIGHT = 160
 
 # Logging formatter
-LOG_FORMAT = '%(asctime)-15s %(user)-8s %(message)s'
+LOG_FORMAT = '%(asctime)-15s %(message)s'
 
