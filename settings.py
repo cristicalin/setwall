@@ -116,11 +116,11 @@ class settings:
   def set_path(self, dirname):
     self.cbPath.handler_block_by_func(self.HANDLER.onPathChanged)
     self.cbPath.get_model().clear()
-    names_list = os.listdir(dirname)
+    names_list = os.walk(dirname).next()[1]
     names_list.sort()
     for name in names_list:
       path = os.path.join(dirname, name)
-      if os.path.isdir(path) and not name.startswith("."):
+      if not name.startswith("."):
         self.cbPath.append_text(path)
     position = len(self.cbPath.get_model())
     self.cbPath.append_text(dirname)
