@@ -22,6 +22,7 @@
 from __future__ import division
 
 from urllib2 import quote, unquote
+from threading import Lock
 
 from gi.repository import Gio as gio
 from gi.repository import GdkPixbuf as pixbuf
@@ -39,6 +40,7 @@ class wallpapermanager:
     notify.init(globals.APP_NAME)
     self.notification = notify.Notification.new("", "", None)
     self.SETTINGS = my_settings
+    self._LOCK = Lock()
 
   # Shorten long file names
   def shorten(self, data, length):
@@ -55,15 +57,16 @@ class wallpapermanager:
       return None
 
   def set_wallpaper(self, filename):
-    old_wallpaper = self.get_wallpaper()
-    new_file = filename.split("/")
-    new_wallpaper = "file://%s" % quote(filename)
-    self.SETTINGS.set_wallpaper(new_wallpaper)
-    self.show_notification("Wallpaper changed",
-                           "<b>Old:</b> %s<br/><b>New:</b> %s" %
-                           (self.shorten(old_wallpaper, 32),
-			    self.shorten(new_file[-1], 32)),
-			   new_wallpaper)
+    with self._LOCK:
+      old_wallpaper = self.get_wallpaper()
+      new_file = filename.split("/")
+      new_wallpaper = "file://%s" % quote(filename)
+      self.SETTINGS.set_wallpaper(new_wallpaper)
+      self.show_notification("Wallpaper changed",
+                             "<b>Old:</b> %s<br/><b>New:</b> %s" %
+                             (self.shorten(old_wallpaper, 32),
+  			                      self.shorten(new_file[-1], 32)),
+  			                     new_wallpaper)
 
   def show_notification(self, title, message, filename):
     if filename is not None:
