@@ -65,8 +65,8 @@ class wallpapermanager:
       self.show_notification("Wallpaper changed",
                              "<b>Old:</b> %s<br/><b>New:</b> %s" %
                              (self.shorten(old_wallpaper, 32),
-  			                      self.shorten(new_file[-1], 32)),
-  			                     new_wallpaper)
+                              self.shorten(new_file[-1], 32)),
+                             new_wallpaper)
 
   def show_notification(self, title, message, filename):
     if filename is not None:

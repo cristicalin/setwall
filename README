@@ -1,3 +1,10 @@
+Pre-requisite python modules:
+* apsheduler
+* urllib2
+* simplejson
+* pyinotify
+* Gtk3 bindings
+
 Installing the schema file, this is necessary for the gsettings to work:
 
 $ sudo cp com.kman.wallpaper-changer.gschema.xml /usr/share/glib-2.0/schemas/
