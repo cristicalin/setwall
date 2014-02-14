@@ -37,8 +37,5 @@ if __name__ == '__main__':
     )
     exec "session_obj.%s()" % sys.argv[1]
   except dbus.DBusException as e:
-    print "Wallpaper Changer is could not be contacted"
+    print "%s is could not be contacted" % APP_FRIENDLY_NAME
     exit(1)
-  except KeyError as e:
-    print "Usage: wp [next|previous|quit]"
-    exit(0)

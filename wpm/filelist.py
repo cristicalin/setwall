@@ -71,15 +71,15 @@ class filelist:
       temp_tree = bst.bst(temp)
       if json is not None:
         jd = JSONDecoder()
-	self.LOCAL_FILE_LIST = jd.decode(json)
-	# reconcile the JSON with the files actually in the folder
-	for my_file in self.LOCAL_FILE_LIST:
-	  if temp_tree.extract(my_file) != my_file:
-	    self.LOCAL_FILE_LIST.remove(my_file)
-	self.LOCAL_FILE_LIST += temp_tree.as_list()
+        self.LOCAL_FILE_LIST = jd.decode(json)
+        # reconcile the JSON with the files actually in the folder
+        for my_file in self.LOCAL_FILE_LIST:
+          if temp_tree.extract(my_file) != my_file: 
+            self.LOCAL_FILE_LIST.remove(my_file)
+            self.LOCAL_FILE_LIST += temp_tree.as_list()
       else:
         self.LOCAL_FILE_LIST = temp
-	self.randomize()
+        self.randomize()
       self.WATCH_MANAGER.add_watch(self.DIR_PATH,
                                    pyinotify.IN_DELETE | pyinotify.IN_CLOSE_WRITE,
                                    rec=False)
