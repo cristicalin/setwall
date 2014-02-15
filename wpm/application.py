@@ -265,7 +265,7 @@ class application:
   # Load and process settings, will be also called
   # when apply is pressed in the settings dialog
   def load_settings(self, reload = False):
-    if self.SETTINGS.get_wallpaper_save():
+    if self.SETTINGS.get_wallpaper_save() and not reload:
       self.FILE_LIST.load(self.SETTINGS.get_wallpaper_path(),
                           self.SETTINGS.get_saved_list())
     else:
@@ -279,10 +279,7 @@ class application:
   # Set the file list index to the current wallpaper
   # this gets called multiple times so it became a function
   def set_index(self):
-    try:
-      self.FILE_LIST.set_index(self.WALLPAPER_MANAGER.get_wallpaper())
-    except Exception as e:
-      None
+    self.FILE_LIST.set_index(self.WALLPAPER_MANAGER.get_wallpaper())
 
   # Save the current file_list json format to the settings
   def save_json(self):

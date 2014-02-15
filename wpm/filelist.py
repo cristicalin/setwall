@@ -53,22 +53,29 @@ class filelist:
     # we don't care about other events since they do not impact
     # the list of files in the directory
     self.WATCH_MANAGER = pyinotify.WatchManager()
-    self.NOTIFIER = pyinotify.ThreadedNotifier(self.WATCH_MANAGER,
-                                               self.handlereload(self))
+    self.NOTIFIER = pyinotify.ThreadedNotifier(
+      self.WATCH_MANAGER,
+      self.handlereload(self)
+    )
     self.NOTIFIER.start()
     self.DIR_PATH = None
     self.APP = app
 
+  # Load the file list, either from the directory path or from a saved list
+  # reconcile the saved list whith current file list
   def load(self, path, json = None):
+    # suspend the watch so we avoid a race condition
+    if self.DIR_PATH is not None:
+      self.WATCH_MANAGER.del_watch(
+        self.WATCH_MANAGER.get_wd(self.DIR_PATH)
+      )
+    # only reload if path changed
     if path != self.DIR_PATH:
       self.LOCAL_COUNT = 0
-      if self.DIR_PATH is not None:
-        self.WATCH_MANAGER.del_watch(self.DIR_PATH,
-                                     pyinotify.IN_DELETE | pyinotify.IN_CLOSE_WRITE,
-                                     rec=False)
       self.DIR_PATH = path
-      temp = os.listdir(self.DIR_PATH)
+      temp = os.walk(self.DIR_PATH).next()[2]
       temp_tree = bst.bst(temp)
+      # if we have a saved state load that, else load clean list and randomize
       if json is not None:
         jd = JSONDecoder()
         self.LOCAL_FILE_LIST = jd.decode(json)
@@ -76,13 +83,16 @@ class filelist:
         for my_file in self.LOCAL_FILE_LIST:
           if temp_tree.extract(my_file) != my_file: 
             self.LOCAL_FILE_LIST.remove(my_file)
-            self.LOCAL_FILE_LIST += temp_tree.as_list()
+        self.LOCAL_FILE_LIST += temp_tree.as_list()
       else:
         self.LOCAL_FILE_LIST = temp
         self.randomize()
-      self.WATCH_MANAGER.add_watch(self.DIR_PATH,
-                                   pyinotify.IN_DELETE | pyinotify.IN_CLOSE_WRITE,
-                                   rec=False)
+    # reinstate the watch
+    self.WATCH_MANAGER.add_watch(
+      self.DIR_PATH,
+      pyinotify.IN_DELETE | pyinotify.IN_CLOSE_WRITE,
+      rec=False
+    )
 
   def get_json(self):
     je = JSONEncoder()
