@@ -113,6 +113,9 @@ class settings:
     self.show_preview(filename)
     self.WINDOW.show_all()
 
+  # Show a scaled down preview of a image
+  # compare image scale to the preview pane scale and
+  # resize the image so that it fits within those boundries
   def show_preview(self, filename):
     image_file = gio.File.new_for_uri(filename)
     picture = pixbuf.Pixbuf.new_from_stream(image_file.read(None), None)
@@ -128,22 +131,23 @@ class settings:
     self.imgPreview.set_from_pixbuf(preview)
     self.imgPreview.show()
 
-
   # We need to have the handlers blocked while we update the list
   def set_path(self, dirname):
     self.cbPath.handler_block_by_func(self.HANDLER.onPathChanged)
-    self.cbPath.get_model().clear()
-    names_list = os.walk(dirname).next()[1]
-    names_list.sort()
-    for name in names_list:
-      path = os.path.join(dirname, name)
-      if not name.startswith("."):
-        self.cbPath.append_text(path)
-    position = len(self.cbPath.get_model())
-    self.cbPath.append_text(dirname)
-    self.build_path(dirname)
-    self.cbPath.set_active(position)
-    self.cbPath.handler_unblock_by_func(self.HANDLER.onPathChanged)
+    try:
+      self.cbPath.get_model().clear()
+      names_list = os.walk(dirname).next()[1]
+      names_list.sort()
+      for name in names_list:
+        if not name.startswith("."):
+          path = os.path.join(dirname, name)
+          self.cbPath.append_text(path)
+      position = len(self.cbPath.get_model())
+      self.cbPath.append_text(dirname)
+      self.build_path(dirname)
+      self.cbPath.set_active(position)
+    finally:
+      self.cbPath.handler_unblock_by_func(self.HANDLER.onPathChanged)
 
   # recursively build the down path
   def build_path(self, path):
