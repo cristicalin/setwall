@@ -19,6 +19,7 @@
 
 # These need to be consistent with the gschema.xml file
 APP_NAME = "wallpaper_changer"
+APP_SETTINGS = APP_NAME.replace("_", "-")
 APP_FRIENDLY_NAME = " ".join(map(lambda s: s.capitalize(), APP_NAME.split("_")))
 APP_PATH = "/com/kman"
 APP_ICON = "preferences-desktop-wallpaper"

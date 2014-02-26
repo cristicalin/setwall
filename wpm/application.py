@@ -21,6 +21,7 @@ import sys
 import atexit
 import argparse
 import logging
+import copy
 
 import dbus
 import dbus.service
@@ -138,8 +139,9 @@ class application:
     self.SCHEDULER.start()
 
   # Greacefuly quit the application
-  def quit_app(self,item = None):
+  def quit_app(self, item = None):
     # we neet to stop both the notifier as well as the gtk main loop
+    self.save_json()
     self.FILE_LIST.close()
     gtk.main_quit()
 
@@ -183,7 +185,7 @@ class application:
       self.WALLPAPER_MANAGER.show_notification(
         "Wallpaper Added",
         "New file: %s" % self.WALLPAPER_MANAGER.shorten(filename.split("/")[-1], 32),
-	"file://%s" % quote(filename)
+	      "file://%s" % quote(filename)
       )
     elif action == "remove":
       self.WALLPAPER_MANAGER.show_notification(
@@ -264,15 +266,26 @@ class application:
 
   # Load and process settings, will be also called
   # when apply is pressed in the settings dialog
-  def load_settings(self, reload = False):
-    if self.SETTINGS.get_wallpaper_save() and not reload:
-      self.FILE_LIST.load(self.SETTINGS.get_wallpaper_path(),
-                          self.SETTINGS.get_saved_list())
+  # reload = False and file_list = None -> initial call
+  # reload = True and file_list != None -> call from settings
+  def load_settings(self, reload = False, file_list = None):
+    if not reload:
+      if self.SETTINGS.get_wallpaper_save():
+        self.FILE_LIST.load(self.SETTINGS.get_wallpaper_path(),
+                            self.SETTINGS.get_saved_list())
+      else:
+        self.FILE_LIST.load(self.SETTINGS.get_wallpaper_path())
     else:
-      self.FILE_LIST.load(self.SETTINGS.get_wallpaper_path())
-    if reload:
-      self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_current_file())
-    self.save_json()
+      if (self.SETTINGS.LOCAL_FILE_LIST.get_current_file() != 
+          self.FILE_LIST.get_current_file()):
+        self.FILE_LIST.close()
+        self.FILE_LIST = copy.copy(self.SETTINGS.LOCAL_FILE_LIST)
+        self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_current_file())
+      # Only save json upon a change
+      # this means that we will not save indiscriminately
+      # so we also have to save_json() on exit
+      self.save_json()
+
     self.reset_schedule()
     self.toggle_schedule(toggle=False)
 

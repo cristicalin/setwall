@@ -21,6 +21,7 @@ from __future__ import division
 
 import sys
 import os
+import copy
 
 from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
@@ -45,25 +46,24 @@ class settings:
 
     def onClose(self, *args):
       self.SETTINGS.hide_window()
-      self.SETTINGS.APP.set_index()
-
+      
     def onPathChanged(self, *args):
-      self.SETTINGS.set_path(args[0].get_active_text())
+      self.SETTINGS.set_path(args[0].get_active_text(), True)
 
     def onPrevious(self, *args):
-      filename = "file://%s" % self.SETTINGS.APP.FILE_LIST.get_previous_file()
+      filename = "file://%s" % self.SETTINGS.LOCAL_FILE_LIST.get_previous_file()
       self.SETTINGS.STATUS_BAR.push(0, filename)
       self.SETTINGS.show_preview(filename)
 
     def onNext(self, *args):
-      filename = "file://%s" % self.SETTINGS.APP.FILE_LIST.get_next_file()
+      filename = "file://%s" % self.SETTINGS.LOCAL_FILE_LIST.get_next_file()
       self.SETTINGS.STATUS_BAR.push(0, filename)
       self.SETTINGS.show_preview(filename)
 
   def __init__(self, args = None, app = None):
-    self.APP_SETTINGS = gio.Settings.new("%s.%s" % (globals.BASE_ID,
-                                                    globals.APP_NAME.replace("_", "-")))
+    self.APP_SETTINGS = gio.Settings.new("%s.%s" % (globals.BASE_ID, globals.APP_SETTINGS))
     self.APP = app
+    self.LOCAL_FILE_LIST = None
     # Store command line arguments in the settings for future reference
     # This means that if we want to change something we only need
     # to pass the correct command line value to the application one time
@@ -107,8 +107,9 @@ class settings:
     self.ckSchedule.set_active(self.get_wallpaper_schedule())
     self.ckLoadSavedList.set_active(self.get_wallpaper_save())
     self.spInterval.set_value(self.get_wallpaper_interval())
+    self.LOCAL_FILE_LIST = copy.copy(self.APP.FILE_LIST)
     self.set_path(self.get_wallpaper_path())
-    filename = "file://%s" % self.APP.FILE_LIST.get_current_file()
+    filename = "file://%s" % self.LOCAL_FILE_LIST.get_current_file()
     self.STATUS_BAR.push(0, filename)
     self.show_preview(filename)
     self.WINDOW.show_all()
@@ -131,7 +132,7 @@ class settings:
       self.imgPreview.show()
 
   # We need to have the handlers blocked while we update the list
-  def set_path(self, dirname):
+  def set_path(self, dirname, changed = False):
     self.cbPath.handler_block_by_func(self.HANDLER.onPathChanged)
     try:
       self.cbPath.get_model().clear()
@@ -147,6 +148,9 @@ class settings:
       self.cbPath.set_active(position)
     finally:
       self.cbPath.handler_unblock_by_func(self.HANDLER.onPathChanged)
+    if changed:
+      self.LOCAL_FILE_LIST.load(dirname)
+      self.LOCAL_FILE_LIST.sort()
 
   # recursively build the down path
   def build_path(self, path):
@@ -167,9 +171,11 @@ class settings:
     save = self.ckLoadSavedList.get_active()
     self.set_wallpaper_save(save)
     if self.APP is not None:
-      self.APP.load_settings(True)
+      self.APP.load_settings(True, self.LOCAL_FILE_LIST)
 
   def hide_window(self):
+    if self.LOCAL_FILE_LIST is not None:
+      self.LOCAL_FILE_LIST.close()
     self.WINDOW.hide()
 
   def get_window(self):
