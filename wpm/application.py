@@ -116,9 +116,11 @@ class application:
     self.SETTINGS = settings(args = args, app = self)
     
     self.load_icons()
-    self.INDICATOR = appindicator.Indicator.new(APP_NAME.replace("_","-"),
-                                               APP_ICON,
-                                               appindicator.IndicatorCategory.APPLICATION_STATUS)
+    self.INDICATOR = appindicator.Indicator.new(
+      APP_NAME.replace("_","-"),
+      APP_ICON,
+      appindicator.IndicatorCategory.APPLICATION_STATUS
+    )
     self.INDICATOR.set_status(appindicator.IndicatorStatus.ACTIVE)
     self.INDICATOR.set_menu(self.get_app_menu())
     
@@ -164,7 +166,7 @@ class application:
     if self.SETTINGS.get_wallpaper_schedule():
       if toggle:
         self.SCHEDULER.add_interval_job(self.next_wallpaper,
-                                        seconds=self.SETTINGS.get_wallpaper_interval())
+                                        seconds = self.SETTINGS.get_wallpaper_interval())
       self.TOGGLE_MENU.set_image(self.stop_icon)
       self.TOGGLE_MENU.set_label(TEXT_PAUSE)
     else:
@@ -180,7 +182,7 @@ class application:
         self.SCHEDULER.unschedule_func(self.next_wallpaper)
       else:
         self.SCHEDULER.add_interval_job(self.next_wallpaper,
-                                        seconds=self.SETTINGS.get_wallpaper_interval())
+                                        seconds = self.SETTINGS.get_wallpaper_interval())
 
   def show_settings(self, item = None):
     self.SETTINGS.show_window()
@@ -190,7 +192,7 @@ class application:
       self.WALLPAPER_MANAGER.show_notification(
         "Wallpaper Added",
         "New file: %s" % self.WALLPAPER_MANAGER.shorten(filename.split("/")[-1], 32),
-	      "file://%s" % quote(filename)
+        "file://%s" % quote(filename)
       )
     elif action == "remove":
       self.WALLPAPER_MANAGER.show_notification(
@@ -300,6 +302,7 @@ class application:
     self.FILE_LIST.set_index(self.WALLPAPER_MANAGER.get_wallpaper())
 
   # Save the current file_list json format to the settings
+  # only if it actually requires saving
   def save_json(self):
     if self.SETTINGS.get_wallpaper_save() and self.FILE_LIST.get_need_save():
       self.SETTINGS.set_saved_list(self.FILE_LIST.get_json())
