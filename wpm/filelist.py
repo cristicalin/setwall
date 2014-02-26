@@ -61,6 +61,7 @@ class filelist:
     self.NOTIFIER.start()
     self.DIR_PATH = None
     self.APP = app
+    self.NEED_SAVE = False
 
   # Load the file list, either from the directory path or from a saved list
   # reconcile the saved list whith current file list
@@ -80,10 +81,14 @@ class filelist:
         for my_file in self.LOCAL_FILE_LIST:
           if temp_tree.extract(my_file) != my_file: 
             self.LOCAL_FILE_LIST.remove(my_file)
-        self.LOCAL_FILE_LIST += temp_tree.as_list()
+        temp_list = temp_tree.as_list()
+        if len(temp_list) > 0:
+          self.LOCAL_FILE_LIST += temp_tree.as_list()
+          self.NEED_SAVE = True
       else:
         self.LOCAL_FILE_LIST = temp
         self.randomize()
+        self.NEED_SAVE = True
     self.instate_watch()
   
   # suspend the watch, we usually do this to avoid a race condition
@@ -111,6 +116,7 @@ class filelist:
     cp.LOCAL_COUNT= copy.deepcopy(self.LOCAL_COUNT)
     cp.LOCAL_FILE_LIST = copy.deepcopy(self.LOCAL_FILE_LIST)
     cp.instate_watch()
+    cp.NEED_SAVE = True
     return cp
 
   def get_json(self):
@@ -165,6 +171,12 @@ class filelist:
 
   def reverse(self):
     self.LOCAL_FILE_LIST.reverse()
+
+  def get_need_save(self):
+    return self.NEED_SAVE
+
+  def set_need_save(self, value):
+    self.NEED_SAVE = value
 
 
 # For unit testing purposes only

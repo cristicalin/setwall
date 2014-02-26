@@ -83,6 +83,11 @@ class application:
     
     @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
                          in_signature='', out_signature='')
+    def save(self):
+      self.APP.save_json()
+
+    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
+                         in_signature='', out_signature='')
     def quit(self):
       self.APP.quit_app()
   
@@ -296,8 +301,9 @@ class application:
 
   # Save the current file_list json format to the settings
   def save_json(self):
-    if self.SETTINGS.get_wallpaper_save():
+    if self.SETTINGS.get_wallpaper_save() and self.FILE_LIST.get_need_save():
       self.SETTINGS.set_saved_list(self.FILE_LIST.get_json())
+      self.FILE_LIST.set_need_save(False)
 
   def main(self):
     gtk.main()

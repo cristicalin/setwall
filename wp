@@ -37,6 +37,6 @@ if __name__ == '__main__':
     )
     exec "session_obj.%s()" % sys.argv[1]
   except dbus.DBusException as e:
-    print "%s is could not be contacted" % APP_FRIENDLY_NAME
+    print "%s could not be contacted" % APP_FRIENDLY_NAME
     print e
     exit(1)
