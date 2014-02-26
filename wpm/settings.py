@@ -114,22 +114,21 @@ class settings:
     self.WINDOW.show_all()
 
   # Show a scaled down preview of a image
-  # compare image scale to the preview pane scale and
-  # resize the image so that it fits within those boundries
   def show_preview(self, filename):
-    image_file = gio.File.new_for_uri(filename)
-    picture = pixbuf.Pixbuf.new_from_stream(image_file.read(None), None)
-    scale = picture.get_width() / picture.get_height()
-    preview_width = globals.PREVIEW_WIDTH
-    preview_height = globals.PREVIEW_HEIGHT
-    if scale < globals.PREVIEW_SCALE:
-      preview_width = preview_height * scale
-    else:
-      preview_height = preview_width / scale
-    preview = picture.scale_simple(preview_width, preview_height,
-                                   pixbuf.InterpType.BILINEAR)
-    self.imgPreview.set_from_pixbuf(preview)
-    self.imgPreview.show()
+    try:
+      image_file = gio.File.new_for_uri(filename)
+      preview = pixbuf.Pixbuf.new_from_stream_at_scale(
+        image_file.read(None), 
+        globals.PREVIEW_WIDTH, 
+        globals.PREVIEW_HEIGHT, 
+        True, 
+        None
+      )
+      self.imgPreview.set_from_pixbuf(preview)
+    except Exception as e:
+      self.imgPreview.set_from_stock(gtk.STOCK_FILE, gtk.IconSize.DIALOG)
+    finally:
+      self.imgPreview.show()
 
   # We need to have the handlers blocked while we update the list
   def set_path(self, dirname):

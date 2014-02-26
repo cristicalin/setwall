@@ -20,6 +20,7 @@
 import os
 import random
 import pyinotify
+import copy
 
 from simplejson import *
 
@@ -64,11 +65,7 @@ class filelist:
   # Load the file list, either from the directory path or from a saved list
   # reconcile the saved list whith current file list
   def load(self, path, json = None):
-    # suspend the watch so we avoid a race condition
-    if self.DIR_PATH is not None:
-      self.WATCH_MANAGER.del_watch(
-        self.WATCH_MANAGER.get_wd(self.DIR_PATH)
-      )
+    self.suspend_watch()
     # only reload if path changed
     if path != self.DIR_PATH:
       self.LOCAL_COUNT = 0
@@ -87,12 +84,34 @@ class filelist:
       else:
         self.LOCAL_FILE_LIST = temp
         self.randomize()
-    # reinstate the watch
+    self.instate_watch()
+  
+  # suspend the watch, we usually do this to avoid a race condition
+  def suspend_watch(self):
+    if self.DIR_PATH is not None:
+      self.WATCH_MANAGER.del_watch(
+        self.WATCH_MANAGER.get_wd(self.DIR_PATH)
+      )
+  
+  # we instate the watch after the reace condition has passed
+  # or upon a fresh load() call
+  def instate_watch(self):
     self.WATCH_MANAGER.add_watch(
       self.DIR_PATH,
       pyinotify.IN_DELETE | pyinotify.IN_CLOSE_WRITE,
       rec=False
     )
+
+  # we need to support copy in order to allow settings
+  # to display preview of an independent file list
+  # as Python usually passes references we need to use deepcopy()
+  def __copy__(self):
+    cp = filelist(self.APP)
+    cp.DIR_PATH = copy.deepcopy(self.DIR_PATH)
+    cp.LOCAL_COUNT= copy.deepcopy(self.LOCAL_COUNT)
+    cp.LOCAL_FILE_LIST = copy.deepcopy(self.LOCAL_FILE_LIST)
+    cp.instate_watch()
+    return cp
 
   def get_json(self):
     je = JSONEncoder()

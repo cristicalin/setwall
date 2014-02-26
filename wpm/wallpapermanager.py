@@ -69,17 +69,18 @@ class wallpapermanager:
                              new_wallpaper)
 
   def show_notification(self, title, message, filename):
-    if filename is not None:
-      file = gio.File.new_for_uri(filename)
-      icon = pixbuf.Pixbuf.new_from_stream(file.read(None), None)
-      scale = icon.get_width() / icon.get_height()
-      resized_icon = icon.scale_simple(64, 64/scale,
-                                       pixbuf.InterpType.BILINEAR)
+    try:
+      image_file = gio.File.new_for_uri(filename)
+      resized_icon = pixbuf.Pixbuf.new_from_stream_at_scale(
+        image_file.read(None), 
+        64, 64, True, None
+      )
       self.notification.set_icon_from_pixbuf(resized_icon)
       self.notification.update(title, message, None)
-    else:
+    except Exception as ex:
       self.notification.update(title, message, globals.APP_ICON)
-    self.notification.show()
+    finally:
+      self.notification.show()
 
 if __name__ == "__main__":
   from settings import *
