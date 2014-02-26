@@ -1,7 +1,10 @@
-* load new file list if folder selection changes in settings
-* figure out how to set specific file name in settings
+* figure out how to set specific file name in settings dialog
+* speed up save and load on massive folders (30000+ images)
+* implement file name filtering
+* support decent fork()'ing on initial launch
 
 DONE
 
 * need to make the app into an object so it can be passed around
 * implement preview functionality in the settings dialogue
+* load new file list if folder selection changes in settings
