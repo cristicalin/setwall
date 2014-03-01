@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import dbus
 import sys
 import os
 from gi.repository import GObject as gobject
@@ -28,10 +27,8 @@ from wpm.application import *
 # main function call creates application object and starts processing
 if __name__ == "__main__":
   # allow other threads to execute
-  dbus.glib.init_threads()
   gobject.threads_init()
-
   app = application()
   app.main()
-
+  
   sys.exit(0)

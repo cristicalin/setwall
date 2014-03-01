@@ -310,7 +310,7 @@ class application:
 
   def main(self):
     gtk.main()
-
+    
 
 # main function call creates application object and starts processing
 if __name__ == "__main__":

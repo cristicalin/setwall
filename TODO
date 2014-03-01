@@ -1,7 +1,9 @@
 * figure out how to set specific file name in settings dialog
 * speed up save and load on massive folders (30000+ images)
 * implement file name filtering
-* support decent fork()'ing on initial launch
+* support decent fork()'ing on initial launch, there seems
+  that DBus fails to connect after fork() leaving the application
+  stuck in connecting to DBus and exiting with a timeout
 
 DONE
 

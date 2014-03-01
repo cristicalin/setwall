@@ -152,11 +152,13 @@ class filelist:
 
   def add_file(self, file):
     self.LOCAL_FILE_LIST.insert(self.LOCAL_COUNT+1, file)
+    self.NEED_SAVE = True
     if self.APP is not None:
       self.APP.file_changed("add", "%s/%s" % (self.DIR_PATH, file))
 
   def remove_file(self, file):
     self.LOCAL_FILE_LIST.remove(file)
+    self.NEED_SAVE = True
     if self.APP is not None:
       self.APP.file_changed("remove", "%s/%s" % (self.DIR_PATH, file))
 
