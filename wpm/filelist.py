@@ -39,6 +39,7 @@ class filelist:
 
     def __init__(self, list):
       self.LIST = list
+      pyinotify.ProcessEvent.__init__(self)
       
     def process_IN_CLOSE_WRITE(self, event):
       if not event.dir:
