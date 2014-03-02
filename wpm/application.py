@@ -24,7 +24,6 @@ import logging
 import copy
 
 import dbus
-import dbus.service
 import dbus.glib
 
 from urllib2 import quote, unquote
@@ -39,62 +38,10 @@ from globals import *
 from settings import *
 from filelist import *
 from wallpapermanager import *
+from dbushandler import *
 
 # This is the main application class
 class application:
-
-  # This is a handler class for the DBus messages, it allows
-  # the application to receive next and previous messages
-  class handledbus(dbus.service.Object):
-
-    def __init__(self, bus, app):
-      self.APP = app
-      dbus.service.Object.__init__(self, bus, "%s/%s" % (APP_PATH, APP_NAME))
-
-    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                         in_signature='', out_signature='')
-    def next(self):
-      self.APP.next_wallpaper()
-
-    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                       in_signature='', out_signature='')
-    def previous(self):
-      self.APP.previous_wallpaper()
-
-    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                         in_signature='', out_signature='')
-    def toggle(self):
-      self.APP.toggle_schedule()
-    
-    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                         in_signature='', out_signature='')
-    def randomize(self):
-      self.reorder_func(self.APP.FILE_LIST.randomize)
-    
-    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                         in_signature='', out_signature='')
-    def sort(self):
-      self.reorder_func(self.APP.FILE_LIST.sort)
-    
-    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                         in_signature='', out_signature='')
-    def reverse(self):
-      self.reorder_func(self.APP.FILE_LIST.reverse)
-    
-    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                         in_signature='', out_signature='')
-    def save(self):
-      self.APP.save_json()
-
-    @dbus.service.method("%s.%s" % (BASE_ID, APP_NAME),
-                         in_signature='', out_signature='')
-    def quit(self):
-      self.APP.quit_app()
-  
-    def reorder_func(self, func):
-      func()
-      self.APP.set_index()
-      self.APP.save_json()
 
   # application class constructor
   def __init__(self):
@@ -117,8 +64,7 @@ class application:
     
     self.load_icons()
     self.INDICATOR = appindicator.Indicator.new(
-      APP_NAME.replace("_","-"),
-      APP_ICON,
+      APP_SETTINGS, APP_ICON,
       appindicator.IndicatorCategory.APPLICATION_STATUS
     )
     self.INDICATOR.set_status(appindicator.IndicatorStatus.ACTIVE)
@@ -134,7 +80,7 @@ class application:
       None
     self.SESSION_NAME = dbus.service.BusName("%s.%s" % (BASE_ID, APP_NAME),
                                              self.SESSION_BUS)
-    self.SESSION_OBJECT = self.handledbus(self.SESSION_BUS, self)
+    self.SESSION_OBJECT = dbushandler(self.SESSION_BUS, self)
     self.SESSION_BUS.add_signal_receiver(self.screen_saver_handler,
                                          dbus_interface = SCREEN_SAVER_NAME,
                                          signal_name = SCREEN_SAVER_SIGNAL)
@@ -313,6 +259,7 @@ class application:
     
 
 # main function call creates application object and starts processing
+# this is for unit testing only
 if __name__ == "__main__":
   # allow other threads to execute
   dbus.glib.init_threads()

@@ -1,4 +1,10 @@
+* implement favorites feature: should support multiple lists
+  and restrict slideshow to current favorite list
+* support keyboard shortcut feature for next stop and previous
 * figure out how to set specific file name in settings dialog
+  would be nice to click in the status bar and have a dropdown
+  list allow to select the file (maybe support preview in the
+  dropdown list as well)
 * speed up save and load on massive folders (30000+ images)
 * implement file name filtering
 * support decent fork()'ing on initial launch, there seems
