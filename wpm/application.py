@@ -111,24 +111,21 @@ class application:
       self.SETTINGS.set_wallpaper_schedule(not self.SETTINGS.get_wallpaper_schedule())
     if self.SETTINGS.get_wallpaper_schedule():
       if toggle:
-        self.SCHEDULER.add_interval_job(self.next_wallpaper,
-                                        seconds = self.SETTINGS.get_wallpaper_interval())
+        self.resume_schedule()
       self.TOGGLE_MENU.set_image(self.stop_icon)
       self.TOGGLE_MENU.set_label(TEXT_PAUSE)
     else:
       if toggle:
-        self.SCHEDULER.unschedule_func(self.next_wallpaper)
+        self.suspend_schedule()
       self.TOGGLE_MENU.set_image(self.play_icon)
       self.TOGGLE_MENU.set_label(TEXT_CONTINUE)
 
   # suspend schedule while screen saver / lock is in place
   def screen_saver_handler(self, active):
-    if self.SETTINGS.get_wallpaper_schedule():
-      if active:
-        self.SCHEDULER.unschedule_func(self.next_wallpaper)
-      else:
-        self.SCHEDULER.add_interval_job(self.next_wallpaper,
-                                        seconds = self.SETTINGS.get_wallpaper_interval())
+    if active:
+      self.suspend_schedule()
+    else:
+      self.resume_schedule()
 
   def show_settings(self, item = None):
     self.SETTINGS.show_window()
@@ -209,10 +206,18 @@ class application:
     self.stop_icon.set_from_icon_name(gtk.STOCK_MEDIA_STOP, gtk.IconSize.MENU)
     self.stop_icon.show()
 
-  # Reset the schedule
+  # Reset the scheduler
   def reset_schedule(self):
+    suspend_schedule()
+    resume_schedule()
+
+  # Suspend the scheduler
+  def suspend_schedule(self):
     for job in self.SCHEDULER.get_jobs():
       self.SCHEDULER.unschedule_job(job)
+
+  # Resume the scheduler
+  def resume_schedule(self):
     if self.SETTINGS.get_wallpaper_schedule():
       self.SCHEDULER.add_interval_job(self.next_wallpaper,
                                       seconds = self.SETTINGS.get_wallpaper_interval())
