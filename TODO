@@ -1,3 +1,9 @@
+This document contains a list of TODOs and ideas for setwall.
+Done tasks/ideas are listed at the end of the document.
+
+TODO
+
+* separate Indicator / menu code into different class
 * implement favorites feature: should support multiple lists
   and restrict slideshow to current favorite list
 * support keyboard shortcut feature for next stop and previous
@@ -10,9 +16,12 @@
 * support decent fork()'ing on initial launch, there seems
   that DBus fails to connect after fork() leaving the application
   stuck in connecting to DBus and exiting with a timeout
+* support other desktop environments (Gnome3, Mate, KDE, Xfce)
 
 DONE
 
 * need to make the app into an object so it can be passed around
 * implement preview functionality in the settings dialogue
 * load new file list if folder selection changes in settings
+* separate dbus code into different class, keep application 
+  class implementation simple
