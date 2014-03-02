@@ -23,9 +23,6 @@ import argparse
 import logging
 import copy
 
-import dbus
-import dbus.glib
-
 from urllib2 import quote, unquote
 from apscheduler.scheduler import Scheduler
 
@@ -70,21 +67,7 @@ class application:
     self.INDICATOR.set_status(appindicator.IndicatorStatus.ACTIVE)
     self.INDICATOR.set_menu(self.get_app_menu())
     
-    self.SESSION_BUS = dbus.SessionBus()
-    # we need to kill the previous instance as a first thing
-    try:
-      running_obj = self.SESSION_BUS.get_object("%s.%s" % (BASE_ID, APP_NAME),
-                                                "%s/%s" % (APP_PATH, APP_NAME))
-      running_obj.quit()
-    except dbus.DBusException as e:
-      None
-    self.SESSION_NAME = dbus.service.BusName("%s.%s" % (BASE_ID, APP_NAME),
-                                             self.SESSION_BUS)
-    self.SESSION_OBJECT = dbushandler(self.SESSION_BUS, self)
-    self.SESSION_BUS.add_signal_receiver(self.screen_saver_handler,
-                                         dbus_interface = SCREEN_SAVER_NAME,
-                                         signal_name = SCREEN_SAVER_SIGNAL)
-    
+    self.SESSION_OBJECT = dbushandler(self)
     self.FILE_LIST = filelist(self)
     self.load_settings()
     self.WALLPAPER_MANAGER = wallpapermanager(self.SETTINGS)
@@ -119,13 +102,6 @@ class application:
         self.suspend_schedule()
       self.TOGGLE_MENU.set_image(self.play_icon)
       self.TOGGLE_MENU.set_label(TEXT_CONTINUE)
-
-  # suspend schedule while screen saver / lock is in place
-  def screen_saver_handler(self, active):
-    if active:
-      self.suspend_schedule()
-    else:
-      self.resume_schedule()
 
   def show_settings(self, item = None):
     self.SETTINGS.show_window()
@@ -208,8 +184,8 @@ class application:
 
   # Reset the scheduler
   def reset_schedule(self):
-    suspend_schedule()
-    resume_schedule()
+    self.suspend_schedule()
+    self.resume_schedule()
 
   # Suspend the scheduler
   def suspend_schedule(self):
@@ -267,6 +243,8 @@ class application:
 # this is for unit testing only
 if __name__ == "__main__":
   # allow other threads to execute
+  import dbus
+  
   dbus.glib.init_threads()
   gobject.threads_init()
 

@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import dbus
+import dbus.glib
 import dbus.service
 
 import globals
@@ -25,10 +27,29 @@ import globals
 # the application to receive next and previous messages
 class dbushandler(dbus.service.Object):
 
-  def __init__(self, bus, app):
+  def __init__(self, app):
     self.APP = app
+    self.SESSION_BUS = dbus.SessionBus()
+
+    # we need to kill the previous instance as a first thing
+    try:
+      running_obj = self.SESSION_BUS.get_object(
+        "%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+        "%s/%s" % (globals.APP_PATH, globals.APP_NAME)
+      )
+      running_obj.quit()
+    except dbus.DBusException as e:
+      None
+    self.SESSION_NAME = dbus.service.BusName(
+      "%s.%s" % (globals.BASE_ID, globals.APP_NAME), self.SESSION_BUS
+    )
     dbus.service.Object.__init__(
-      self, bus, "%s/%s" % (globals.APP_PATH, globals.APP_NAME)
+      self, self.SESSION_BUS, "%s/%s" % (globals.APP_PATH, globals.APP_NAME)
+    )
+    self.SESSION_BUS.add_signal_receiver(
+      self.screen_saver_handler,
+      dbus_interface = globals.SCREEN_SAVER_NAME,
+      signal_name = globals.SCREEN_SAVER_SIGNAL
     )
 
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
@@ -75,6 +96,13 @@ class dbushandler(dbus.service.Object):
     func()
     self.APP.set_index()
     self.APP.save_json()
+
+  # suspend schedule while screen saver / lock is in place
+  def screen_saver_handler(self, active):
+    if active:
+      self.APP.suspend_schedule()
+    else:
+      self.APP.resume_schedule()
 
 # this is for unit testing only
 if __name__ == "__main__":
