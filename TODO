@@ -1,9 +1,12 @@
 This document contains a list of TODOs and ideas for setwall.
 Done tasks/ideas are listed at the end of the document.
 
+BUGS
+* when disabling wallpaper save feature and clicking apply
+  the list gets reset improperly
+
 TODO
 
-* separate Indicator / menu code into different class
 * implement favorites feature: should support multiple lists
   and restrict slideshow to current favorite list
 * support keyboard shortcut feature for next stop and previous
@@ -25,3 +28,4 @@ DONE
 * load new file list if folder selection changes in settings
 * separate dbus code into different class, keep application 
   class implementation simple
+* separate Indicator / menu code into different class

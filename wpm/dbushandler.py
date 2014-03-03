@@ -65,7 +65,7 @@ class dbushandler(dbus.service.Object):
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
                        in_signature='', out_signature='')
   def toggle(self):
-    self.APP.toggle_schedule()
+    self.APP.toggle()
 
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
                        in_signature='', out_signature='')

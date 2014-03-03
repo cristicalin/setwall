@@ -28,7 +28,6 @@ from apscheduler.scheduler import Scheduler
 
 from gi.repository import Gtk as gtk
 from gi.repository import GObject as gobject
-from gi.repository import AppIndicator3 as appindicator
 
 # Local imports
 from globals import *
@@ -36,6 +35,7 @@ from settings import *
 from filelist import *
 from wallpapermanager import *
 from dbushandler import *
+from menuhandler import *
 from utils import *
 
 # This is the main application class
@@ -60,14 +60,7 @@ class application:
     args = parser.parse_args()
     self.SETTINGS = settings(args = args, app = self)
     
-    self.load_icons()
-    self.INDICATOR = appindicator.Indicator.new(
-      APP_SETTINGS, APP_ICON,
-      appindicator.IndicatorCategory.APPLICATION_STATUS
-    )
-    self.INDICATOR.set_status(appindicator.IndicatorStatus.ACTIVE)
-    self.INDICATOR.set_menu(self.get_app_menu())
-    
+    self.MENU_OBJECT = menuhandler(self)
     self.SESSION_OBJECT = dbushandler(self)
     self.FILE_LIST = filelist(self)
     self.load_settings()
@@ -90,19 +83,15 @@ class application:
     self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_previous_file())
     self.reset_schedule()
 
-  def toggle_schedule(self, item = None, toggle = True):
-    if toggle:
-      self.SETTINGS.set_wallpaper_schedule(not self.SETTINGS.get_wallpaper_schedule())
-    if self.SETTINGS.get_wallpaper_schedule():
-      if toggle:
+  def toggle(self, item = None):
+    if item != None:
+      self.SETTINGS.set_wallpaper_schedule(item.get_active())
+      if self.SETTINGS.get_wallpaper_schedule():
         self.resume_schedule()
-      self.TOGGLE_MENU.set_image(self.stop_icon)
-      self.TOGGLE_MENU.set_label(TEXT_PAUSE)
-    else:
-      if toggle:
+      else:
         self.suspend_schedule()
-      self.TOGGLE_MENU.set_image(self.play_icon)
-      self.TOGGLE_MENU.set_label(TEXT_CONTINUE)
+    else:
+      self.MENU_OBJECT.toggle(not self.SETTINGS.get_wallpaper_schedule())
 
   def show_settings(self, item = None):
     self.SETTINGS.show_window()
@@ -120,68 +109,6 @@ class application:
         "Removed file: %s" % shorten(filename.split("/")[-1], 32),
         None
       )
-
-  # Build the application menu which is delivered
-  # via the appindicator functionality
-  def get_app_menu(self):
-    menu = gtk.Menu()
-   
-    next_menu = gtk.MenuItem()
-    next_menu.set_label("Next")
-    next_menu.connect("activate", self.next_wallpaper)
-    menu.append(next_menu)
-
-    prev_menu = gtk.MenuItem()
-    prev_menu.set_label("Previous")
-    prev_menu.connect("activate", self.previous_wallpaper)
-    menu.append(prev_menu)
-
-    options_menu_item = gtk.MenuItem()
-    options_menu_item.set_label("Options");
-    menu.append(options_menu_item)
-    options_menu = gtk.Menu()
-
-    options_range = self.SETTINGS.get_wallpaper_options_range()
-    options_group = []
-    for option in options_range[1]:
-      menu_option = gtk.RadioMenuItem.new_with_label(options_group,
-                                                     option.title())
-      menu_option.connect("activate", 
-                          lambda item, data: self.SETTINGS.set_wallpaper_options(data),
-			  option)
-      options_group = menu_option.get_group()
-      if option == self.SETTINGS.get_wallpaper_options():
-        menu_option.set_active(True)
-      options_menu.append(menu_option)
-    options_menu_item.set_submenu(options_menu)
-
-    self.TOGGLE_MENU = gtk.ImageMenuItem(" ")
-    self.TOGGLE_MENU.connect("activate", self.toggle_schedule)
-    self.TOGGLE_MENU.set_always_show_image(True)
-    menu.append(self.TOGGLE_MENU)
-
-    menu.append(gtk.SeparatorMenuItem())
-
-    settings_menu = gtk.MenuItem("Settings")
-    settings_menu.connect("activate", self.show_settings)
-    menu.append(settings_menu)
-
-    quit_menu = gtk.MenuItem("Quit")
-    quit_menu.connect("activate", self.quit_app)
-    menu.append(quit_menu)
-
-    menu.show_all()
-    return menu
-
-  # Keep icons stored in memory so we don't have to
-  # reload them each time the menu is toggled
-  def load_icons(self):
-    self.play_icon = gtk.Image()
-    self.play_icon.set_from_icon_name(gtk.STOCK_MEDIA_PLAY, gtk.IconSize.MENU)
-    self.play_icon.show()
-    self.stop_icon = gtk.Image()
-    self.stop_icon.set_from_icon_name(gtk.STOCK_MEDIA_STOP, gtk.IconSize.MENU)
-    self.stop_icon.show()
 
   # Reset the scheduler
   def reset_schedule(self):
@@ -222,7 +149,6 @@ class application:
       self.save_json()
 
     self.reset_schedule()
-    self.toggle_schedule(toggle=False)
 
   # Set the file list index to the current wallpaper
   # this gets called multiple times so it became a function
