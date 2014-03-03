@@ -36,6 +36,7 @@ from settings import *
 from filelist import *
 from wallpapermanager import *
 from dbushandler import *
+from utils import *
 
 # This is the main application class
 class application:
@@ -110,13 +111,13 @@ class application:
     if action == "add":
       self.WALLPAPER_MANAGER.show_notification(
         "Wallpaper Added",
-        "New file: %s" % self.WALLPAPER_MANAGER.shorten(filename.split("/")[-1], 32),
+        "New file: %s" % shorten(filename.split("/")[-1], 32),
         "file://%s" % quote(filename)
       )
     elif action == "remove":
       self.WALLPAPER_MANAGER.show_notification(
         "Wallpaper Removed",
-        "Removed file: %s" % self.WALLPAPER_MANAGER.shorten(filename.split("/")[-1], 32),
+        "Removed file: %s" % shorten(filename.split("/")[-1], 32),
         None
       )
 

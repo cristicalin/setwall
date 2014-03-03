@@ -30,6 +30,8 @@ from gi.repository import Notify as notify
 
 import globals
 
+from utils import *
+
 # This handles setting the wallpaper on the Gnome desktop
 # and returning the name of the current wallpaper file
 # This assumes that the current wallpaper is set
@@ -41,12 +43,6 @@ class wallpapermanager:
     self.notification = notify.Notification.new("", "", None)
     self.SETTINGS = my_settings
     self._LOCK = Lock()
-
-  # Shorten long file names
-  def shorten(self, data, length):
-    info = (data[:int(length/2)-1] + '..' + 
-            data[-(int(length/2)-1):]) if len(data) > length else data
-    return info
 
   def get_wallpaper(self):
     try:
@@ -64,8 +60,8 @@ class wallpapermanager:
       self.SETTINGS.set_wallpaper(new_wallpaper)
       self.show_notification("Wallpaper changed",
                              "<b>Old:</b> %s<br/><b>New:</b> %s" %
-                             (self.shorten(old_wallpaper, 32),
-                              self.shorten(new_file[-1], 32)),
+                             (shorten(old_wallpaper, 32),
+                              shorten(new_file[-1], 32)),
                              new_wallpaper)
 
   def show_notification(self, title, message, filename):
