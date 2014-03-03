@@ -26,5 +26,10 @@
       <summary>Saved List</summary>
       <description>Saved List of Wallpapers, do not edit this!</description>
     </key>
+    <key type="s" name="favorites">
+      <default>'{}'</default>
+      <summary>Favorite Wallpapers List</summary>
+      <description>Saved List of Favorite Wallpapers, do not edit this!</description>
+    </key>
   </schema>
 </schemalist>

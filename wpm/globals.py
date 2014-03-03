@@ -29,10 +29,7 @@ WALLPAPER_INTERVAL = "interval"
 WALLPAPER_SCHEDULE = "schedule"
 WALLPAPER_SAVED_LIST = "saved-list"
 WALLPAPER_SAVE = "save"
-
-# Other constants
-TEXT_CONTINUE = "Continue"
-TEXT_PAUSE = "Pause"
+WALLPAPER_FAVORITES = "favorites"
 
 # These are gnome specific parameters
 WALLPAPER_SETTING = "org.gnome.desktop.background"

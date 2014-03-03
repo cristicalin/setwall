@@ -234,6 +234,12 @@ class settings:
   def set_wallpaper_options(self, options):
     self.WALLPAPER_SETTINGS.set_string(globals.PICTURE_OPTIONS, options)
 
+  def get_favorites(self):
+    return self.APP_SETTINGS.get_string(globals.WALLPAPER_FAVORITES)
+
+  def set_favorites(self, favorites):
+    self.APP_SETTINGS.set_string(globals.WALLPAPER_FAVORITES, favorites)
+
 # for unit testing purposes only
 if __name__ == "__main__":
 

@@ -22,9 +22,9 @@ import random
 import pyinotify
 import copy
 
-from simplejson import *
-
 import bst
+
+from utils import *
 
 # File list maintains a randomized list of files in a directory
 # and behaves like a circular list so get_next and get_previous
@@ -68,7 +68,7 @@ class filelist:
   # reconcile the saved list whith current file list
   def load(self, path, json = None):
     self.suspend_watch()
-    # only reload if path changed
+    # only reload if path changed, we rely on pyinotify to keep the list updated
     if path != self.DIR_PATH:
       self.LOCAL_COUNT = 0
       self.DIR_PATH = path
@@ -76,8 +76,7 @@ class filelist:
       temp_tree = bst.bst(temp)
       # if we have a saved state load that, else load clean list and randomize
       if json is not None:
-        jd = JSONDecoder()
-        self.LOCAL_FILE_LIST = jd.decode(json)
+        self.LOCAL_FILE_LIST = from_json(json)
         # reconcile the JSON with the files actually in the folder
         for my_file in self.LOCAL_FILE_LIST:
           if temp_tree.extract(my_file) != my_file: 
@@ -121,8 +120,7 @@ class filelist:
     return cp
 
   def get_json(self):
-    je = JSONEncoder()
-    return je.encode(self.LOCAL_FILE_LIST)
+    return to_json(self.LOCAL_FILE_LIST)
 
   def close(self):
     # This is to make sure we stop the inotify upon cleanup

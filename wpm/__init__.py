@@ -27,6 +27,7 @@ __all__ = [
   'filelist',
   'utils',
   'dbushandler',
-  'menuhandler'
+  'menuhandler',
+  'favoritesmanager'
 ]
 __author__ = 'Calin Cristian Andrei <cristian.calin@outlook.com>'

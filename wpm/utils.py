@@ -19,13 +19,27 @@
 
 # this code library contains useful stand alone functions
 
+from simplejson import *
+
 # Shorten long file names
 def shorten(data, length):
   info = (data[:int(length/2)-1] + '..' + 
           data[-(int(length/2)-1):]) if len(data) > length else data
   return info
 
+# Encode as JSON
+def to_json(data):
+  je = JSONEncoder(ensure_ascii = False)
+  return je.encode(data)
+
+# Decode from JSON
+def from_json(json):
+  jd = JSONDecoder()
+  return jd.decode(json)
+
 # this is for unit testing only
 if __name__ == "__main__":
   
   print shorten("very long string more than 16 chars in length", 16)
+
+  print to_json({"abd":["dwds", "dda"]})

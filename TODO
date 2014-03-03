@@ -10,6 +10,7 @@ TODO
 
 * implement favorites feature: should support multiple lists
   and restrict slideshow to current favorite list
+* implement favorites management dialog
 * support keyboard shortcut feature for next stop and previous
 * figure out how to set specific file name in settings dialog
   would be nice to click in the status bar and have a dropdown

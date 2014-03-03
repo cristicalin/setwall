@@ -36,6 +36,7 @@ from wallpapermanager import *
 from dbushandler import *
 from menuhandler import *
 from utils import *
+from favoritesmanager import *
 
 # This is the main application class
 class application:
@@ -58,7 +59,7 @@ class application:
                         help="Scheduled wallpaper changes")
     args = parser.parse_args()
     self.SETTINGS = settings(args = args, app = self)
-    
+    self.FAVORITES_MANAGER = favoritesmanager(self)
     self.MENU_OBJECT = menuhandler(self)
     self.SESSION_OBJECT = dbushandler(self)
     self.FILE_LIST = filelist(self)
@@ -82,6 +83,10 @@ class application:
     self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_previous_file())
     self.reset_schedule()
 
+  # add current wallpaper to favorites
+  def add_current_to_favorites(self, item = None):
+    self.FAVORITES_MANAGER.add_favorite(self.FILE_LIST.get_current_file())
+
   def toggle(self, item = None):
     if item != None:
       self.SETTINGS.set_wallpaper_schedule(item.get_active())
@@ -95,6 +100,17 @@ class application:
   def show_settings(self, item = None):
     self.SETTINGS.show_window()
 
+  # Set a Wallpaper from a favorites list
+  # TODO: implement restriction code
+  def favorite_set(self, item = None, data = None):
+    if item is not None and data is not None:
+      self.SETTINGS.set_wallpaper_path(data["folder"])
+      self.FILE_LIST.load(data["folder"])
+      self.FILE_LIST.set_index(data["file"])
+      self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_current_file())
+      self.reset_schedule()
+      
+  # notify of folder structure changes
   def file_changed(self, action, filename):
     if action == "add":
       self.WALLPAPER_MANAGER.show_notification(
@@ -154,12 +170,14 @@ class application:
   def set_index(self):
     self.FILE_LIST.set_index(self.WALLPAPER_MANAGER.get_wallpaper())
 
-  # Save the current file_list json format to the settings
-  # only if it actually requires saving
+  # Save the current file_list json format to the settings only if it
+  # actually requires saving, save the favorites always 
   def save_json(self):
     if self.SETTINGS.get_wallpaper_save() and self.FILE_LIST.get_need_save():
       self.SETTINGS.set_saved_list(self.FILE_LIST.get_json())
       self.FILE_LIST.set_need_save(False)
+    if self.FAVORITES_MANAGER.get_need_save():
+      self.SETTINGS.set_favorites(self.FAVORITES_MANAGER.get_json())
 
   def main(self):
     gtk.main()

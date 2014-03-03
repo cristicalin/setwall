@@ -53,6 +53,34 @@ class menuhandler():
     options_menu_item = gtk.MenuItem()
     options_menu_item.set_label("Options");
     menu.append(options_menu_item)
+    options_menu_item.set_submenu(self.build_options_menu())
+
+    favorites_menu_item = gtk.MenuItem()
+    favorites_menu_item.set_label("Favorites");
+    menu.append(favorites_menu_item)
+    favorites_menu_item.set_submenu(self.build_favorites_menu())
+
+    slideshow_menu = gtk.CheckMenuItem("Slideshow")
+    slideshow_menu.connect("toggled", self.APP.toggle)
+    slideshow_menu.set_active(self.SETTINGS.get_wallpaper_schedule())
+    menu.append(slideshow_menu)
+    self.SLIDESHOW = slideshow_menu
+
+    menu.append(gtk.SeparatorMenuItem())
+
+    settings_menu = gtk.MenuItem("Settings")
+    settings_menu.connect("activate", self.APP.show_settings)
+    menu.append(settings_menu)
+
+    quit_menu = gtk.MenuItem("Quit")
+    quit_menu.connect("activate", self.APP.quit_app)
+    menu.append(quit_menu)
+
+    menu.show_all()
+    return menu
+
+  # Build options submenu
+  def build_options_menu(self):
     options_menu = gtk.Menu()
 
     options_range = self.SETTINGS.get_wallpaper_options_range()
@@ -73,26 +101,37 @@ class menuhandler():
       if option == tmp_wp_options:
         menu_option.set_active(True)
       options_menu.append(menu_option)
-    options_menu_item.set_submenu(options_menu)
 
-    slideshow_menu = gtk.CheckMenuItem("Slideshow")
-    slideshow_menu.connect("toggled", self.APP.toggle)
-    slideshow_menu.set_active(self.SETTINGS.get_wallpaper_schedule())
-    menu.append(slideshow_menu)
-    self.SLIDESHOW = slideshow_menu
+    return options_menu
 
-    menu.append(gtk.SeparatorMenuItem())
+  # Build favorites submenu
+  def build_favorites_menu(self):
+    favorites_menu = gtk.Menu()
 
-    settings_menu = gtk.MenuItem("Settings")
-    settings_menu.connect("activate", self.APP.show_settings)
-    menu.append(settings_menu)
+    add_favorite_menu = gtk.MenuItem("Add Current")
+    add_favorite_menu.connect("activate", self.APP.add_current_to_favorites)
+    favorites_menu.append(add_favorite_menu)
 
-    quit_menu = gtk.MenuItem("Quit")
-    quit_menu.connect("activate", self.APP.quit_app)
-    menu.append(quit_menu)
+    favorites_menu.append(gtk.SeparatorMenuItem())
 
-    menu.show_all()
-    return menu
+    favorites = self.APP.FAVORITES_MANAGER.get_favorites()
+    for folder in favorites:
+      folder_menu_item = gtk.MenuItem(folder)
+      favorites_menu.append(folder_menu_item)
+      file_menu = gtk.Menu()
+      for filename in favorites[folder]:
+        file_menu_item = gtk.MenuItem(filename)
+        file_menu_item.connect(
+          "activate", self.APP.favorite_set, 
+          {
+            "folder": folder,
+            "file": filename
+          }
+        )
+        file_menu.append(file_menu_item)
+      folder_menu_item.set_submenu(file_menu)
+
+    return favorites_menu
 
   # Handle toggling the slidedhow menu
   def toggle(self, active):
