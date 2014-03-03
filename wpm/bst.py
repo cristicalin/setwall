@@ -156,12 +156,24 @@ class node:
 if __name__ == "__main__":
   import os
   import random
+  import sys
+  reload(sys)
+  sys.setdefaultencoding('utf-8')
+  
+  from simplejson import *
+
   l = os.listdir(".")
   #l = [ "abcd" ]
   random.shuffle(l)
   a = bst(l)
   random.shuffle(l)
-  for i in l:
+  je = JSONEncoder(ensure_ascii=False)
+  jd = JSONDecoder()
+
+  json = dumps(l, ensure_ascii = False)
+  l1 = loads(json)
+
+  for i in l1:
     print a.extract(i)
   print a.as_list()
 

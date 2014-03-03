@@ -56,7 +56,7 @@ class wallpapermanager:
     with self._LOCK:
       old_wallpaper = self.get_wallpaper()
       new_file = filename.split("/")
-      new_wallpaper = "file://%s" % quote(filename)
+      new_wallpaper = "file://%s" % quote(filename.encode("utf8"))
       self.SETTINGS.set_wallpaper(new_wallpaper)
       self.show_notification("Wallpaper changed",
                              "<b>Old:</b> %s<br/><b>New:</b> %s" %

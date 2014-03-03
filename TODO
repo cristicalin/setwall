@@ -4,6 +4,7 @@ Done tasks/ideas are listed at the end of the document.
 BUGS
 * when disabling wallpaper save feature and clicking apply
   the list gets reset improperly
+* [FIXED] UTF-8 encoding comparison in BST fails
 
 TODO
 
