@@ -17,10 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# we need to support real division instead of
-# integer which is the Python default division
-from __future__ import division
-
 from urllib2 import quote, unquote
 from threading import Lock
 

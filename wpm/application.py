@@ -27,7 +27,6 @@ from urllib2 import quote, unquote
 from apscheduler.scheduler import Scheduler
 
 from gi.repository import Gtk as gtk
-from gi.repository import GObject as gobject
 
 # Local imports
 from globals import *
@@ -171,7 +170,8 @@ class application:
 if __name__ == "__main__":
   # allow other threads to execute
   import dbus
-  
+  from gi.repository import GObject as gobject
+
   dbus.glib.init_threads()
   gobject.threads_init()
 
