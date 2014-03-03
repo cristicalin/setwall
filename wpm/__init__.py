@@ -24,6 +24,8 @@ __all__ = [
   'globals',
   'bst',
   'wallpapermanager',
-  'filelist'
+  'filelist',
+  'utils',
+  'dbushandler'
 ]
 __author__ = 'Calin Cristian Andrei <cristian.calin@outlook.com>'
