@@ -58,8 +58,8 @@ class menuhandler():
     favorites_menu_item = gtk.MenuItem()
     favorites_menu_item.set_label("Favorites");
     menu.append(favorites_menu_item)
-    favorites_menu_item.set_submenu(self.build_favorites_menu())
-    self.FAVORITES = favorites_menu_item.get_submenu()
+    self.FAVORITES = self.build_favorites_menu()
+    favorites_menu_item.set_submenu(self.FAVORITES)
 
     slideshow_menu = gtk.CheckMenuItem("Slideshow")
     slideshow_menu.connect("toggled", self.APP.toggle)
