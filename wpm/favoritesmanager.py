@@ -46,8 +46,7 @@ class favoritesmanager():
       self.FAVORITES[folder] = [filename]
       self.NEED_SAVE = True
 
-    # TODO: we also need to update the favorites menu
-    print self.FAVORITES
+    self.APP.MENU_OBJECT.append_favorite(folder, filename)
 
   def get_favorites(self):
     return self.FAVORITES

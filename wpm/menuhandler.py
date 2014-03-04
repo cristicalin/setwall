@@ -59,6 +59,7 @@ class menuhandler():
     favorites_menu_item.set_label("Favorites");
     menu.append(favorites_menu_item)
     favorites_menu_item.set_submenu(self.build_favorites_menu())
+    self.FAVORITES = favorites_menu_item.get_submenu()
 
     slideshow_menu = gtk.CheckMenuItem("Slideshow")
     slideshow_menu.connect("toggled", self.APP.toggle)
@@ -120,18 +121,42 @@ class menuhandler():
       favorites_menu.append(folder_menu_item)
       file_menu = gtk.Menu()
       for filename in favorites[folder]:
-        file_menu_item = gtk.MenuItem(filename)
-        file_menu_item.connect(
-          "activate", self.APP.favorite_set, 
-          {
-            "folder": folder,
-            "file": filename
-          }
-        )
-        file_menu.append(file_menu_item)
+        file_menu.append(self.create_file_menu_item(folder, filename))
       folder_menu_item.set_submenu(file_menu)
 
     return favorites_menu
+
+  # Create a file menu item
+  def create_file_menu_item(self, folder, filename):
+    file_menu_item = gtk.MenuItem(filename)
+    file_menu_item.connect(
+      "activate", self.APP.favorite_set, 
+      {
+        "folder": folder,
+        "file": filename
+      }
+    )
+    file_menu_item.show()
+    return file_menu_item
+
+  # Append favorite menu item this gets called from favoritesmanager
+  def append_favorite(self, folder, filename):
+    found = False
+    for menu_item in self.FAVORITES.get_children():
+      if menu_item.get_label() == folder:
+        menu_item.get_submenu().append(
+          self.create_file_menu_item(folder, filename)
+        )
+        found = True
+    if not found:
+      folder_menu_item = gtk.MenuItem(folder)
+      folder_menu_item.show()
+      self.FAVORITES.append(folder_menu_item)
+      folder_menu = gtk.Menu()
+      folder_menu.append(
+        self.create_file_menu_item(folder, filename)
+      )
+      folder_menu_item.set_submenu(folder_menu)
 
   # Handle toggling the slidedhow menu
   def toggle(self, active):
