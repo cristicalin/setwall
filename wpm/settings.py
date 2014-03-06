@@ -81,9 +81,9 @@ class settings:
     self.BUILDER = gtk.Builder()
     try:
       self.BUILDER.add_from_file("%s/%s" % (os.path.dirname(sys.argv[0]),
-                                            globals.GLADE_FILE))
+                                            globals.GLADE_SETTINGS_FILE))
     except:
-      self.BUILDER.add_from_file(globals.GLADE_FILE)
+      self.BUILDER.add_from_file(globals.GLADE_SETTINGS_FILE)
     self.HANDLER = self.handler(self)
     self.BUILDER.connect_signals(self.HANDLER)
 

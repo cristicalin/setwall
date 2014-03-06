@@ -42,7 +42,8 @@ SCREEN_SAVER_PATH = "/%s" % SCREEN_SAVER_NAME.replace(".", "/")
 SCREEN_SAVER_SIGNAL = "ActiveChanged"
 
 # Glade form file
-GLADE_FILE = "setwall.glade"
+GLADE_SETTINGS_FILE = "setwall.glade"
+GLADE_FAVORITES_FILE = "favorites.glade"
 
 # Settings preview parameters
 PREVIEW_SCALE = 1.5

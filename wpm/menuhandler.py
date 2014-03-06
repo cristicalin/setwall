@@ -113,6 +113,10 @@ class menuhandler():
     add_favorite_menu.connect("activate", self.APP.add_current_to_favorites)
     favorites_menu.append(add_favorite_menu)
 
+    edit_favorites_menu = gtk.MenuItem("Edit Favorites")
+    edit_favorites_menu.connect("activate", self.APP.show_favorites)
+    favorites_menu.append(edit_favorites_menu)
+
     favorites_menu.append(gtk.SeparatorMenuItem())
 
     favorites = self.APP.FAVORITES_MANAGER.get_favorites()

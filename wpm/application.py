@@ -100,6 +100,9 @@ class application:
   def show_settings(self, item = None):
     self.SETTINGS.show_window()
 
+  def show_favorites(self, item = None):
+    self.FAVORITES_MANAGER.show_window()
+
   # Set a Wallpaper from a favorites list
   # TODO: implement restriction code
   def favorite_set(self, item = None, data = None):
