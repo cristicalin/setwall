@@ -2,6 +2,8 @@ This document contains a list of TODOs and ideas for setwall.
 Done tasks/ideas are listed at the end of the document.
 
 BUGS
+* when closing windows using the X button on the window title
+  bar the contents get mangled / objects get invalidated
 * when disabling wallpaper save feature and clicking apply
   the list gets reset improperly
 * [FIXED] UTF-8 encoding comparison in BST fails
@@ -11,6 +13,7 @@ TODO
 * implement favorites feature: should support multiple lists
   and restrict slideshow to current favorite list
 * implement favorites management dialog
+* add favorites CLI support
 * support keyboard shortcut feature for next stop and previous
 * figure out how to set specific file name in settings dialog
   would be nice to click in the status bar and have a dropdown
