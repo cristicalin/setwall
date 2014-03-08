@@ -38,7 +38,7 @@ class settings:
     def __init__(self, settings):
       self.SETTINGS = settings
 
-    def onApplyClicked(self, *args):
+    def onApply(self, *args):
       self.SETTINGS.save()
       self.SETTINGS.hide_window()
 

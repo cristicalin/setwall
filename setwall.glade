@@ -319,11 +319,14 @@
             <property name="layout_style">spread</property>
             <child>
               <object class="GtkButton" id="btApply">
-                <property name="label" translatable="yes">Apply</property>
+                <property name="label">gtk-apply</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="onApplyClicked" swapped="no"/>
+                <property name="relief">none</property>
+                <property name="use_stock">True</property>
+                <property name="always_show_image">True</property>
+                <signal name="clicked" handler="onApply" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -332,11 +335,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="btCancel">
-                <property name="label" translatable="yes">Cancel</property>
+              <object class="GtkButton" id="btClose">
+                <property name="label">gtk-close</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="receives_default">True</property>
+                <property name="relief">none</property>
+                <property name="use_stock">True</property>
+                <property name="always_show_image">True</property>
                 <signal name="clicked" handler="onClose" swapped="no"/>
               </object>
               <packing>

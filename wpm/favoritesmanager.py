@@ -42,11 +42,11 @@ class favoritesmanager():
     def __init__(self, favorites):
       self.FAVORITES = favorites
 
-    def onSaveClicked(self, *args):
+    def onApply(self, *args):
       print "onSaveClicked() not yet implemented"
       self.FAVORITES.hide_window()
 
-    def onCloseClicked(self, *args):
+    def onClose(self, *args):
       self.FAVORITES.hide_window()
 
     def onCursorChanged(self, *args):
@@ -58,6 +58,12 @@ class favoritesmanager():
         if parent_iter is not None:
           folder = model[parent_iter][0]
           self.FAVORITES.show_preview(folder, filename)
+
+    def onZoomIn(self, *args):
+      self.FAVORITES.display_zoomed_in_image()
+
+    def onZoomOut(self, *args):
+      self.FAVORITES.display_zoomed_out_image()
 
   def __init__(self, app):
     self.APP = app
@@ -84,11 +90,12 @@ class favoritesmanager():
     cell = gtk.CellRendererText()
     column.pack_start(cell, False)
     column.add_attribute(cell, "text", 0)
+    self.STATUS_BAR = self.BUILDER.get_object("stBar")
     self.WINDOW.set_title("%s Favorites" % globals.APP_FRIENDLY_NAME)
     window_icon = self.WINDOW.render_icon(gtk.STOCK_DIALOG_INFO,
                                           gtk.IconSize.DIALOG)
     self.WINDOW.set_icon(window_icon)
-
+    self.ZOOMED = False
 
   # add a new entry to the favorites list
   # favorites list is a map of arrays, map key is the folder name
@@ -117,6 +124,7 @@ class favoritesmanager():
       for filename in self.FAVORITES[folder]:
         self.TREE_STORE.append(folder_tree, [filename])
     self.PREVIEW.set_from_stock(gtk.STOCK_FILE, gtk.IconSize.DIALOG)
+    self.STATUS_BAR.push(0, "Unknown")
     self.WINDOW.show_all()
 
   # Show a preview of the picture in the preview window
@@ -126,13 +134,30 @@ class favoritesmanager():
       self.PREVIEW_BUFFER = pixbuf.Pixbuf.new_from_stream(
         image_file.read(None), None
       )
-      width = self.PREVIEW_SCROLL.get_allocated_width() - 10
-      height = self.PREVIEW_SCROLL.get_allocated_height() - 10
-      scroll_ratio = width / height
+      self.STATUS_BAR.push(0, "%s (%dx%d)" % (
+        filename,
+        self.PREVIEW_BUFFER.get_width(),
+        self.PREVIEW_BUFFER.get_height()
+      ))
+      self.ZOOMED = True
+      self.display_zoomed_out_image()
+    except Exception as e:
+      print e
+      self.PREVIEW.set_from_stock(gtk.STOCK_FILE, gtk.IconSize.DIALOG)
+      self.STATUS_BAR.push(0, "Unknown")
+      self.PREVIEW.show()
+
+  # scale the image down to the size of the view pane
+  # fill the entire view pane and allow extra to scroll if needed
+  def display_zoomed_out_image(self):
+    if self.ZOOMED:
       image_width = self.PREVIEW_BUFFER.get_width()
       image_height = self.PREVIEW_BUFFER.get_height()
+      width = self.PREVIEW_SCROLL.get_allocated_width()
+      height = self.PREVIEW_SCROLL.get_allocated_height()
+      scroll_ratio = width / height
       image_ratio = image_width / image_height
-      if image_ratio < scroll_ratio:
+      if image_ratio > scroll_ratio:
         width = height * image_ratio
       else:
         height = width / image_ratio
@@ -143,12 +168,15 @@ class favoritesmanager():
           pixbuf.InterpType.BILINEAR
         )
       )
-    except Exception as e:
-      print e
-      self.PREVIEW.set_from_stock(gtk.STOCK_FILE, gtk.IconSize.DIALOG)
-    finally:
       self.PREVIEW.show()
+      self.ZOOMED = False
 
+  # display the image on a 1:1 ratio
+  def display_zoomed_in_image(self):
+    if not self.ZOOMED:
+      self.PREVIEW.set_from_pixbuf(self.PREVIEW_BUFFER)
+      self.PREVIEW.show()
+      self.ZOOMED = True
 
   def hide_window(self):
     self.WINDOW.hide()
