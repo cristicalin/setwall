@@ -17,11 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import division
+
+import sys
+import os.path
+
 from os.path import *
 from simplejson import *
 
 from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
+from gi.repository import Gio as gio
+from gi.repository import GdkPixbuf as pixbuf
 
 import globals
 
@@ -37,9 +44,20 @@ class favoritesmanager():
 
     def onSaveClicked(self, *args):
       print "onSaveClicked() not yet implemented"
+      self.FAVORITES.hide_window()
 
     def onCloseClicked(self, *args):
       self.FAVORITES.hide_window()
+
+    def onCursorChanged(self, *args):
+      selection = args[0].get_selection()
+      (model, tree_iter) = selection.get_selected()
+      if tree_iter is not None:
+        filename = model[tree_iter][0]
+        parent_iter = model.iter_parent(tree_iter)
+        if parent_iter is not None:
+          folder = model[parent_iter][0]
+          self.FAVORITES.show_preview(folder, filename)
 
   def __init__(self, app):
     self.APP = app
@@ -49,13 +67,16 @@ class favoritesmanager():
     self.BUILDER = gtk.Builder()
     try:
       self.BUILDER.add_from_file("%s/%s" % (os.path.dirname(sys.argv[0]),
-                                            globals.GLADE_FAVORTIES_FILE))
+                                            globals.GLADE_FAVORITES_FILE))
     except:
       self.BUILDER.add_from_file(globals.GLADE_FAVORITES_FILE)
     self.HANDLER = self.handler(self)
     self.BUILDER.connect_signals(self.HANDLER)
 
     self.WINDOW = self.BUILDER.get_object("wcFavorites")
+    self.PREVIEW = self.BUILDER.get_object("imgPreview")
+    self.PREVIEW_SCROLL = self.BUILDER.get_object("scrPreview")
+    self.PREVIEW_BUFFER = None
     self.TREE_STORE = self.BUILDER.get_object("tsFavorites")
     self.TREE_VIEW = self.BUILDER.get_object("tvFavorites")
     column = gtk.TreeViewColumn("Favorite List")
@@ -95,7 +116,39 @@ class favoritesmanager():
       folder_tree = self.TREE_STORE.append(None, [folder])
       for filename in self.FAVORITES[folder]:
         self.TREE_STORE.append(folder_tree, [filename])
+    self.PREVIEW.set_from_stock(gtk.STOCK_FILE, gtk.IconSize.DIALOG)
     self.WINDOW.show_all()
+
+  # Show a preview of the picture in the preview window
+  def show_preview(self, folder, filename):
+    try:
+      image_file = gio.File.new_for_uri("file://%s/%s" % (folder, filename))
+      self.PREVIEW_BUFFER = pixbuf.Pixbuf.new_from_stream(
+        image_file.read(None), None
+      )
+      width = self.PREVIEW_SCROLL.get_allocated_width() - 10
+      height = self.PREVIEW_SCROLL.get_allocated_height() - 10
+      scroll_ratio = width / height
+      image_width = self.PREVIEW_BUFFER.get_width()
+      image_height = self.PREVIEW_BUFFER.get_height()
+      image_ratio = image_width / image_height
+      if image_ratio < scroll_ratio:
+        width = height * image_ratio
+      else:
+        height = width / image_ratio
+      self.PREVIEW.set_from_pixbuf(
+        self.PREVIEW_BUFFER.scale_simple(
+          width, 
+          height, 
+          pixbuf.InterpType.BILINEAR
+        )
+      )
+    except Exception as e:
+      print e
+      self.PREVIEW.set_from_stock(gtk.STOCK_FILE, gtk.IconSize.DIALOG)
+    finally:
+      self.PREVIEW.show()
+
 
   def hide_window(self):
     self.WINDOW.hide()
@@ -108,6 +161,9 @@ class favoritesmanager():
 
   def get_need_save(self):
     return self.NEED_SAVE
+
+  def set_need_save(self, value):
+    self.NEED_SAVE = value
 
 
 # this is for unit testing only

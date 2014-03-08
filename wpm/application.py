@@ -181,6 +181,7 @@ class application:
       self.FILE_LIST.set_need_save(False)
     if self.FAVORITES_MANAGER.get_need_save():
       self.SETTINGS.set_favorites(self.FAVORITES_MANAGER.get_json())
+      self.FAVORITES_MANAGER.set_need_save(False)
 
   def main(self):
     gtk.main()

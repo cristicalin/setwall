@@ -39,6 +39,7 @@
                         <property name="model">tsFavorites</property>
                         <property name="search_column">0</property>
                         <property name="enable_tree_lines">True</property>
+                        <signal name="cursor-changed" handler="onCursorChanged" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -48,10 +49,24 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkImage" id="preview">
+                  <object class="GtkScrolledWindow" id="scrPreview">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="stock">gtk-select-color</property>
+                    <property name="shadow_type">in</property>
+                    <child>
+                      <object class="GtkViewport" id="viewport1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkImage" id="imgPreview">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="stock">gtk-file</property>
+                            <property name="icon-size">6</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                   <packing>
                     <property name="resize">True</property>
