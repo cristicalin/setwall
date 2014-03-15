@@ -13,7 +13,6 @@ TODO
 * implement favorites feature: should support multiple lists
   and restrict slideshow to current favorite list
 * implement favorites management dialog
-* add favorites CLI support
 * support keyboard shortcut feature for next stop and previous
 * figure out how to set specific file name in settings dialog
   would be nice to click in the status bar and have a dropdown
@@ -25,6 +24,7 @@ TODO
   that DBus fails to connect after fork() leaving the application
   stuck in connecting to DBus and exiting with a timeout
 * support other desktop environments (Gnome3, Mate, KDE, Xfce)
+* implement a more balanced search optimized tree structure
 
 DONE
 
@@ -34,3 +34,4 @@ DONE
 * separate dbus code into different class, keep application 
   class implementation simple
 * separate Indicator / menu code into different class
+* add favorites CLI support
