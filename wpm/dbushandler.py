@@ -84,6 +84,11 @@ class dbushandler(dbus.service.Object):
 
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
                        in_signature='', out_signature='')
+  def favorite(self):
+    self.APP.add_current_to_favorites()
+
+  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+                       in_signature='', out_signature='')
   def save(self):
     self.APP.save_json()
 
