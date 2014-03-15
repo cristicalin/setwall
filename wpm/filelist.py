@@ -73,6 +73,9 @@ class filelist:
       self.LOCAL_COUNT = 0
       self.DIR_PATH = path
       temp = os.walk(self.DIR_PATH).next()[2]
+      # increase the chance of a balanced tree
+      # and hitting python maximum recursion level
+      random.shuffle(temp)
       temp_tree = bst.bst(temp)
       # if we have a saved state load that, else load clean list and randomize
       if json is not None:
