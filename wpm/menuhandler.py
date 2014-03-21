@@ -126,7 +126,8 @@ class menuhandler():
 
     favorites = self.APP.FAVORITES_MANAGER.get_favorites()
     for folder in favorites:
-      folder_menu_item = gtk.MenuItem(folder)
+      folder_menu_item = gtk.MenuItem()
+      folder_menu_item.set_label(folder)
       favorites_menu.append(folder_menu_item)
       file_menu = gtk.Menu()
       for filename in favorites[folder]:
@@ -137,7 +138,8 @@ class menuhandler():
 
   # Create a file menu item
   def create_file_menu_item(self, folder, filename):
-    file_menu_item = gtk.MenuItem(filename)
+    file_menu_item = gtk.MenuItem()
+    file_menu_item.set_label(filename)
     file_menu_item.connect(
       "activate", self.APP.favorite_set, 
       {
@@ -158,7 +160,8 @@ class menuhandler():
         )
         found = True
     if not found:
-      folder_menu_item = gtk.MenuItem(folder)
+      folder_menu_item = gtk.MenuItem()
+      folder_menu_item.set_label(folder)
       folder_menu_item.show()
       self.FAVORITES.append(folder_menu_item)
       folder_menu = gtk.Menu()
