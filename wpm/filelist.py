@@ -143,8 +143,11 @@ class filelist:
     return self.get_current_file()
 
   def get_current_file(self):
-    tmp = "%s/%s" % (self.DIR_PATH, self.LOCAL_FILE_LIST[self.LOCAL_COUNT])
-    return tmp
+    tmp = None
+    try:
+      tmp = "%s/%s" % (self.DIR_PATH, self.LOCAL_FILE_LIST[self.LOCAL_COUNT])
+    finally:
+      return tmp
 
   def set_index(self, file):
     try:

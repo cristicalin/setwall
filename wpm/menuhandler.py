@@ -61,7 +61,8 @@ class menuhandler():
     self.FAVORITES = self.build_favorites_menu()
     favorites_menu_item.set_submenu(self.FAVORITES)
 
-    slideshow_menu = gtk.CheckMenuItem("Slideshow")
+    slideshow_menu = gtk.CheckMenuItem()
+    slideshow_menu.set_label("Slideshow")
     slideshow_menu.connect("toggled", self.APP.toggle)
     slideshow_menu.set_active(self.SETTINGS.get_wallpaper_schedule())
     menu.append(slideshow_menu)
@@ -69,11 +70,13 @@ class menuhandler():
 
     menu.append(gtk.SeparatorMenuItem())
 
-    settings_menu = gtk.MenuItem("Settings")
+    settings_menu = gtk.MenuItem()
+    settings_menu.set_label("Settings")
     settings_menu.connect("activate", self.APP.show_settings)
     menu.append(settings_menu)
 
-    quit_menu = gtk.MenuItem("Quit")
+    quit_menu = gtk.MenuItem()
+    quit_menu.set_label("Quit")
     quit_menu.connect("activate", self.APP.quit_app)
     menu.append(quit_menu)
 
@@ -109,11 +112,13 @@ class menuhandler():
   def build_favorites_menu(self):
     favorites_menu = gtk.Menu()
 
-    add_favorite_menu = gtk.MenuItem("Add Current")
+    add_favorite_menu = gtk.MenuItem()
+    add_favorite_menu.set_label("Add Current")
     add_favorite_menu.connect("activate", self.APP.add_current_to_favorites)
     favorites_menu.append(add_favorite_menu)
 
-    edit_favorites_menu = gtk.MenuItem("Edit Favorites")
+    edit_favorites_menu = gtk.MenuItem()
+    edit_favorites_menu.set_label("Edit Favorites")
     edit_favorites_menu.connect("activate", self.APP.show_favorites)
     favorites_menu.append(edit_favorites_menu)
 

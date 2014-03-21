@@ -19,6 +19,9 @@
 
 import sys
 import os
+
+import gi
+
 from gi.repository import GObject as gobject
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -30,7 +33,9 @@ if __name__ == "__main__":
   reload(sys)
   sys.setdefaultencoding('utf-8')
   # allow other threads to execute
-  gobject.threads_init()
+  (major, minor, rest) = gi.version_info
+  if major==3 and minor < 11:
+    gobject.threads_init()
   app = application()
   app.main()
   
