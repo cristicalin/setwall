@@ -41,6 +41,11 @@ class favoritesmanager():
 
     def __init__(self, favorites):
       self.FAVORITES = favorites
+      self.drag = False
+      self.drag_x = 0
+      self.drag_y = 0
+      self.ARROW = gdk.Cursor(gdk.CursorType.ARROW)
+      self.CROSS = gdk.Cursor(gdk.CursorType.DIAMOND_CROSS)
 
     def onDeleteEvent(self, *args):
       self.FAVORITES.hide_window()
@@ -69,6 +74,34 @@ class favoritesmanager():
     def onZoomOut(self, *args):
       self.FAVORITES.display_zoomed_out_image()
 
+    # we get the onMouse* events from a GtkEventBox so that the coordinates
+    # always refer to the same fixed points otherwise we get jerky movement
+    # save current mouse position and turn the cursor into a cross
+    def onMouseGrab(self, *args):
+      event = args[1]
+      self.drag = True
+      self.drag_x = event.x
+      self.drag_y = event.y
+      self.FAVORITES.PREVIEW_SCROLL.get_root_window().set_cursor(self.CROSS)
+
+    # use GtkAdjustment to move the preview picture
+    def onMouseMove(self, *args):
+      if self.drag:
+        event = args[1]
+        diff_x = self.drag_x - event.x
+        diff_y = self.drag_y - event.y
+        self.drag_x = event.x
+        self.drag_y = event.y
+        adj_x = self.FAVORITES.PREVIEW_H_ADJUSTMENT.get_value()
+        adj_y = self.FAVORITES.PREVIEW_V_ADJUSTMENT.get_value()
+        self.FAVORITES.PREVIEW_H_ADJUSTMENT.set_value(adj_x + diff_x)
+        self.FAVORITES.PREVIEW_V_ADJUSTMENT.set_value(adj_y + diff_y)
+        
+    # release the drag and change the cursor back
+    def onMouseRelease(self, *args):
+      self.drag = False
+      self.FAVORITES.PREVIEW_SCROLL.get_root_window().set_cursor(self.ARROW)
+
   def __init__(self, app):
     self.APP = app
     self.SETTINGS = app.SETTINGS
@@ -89,6 +122,8 @@ class favoritesmanager():
     self.PREVIEW_BUFFER = None
     self.TREE_STORE = self.BUILDER.get_object("tsFavorites")
     self.TREE_VIEW = self.BUILDER.get_object("tvFavorites")
+    self.PREVIEW_H_ADJUSTMENT = self.BUILDER.get_object("adjPreviewHorizontal")
+    self.PREVIEW_V_ADJUSTMENT = self.BUILDER.get_object("adjPreviewVertical")
     column = gtk.TreeViewColumn("Favorite List")
     self.TREE_VIEW.append_column(column)
     cell = gtk.CellRendererText()

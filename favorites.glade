@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 3.0 -->
+  <object class="GtkAdjustment" id="adjPreviewHorizontal">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjPreviewVertical">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkTreeStore" id="tsFavorites">
     <columns>
       <!-- column-name favorite -->
@@ -54,7 +64,9 @@
                                 <child>
                                   <object class="GtkTreeView" id="tvFavorites">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="has_focus">True</property>
+                                    <property name="is_focus">True</property>
                                     <property name="model">tsFavorites</property>
                                     <property name="search_column">0</property>
                                     <property name="enable_tree_lines">True</property>
@@ -126,19 +138,33 @@
                             <property name="can_focus">False</property>
                             <property name="orientation">vertical</property>
                             <child>
-                              <object class="GtkScrolledWindow" id="scrPreview">
+                              <object class="GtkEventBox" id="eventbox1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_STRUCTURE_MASK</property>
+                                <property name="above_child">True</property>
+                                <signal name="button-press-event" handler="onMouseGrab" swapped="no"/>
+                                <signal name="button-release-event" handler="onMouseRelease" swapped="no"/>
+                                <signal name="motion-notify-event" handler="onMouseMove" swapped="no"/>
                                 <child>
-                                  <object class="GtkViewport" id="viewport1">
+                                  <object class="GtkScrolledWindow" id="scrPreview">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
+                                    <property name="hadjustment">adjPreviewHorizontal</property>
+                                    <property name="vadjustment">adjPreviewVertical</property>
                                     <child>
-                                      <object class="GtkImage" id="imgPreview">
+                                      <object class="GtkViewport" id="viewport1">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="stock">gtk-file</property>
-                                        <property name="icon-size">6</property>
+                                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_STRUCTURE_MASK</property>
+                                        <child>
+                                          <object class="GtkImage" id="imgPreview">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="stock">gtk-file</property>
+                                            <property name="icon-size">6</property>
+                                          </object>
+                                        </child>
                                       </object>
                                     </child>
                                   </object>
