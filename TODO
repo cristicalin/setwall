@@ -2,8 +2,8 @@ This document contains a list of TODOs and ideas for setwall.
 Done tasks/ideas are listed at the end of the document.
 
 BUGS
-* when closing windows using the X button on the window title
-  bar the contents get mangled / objects get invalidated
+* [FIXED] when closing windows using the X button on the window
+  title bar the contents get mangled / objects get invalidated
 * when disabling wallpaper save feature and clicking apply
   the list gets reset improperly
 * [FIXED] UTF-8 encoding comparison in BST fails

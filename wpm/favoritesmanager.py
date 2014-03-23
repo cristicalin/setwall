@@ -42,6 +42,10 @@ class favoritesmanager():
     def __init__(self, favorites):
       self.FAVORITES = favorites
 
+    def onDeleteEvent(self, *args):
+      self.FAVORITES.hide_window()
+      return True
+
     def onApply(self, *args):
       print "onSaveClicked() not yet implemented"
       self.FAVORITES.hide_window()

@@ -42,6 +42,10 @@ class settings:
       self.SETTINGS.save()
       self.SETTINGS.hide_window()
 
+    def onDeleteEvent(self, *args):
+      self.SETTINGS.hide_window()
+      return True
+      
     def onClose(self, *args):
       self.SETTINGS.hide_window()
       
