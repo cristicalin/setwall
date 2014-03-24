@@ -18,15 +18,12 @@ TODO
   would be nice to click in the status bar and have a dropdown
   list allow to select the file (maybe support preview in the
   dropdown list as well)
-* speed up save and load on massive folders (30000+ images)
 * implement file name filtering
 * support decent fork()'ing on initial launch, there seems
   that DBus fails to connect after fork() leaving the application
   stuck in connecting to DBus and exiting with a timeout
 * support other desktop environments (Gnome3, Mate, KDE, Xfce)
 * implement a more balanced search optimized tree structure
-* allow loading of previous list without reconciliation
-  this speeds up loading with large folders (30000+ images)
 
 DONE
 
@@ -37,3 +34,6 @@ DONE
   class implementation simple
 * separate Indicator / menu code into different class
 * add favorites CLI support
+* speed up save and load on massive folders (30000+ images)
+* allow loading of previous list without reconciliation
+  this speeds up loading with large folders (30000+ images)
