@@ -25,6 +25,8 @@ TODO
   stuck in connecting to DBus and exiting with a timeout
 * support other desktop environments (Gnome3, Mate, KDE, Xfce)
 * implement a more balanced search optimized tree structure
+* allow loading of previous list without reconciliation
+  this speeds up loading with large folders (30000+ images)
 
 DONE
 

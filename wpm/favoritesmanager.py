@@ -92,10 +92,8 @@ class favoritesmanager():
         diff_y = self.drag_y - event.y
         self.drag_x = event.x
         self.drag_y = event.y
-        adj_x = self.FAVORITES.PREVIEW_H_ADJUSTMENT.get_value()
-        adj_y = self.FAVORITES.PREVIEW_V_ADJUSTMENT.get_value()
-        self.FAVORITES.PREVIEW_H_ADJUSTMENT.set_value(adj_x + diff_x)
-        self.FAVORITES.PREVIEW_V_ADJUSTMENT.set_value(adj_y + diff_y)
+        adj_x, adj_y = self.FAVORITES.get_adjustments()
+        self.FAVORITES.set_adjustments(adj_x + diff_x, adj_y + diff_y)
         
     # release the drag and change the cursor back
     def onMouseRelease(self, *args):
@@ -209,6 +207,7 @@ class favoritesmanager():
       )
       self.PREVIEW.show()
       self.ZOOMED = False
+      self.set_adjustments(0, 0)
 
   # display the image on a 1:1 ratio
   def display_zoomed_in_image(self):
@@ -216,6 +215,17 @@ class favoritesmanager():
       self.PREVIEW.set_from_pixbuf(self.PREVIEW_BUFFER)
       self.PREVIEW.show()
       self.ZOOMED = True
+      self.set_adjustments(0, 0)
+
+  # manage adjustments for preview window
+  def get_adjustments(self):
+    adj_x = self.PREVIEW_H_ADJUSTMENT.get_value()
+    adj_y = self.PREVIEW_V_ADJUSTMENT.get_value()
+    return adj_x, adj_y
+
+  def set_adjustments(self, adj_x, adj_y):
+    self.PREVIEW_H_ADJUSTMENT.set_value(adj_x)
+    self.PREVIEW_V_ADJUSTMENT.set_value(adj_y)
 
   def hide_window(self):
     self.WINDOW.hide()
