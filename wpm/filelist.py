@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import os.path
 import random
 import pyinotify
 import copy
@@ -142,22 +143,45 @@ class filelist:
     self.suspend_watch()
     self.NOTIFIER.stop()
 
-  def get_next_file(self):
+  def get_next_file(self, counter = 5):
     self.LOCAL_COUNT += 1
     self.LOCAL_COUNT %= len(self.LOCAL_FILE_LIST)
-    return self.get_current_file()
+    current_file = self.get_current_file()
+    if current_file is None:
+      if counter > 0:
+        return self.get_next_file(counter - 1)
+      else:
+        return None
+    else:
+      return current_file
 
-  def get_previous_file(self):
+  def get_previous_file(self, counter = 5):
     self.LOCAL_COUNT -= 1
     self.LOCAL_COUNT %= len(self.LOCAL_FILE_LIST)
-    return self.get_current_file()
+    current_file = self.get_current_file()
+    if current_file is None:
+      if counter > 0:
+        return self.get_previous_file(counter - 1)
+      else:
+        return None
+    else:
+      return current_file
 
   def get_current_file(self):
     tmp = None
     try:
       tmp = "%s/%s" % (self.DIR_PATH, self.LOCAL_FILE_LIST[self.LOCAL_COUNT])
     finally:
-      return tmp
+      if self.APP is not None:
+        if self.APP.SETTINGS.get_verify_presence():
+          if os.path.isfile(tmp):
+            return tmp
+          else:
+            return None
+        else:
+          return tmp
+      else:
+        return tmp
 
   def get_path(self):
     return self.DIR_PATH

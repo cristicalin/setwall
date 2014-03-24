@@ -24,6 +24,7 @@ APP_FRIENDLY_NAME = " ".join(map(lambda s: s.capitalize(), APP_NAME.split("_")))
 APP_PATH = "/com/kman"
 APP_ICON = "preferences-desktop-wallpaper"
 BASE_ID = "com.kman"
+
 WALLPAPER_PATH = "path"
 WALLPAPER_INTERVAL = "interval"
 WALLPAPER_SCHEDULE = "schedule"
