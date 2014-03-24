@@ -108,8 +108,12 @@ class application:
   # TODO: implement restriction code
   def favorite_set(self, item = None, data = None):
     if item is not None and data is not None:
-      self.SETTINGS.set_wallpaper_path(data["folder"])
-      self.FILE_LIST.load(data["folder"])
+      # only change the path if necessary, this could be costly
+      # in case of large Wallpaper folders and we want to avoid it
+      if self.FILE_LIST.get_path() != data["folder"]:
+        self.SETTINGS.set_wallpaper_path(data["folder"])
+        self.FILE_LIST.load_from_path(data["folder"])
+        self.FILE_LIST.randomize()
       self.FILE_LIST.set_index(data["file"])
       self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_current_file())
       self.reset_schedule()
@@ -142,8 +146,10 @@ class application:
   # Resume the scheduler
   def resume_schedule(self):
     if self.SETTINGS.get_wallpaper_schedule():
-      self.SCHEDULER.add_interval_job(self.next_wallpaper,
-                                      seconds = self.SETTINGS.get_wallpaper_interval())
+      self.SCHEDULER.add_interval_job(
+        self.next_wallpaper,
+        seconds = self.SETTINGS.get_wallpaper_interval()
+      )
 
   # Load and process settings, will be also called
   # when apply is pressed in the settings dialog
@@ -152,10 +158,12 @@ class application:
   def load_settings(self, reload = False, file_list = None):
     if not reload:
       if self.SETTINGS.get_wallpaper_save():
-        self.FILE_LIST.load(self.SETTINGS.get_wallpaper_path(),
-                            self.SETTINGS.get_saved_list())
+        self.FILE_LIST.load_from_json(self.SETTINGS.get_wallpaper_path(),
+                                      self.SETTINGS.get_saved_list())
+        if self.SETTINGS.get_reconcile():
+          self.FILE_LIST.reconcile()
       else:
-        self.FILE_LIST.load(self.SETTINGS.get_wallpaper_path())
+        self.FILE_LIST.load_from_path(self.SETTINGS.get_wallpaper_path())
     else:
       if (self.SETTINGS.LOCAL_FILE_LIST.get_current_file() != 
           self.FILE_LIST.get_current_file()):
@@ -183,6 +191,12 @@ class application:
     if self.FAVORITES_MANAGER.get_need_save():
       self.SETTINGS.set_favorites(self.FAVORITES_MANAGER.get_json())
       self.FAVORITES_MANAGER.set_need_save(False)
+
+
+  # Call file list reconcile
+  def reconcile(self):
+    self.FILE_LIST.invalidate()
+    self.FILE_LIST.reconcile()
 
   def main(self):
     gtk.main()

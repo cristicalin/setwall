@@ -94,6 +94,11 @@ class dbushandler(dbus.service.Object):
 
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
                        in_signature='', out_signature='')
+  def reconcile(self):
+    self.APP.reconcile()
+
+  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+                       in_signature='', out_signature='')
   def quit(self):
     self.APP.quit_app()
 

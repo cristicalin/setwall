@@ -114,7 +114,7 @@ class settings:
     self.ckVerifyPresence.set_active(self.get_verify_presence())
     self.spInterval.set_value(self.get_wallpaper_interval())
     self.LOCAL_FILE_LIST = copy.copy(self.APP.FILE_LIST)
-    self.set_path(self.get_wallpaper_path())
+    self.set_path(self.get_wallpaper_path(), False)
     filename = "file://%s" % self.LOCAL_FILE_LIST.get_current_file()
     self.STATUS_BAR.push(0, filename)
     self.show_preview(filename)
@@ -155,7 +155,7 @@ class settings:
     finally:
       self.cbPath.handler_unblock_by_func(self.HANDLER.onPathChanged)
     if changed:
-      self.LOCAL_FILE_LIST.load(dirname)
+      self.LOCAL_FILE_LIST.load_from_file(dirname)
       self.LOCAL_FILE_LIST.sort()
 
   # recursively build the down path

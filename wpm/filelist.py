@@ -63,37 +63,47 @@ class filelist:
     self.DIR_PATH = None
     self.APP = app
     self.NEED_SAVE = False
+    self.NEED_RECONCILE = True
 
-  # Load the file list, either from the directory path or from a saved list
-  # reconcile the saved list whith current file list
-  def load(self, path, json = None):
-    self.suspend_watch()
-    # only reload if path changed, we rely on pyinotify to keep the list updated
-    if path != self.DIR_PATH:
-      self.LOCAL_COUNT = 0
+  # Load the file list from json, this saves time walking large folders
+  def load_from_json(self, path, json):
+    if json is not None:
+      self.suspend_watch()
       self.DIR_PATH = path
+      self.LOCAL_FILE_LIST = from_json(json)
+      self.instate_watch()
+      self.NEED_RECONCILE = True
+    else:
+      self.load_from_path(path)
+
+  # Load file directly from disk, this is sub-optimal in case of large folders
+  def load_from_path(self, path):
+    self.suspend_watch()
+    self.DIR_PATH = path
+    self.LOCAL_FILE_LIST = os.walk(self.DIR_PATH).next()[2]
+    self.instate_watch()
+    self.NEED_RECONCILE = False
+
+  # reconcile in memory list with actual state on disk
+  # used from the cli to reconcile file system state if differing from json
+  def reconcile(self):
+    if self.NEED_RECONCILE:
+      self.suspend_watch()
       temp = os.walk(self.DIR_PATH).next()[2]
       # increase the chance of a balanced tree
       # and hitting python maximum recursion level
-      random.shuffle(temp)
+      # random.shuffle(temp)
       temp_tree = bst.bst(temp)
-      # if we have a saved state load that, else load clean list and randomize
-      if json is not None:
-        self.LOCAL_FILE_LIST = from_json(json)
-        # reconcile the JSON with the files actually in the folder
-        for my_file in self.LOCAL_FILE_LIST:
-          if temp_tree.extract(my_file) != my_file: 
-            self.LOCAL_FILE_LIST.remove(my_file)
-        temp_list = temp_tree.as_list()
-        if len(temp_list) > 0:
-          self.LOCAL_FILE_LIST += temp_tree.as_list()
-          self.NEED_SAVE = True
-      else:
-        self.LOCAL_FILE_LIST = temp
-        self.randomize()
-        self.NEED_SAVE = True
-    self.instate_watch()
-  
+      for my_file in self.LOCAL_FILE_LIST:
+        if temp_tree.extract(my_file) != my_file: 
+          self.LOCAL_FILE_LIST.remove(my_file)
+      temp_list = temp_tree.as_list()
+      if len(temp_list) > 0:
+        self.LOCAL_FILE_LIST += temp_tree.as_list()
+      self.NEED_SAVE = True
+      self.instate_watch()
+    self.NEED_RECONCILE = False
+
   # suspend the watch, we usually do this to avoid a race condition
   def suspend_watch(self):
     if self.DIR_PATH is not None:
@@ -102,7 +112,7 @@ class filelist:
       )
   
   # we instate the watch after the reace condition has passed
-  # or upon a fresh load() call
+  # or upon a fresh load_from_*() or reconcile() call
   def instate_watch(self):
     self.WATCH_MANAGER.add_watch(
       self.DIR_PATH,
@@ -149,6 +159,9 @@ class filelist:
     finally:
       return tmp
 
+  def get_path(self):
+    return self.DIR_PATH
+
   def set_index(self, file):
     try:
       self.LOCAL_COUNT = self.LOCAL_FILE_LIST.index(file)
@@ -185,6 +198,9 @@ class filelist:
   def set_need_save(self, value):
     self.NEED_SAVE = value
 
+  # allow forcing a reconcile, this needs to be called first
+  def invalidate(self):
+    self.NEED_RECONCILE = False
 
 # For unit testing purposes only
 if __name__ == "__main__":
@@ -194,7 +210,7 @@ if __name__ == "__main__":
       print "file_changed(%s: %s)" % (action, file)
 
   fl = filelist(callback())
-  fl.load(".")
+  fl.load_from_path(".")
   l = fl.get_list()
   fl.close()
 
