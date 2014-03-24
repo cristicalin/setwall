@@ -170,16 +170,11 @@ class settings:
     path = self.cbPath.get_active_text()
     if (os.path.isdir(path)):
       self.set_wallpaper_path(path)
-    interval = self.spInterval.get_value()
-    self.set_wallpaper_interval(interval)
-    schedule = self.ckSchedule.get_active()
-    self.set_wallpaper_schedule(schedule)
-    save = self.ckLoadSavedList.get_active()
-    self.set_wallpaper_save(save)
-    reconcile = self.ckReconcile.get_active()
-    self.set_reconcile(reconcile)
-    verify_presence = self.ckVerifyPresence.get_active()
-    self.set_verify_presence(verify_presence)
+    self.set_wallpaper_interval(self.spInterval.get_value())
+    self.set_wallpaper_schedule(self.ckSchedule.get_active())
+    self.set_wallpaper_save(self.ckLoadSavedList.get_active())
+    self.set_reconcile(self.ckReconcile.get_active())
+    self.set_verify_presence(self.ckVerifyPresence.get_active())
     if self.APP is not None:
       self.APP.load_settings(True, self.LOCAL_FILE_LIST)
 
