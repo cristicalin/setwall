@@ -224,7 +224,7 @@ class filelist:
 
   # allow forcing a reconcile, this needs to be called first
   def invalidate(self):
-    self.NEED_RECONCILE = False
+    self.NEED_RECONCILE = True
 
 # For unit testing purposes only
 if __name__ == "__main__":
