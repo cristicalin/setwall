@@ -19,7 +19,17 @@
     <key type="b" name="save">
       <default>true</default>
       <summary>Save Previous Wallpaper List</summary>
-      <description>Set this to true if you want to the previous list, otherwise it will be recreated on each start.</description>
+      <description>Set this to true if you want to load the previous list, otherwise it will be recreated on each start.</description>
+    </key>
+    <key type="b" name="reconcile">
+      <default>true</default>
+      <summary>Reconcile Wallpaper List During Application Load</summary>
+      <description>Set this to true if you want to reconcile the previous list during load, otherwise it will load the file list as it was stored in the settings.</description>
+    </key>
+    <key type="b" name="verify-presence">
+      <default>true</default>
+      <summary>Verify Wallpaper File Presence</summary>
+      <description>Set this to true if you want to verify the presence of the file on the filesystem before setting a wallpaper. This makes sense if you disable reconcile.</description>
     </key>
     <key type="s" name="saved-list">
       <default>'[]'</default>

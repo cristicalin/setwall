@@ -100,6 +100,8 @@ class settings:
 
     self.ckSchedule = self.BUILDER.get_object("ckSchedule")
     self.ckLoadSavedList = self.BUILDER.get_object("ckLoadSavedList")
+    self.ckReconcile = self.BUILDER.get_object("ckReconcile")
+    self.ckVerifyPresence = self.BUILDER.get_object("ckVerifyPresence")
     self.spInterval = self.BUILDER.get_object("spInterval")
     self.cbPath = self.BUILDER.get_object("cbPath")
     self.imgPreview = self.BUILDER.get_object("imgPreview")
@@ -108,6 +110,8 @@ class settings:
     self.WINDOW.move(gdk.Screen.width()-self.WINDOW.get_size()[0]-50, 50)
     self.ckSchedule.set_active(self.get_wallpaper_schedule())
     self.ckLoadSavedList.set_active(self.get_wallpaper_save())
+    self.ckReconcile.set_active(self.get_reconcile())
+    self.ckVerifyPresence.set_active(self.get_verify_presence())
     self.spInterval.set_value(self.get_wallpaper_interval())
     self.LOCAL_FILE_LIST = copy.copy(self.APP.FILE_LIST)
     self.set_path(self.get_wallpaper_path())
@@ -120,15 +124,15 @@ class settings:
   def show_preview(self, filename):
     try:
       image_file = gio.File.new_for_uri(filename)
+      # size request is set on the container box which holds the Viewport
+      container = self.imgPreview.get_parent().get_parent()
+      width, height = container.get_size_request()
       preview = pixbuf.Pixbuf.new_from_stream_at_scale(
-        image_file.read(None), 
-        globals.PREVIEW_WIDTH, 
-        globals.PREVIEW_HEIGHT, 
-        True, 
-        None
+        image_file.read(None), width, height, True, None
       )
       self.imgPreview.set_from_pixbuf(preview)
     except Exception as e:
+      print e
       self.imgPreview.set_from_stock(gtk.STOCK_FILE, gtk.IconSize.DIALOG)
     finally:
       self.imgPreview.show()
@@ -172,6 +176,10 @@ class settings:
     self.set_wallpaper_schedule(schedule)
     save = self.ckLoadSavedList.get_active()
     self.set_wallpaper_save(save)
+    reconcile = self.ckReconcile.get_active()
+    self.set_reconcile(reconcile)
+    verify_presence = self.ckVerifyPresence.get_active()
+    self.set_verify_presence(verify_presence)
     if self.APP is not None:
       self.APP.load_settings(True, self.LOCAL_FILE_LIST)
 
@@ -222,6 +230,18 @@ class settings:
 
   def set_saved_list(self, json):
     self.APP_SETTINGS.set_string(globals.WALLPAPER_SAVED_LIST, json)
+
+  def get_reconcile(self):
+    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_RECONCILE)
+
+  def set_reconcile(self, reconcile):
+    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_RECONCILE, reconcile)
+
+  def get_verify_presence(self):
+    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_VERIFY_PRESENCE)
+
+  def set_verify_presence(self, verify_presence):
+    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_VERIFY_PRESENCE, verify_presence)
 
   def get_wallpaper(self):
     return self.WALLPAPER_SETTINGS.get_string(globals.PICTURE_URI)
