@@ -28,6 +28,8 @@ from gi.repository import GdkPixbuf as pixbuf
 
 import globals
 
+from utils import *
+
 # The settings class is a container for the application settings
 # as well as a handler for the settings configuration window
 class settings:
@@ -142,7 +144,7 @@ class settings:
     self.cbPath.handler_block_by_func(self.HANDLER.onPathChanged)
     try:
       self.cbPath.get_model().clear()
-      names_list = os.walk(dirname).next()[1]
+      names_list = get_dir_list(dirname)
       names_list.sort()
       for name in names_list:
         if not name.startswith("."):

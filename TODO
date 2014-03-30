@@ -22,7 +22,6 @@ TODO
   that DBus fails to connect after fork() leaving the application
   stuck in connecting to DBus and exiting with a timeout
 * support other desktop environments (Gnome3, Mate, KDE, Xfce)
-* implement a more balanced search optimized tree structure
 
 DONE
 
@@ -38,3 +37,6 @@ DONE
   this speeds up loading with large folders (30000+ images)
 * implement favorites management dialog, support list
   manipulation, saving and propagation
+* implement a more balanced search optimized tree structure,
+  when loading a list sort it first and use divide et impera
+  to split into a balanced binary sort tree

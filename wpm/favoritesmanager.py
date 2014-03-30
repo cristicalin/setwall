@@ -268,18 +268,19 @@ class favoritesmanager():
     self.PREVIEW_H_ADJUSTMENT.set_value(adj_x)
     self.PREVIEW_V_ADJUSTMENT.set_value(adj_y)
 
-  def func(self, model, path, iter, json):
+  # this function assumes there are only two levels in the tree
+  def walk_map(self, model, path, iter, mapptr):
     parent = model.iter_parent(iter)
     obj = model[iter][0]
     if parent is None:
-      json[obj] = []
+      mapptr[obj] = []
     else:
       parent_name = model[parent][0]
-      json[parent_name].append(obj) 
+      mapptr[parent_name].append(obj) 
   
   def save_favorites(self):
     tmp_map = {}
-    self.TREE_STORE.foreach(self.func, tmp_map)
+    self.TREE_STORE.foreach(self.walk_map, tmp_map)
     self.FAVORITES_LIST = tmp_map
     self.set_need_save(True)
     self.APP.save_json()

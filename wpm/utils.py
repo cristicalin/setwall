@@ -19,6 +19,9 @@
 
 # this code library contains useful stand alone functions
 
+import os
+import os.path
+
 from simplejson import *
 
 # Shorten long file names
@@ -36,6 +39,23 @@ def to_json(data):
 def from_json(json):
   jd = JSONDecoder()
   return jd.decode(json)
+
+# Generic get function
+def get_checked_list(directory, check_func):
+  file_list = []
+  tmp = os.listdir(directory)
+  for i in tmp:
+    if check_func("%s/%s" % (directory, i)):
+      file_list.append(i)
+  return file_list
+
+# Get file list from a directory (os.listdir is much faster than os.walk for large folders)
+def get_file_list(directory):
+  return get_checked_list(directory, lambda a: os.path.isfile(a))
+
+# Get subdir list from a directory (os.listdir is much faster than os.walk for large folders)
+def get_dir_list(directory):
+  return get_checked_list(directory, lambda a: os.path.isdir(a))
 
 # this is for unit testing only
 if __name__ == "__main__":

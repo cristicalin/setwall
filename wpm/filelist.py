@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import os.path
 import random
 import pyinotify
@@ -81,7 +80,7 @@ class filelist:
   def load_from_path(self, path):
     self.suspend_watch()
     self.DIR_PATH = path
-    self.LOCAL_FILE_LIST = os.walk(self.DIR_PATH).next()[2]
+    self.LOCAL_FILE_LIST = get_file_list(self.DIR_PATH)
     self.instate_watch()
     self.NEED_RECONCILE = False
 
@@ -90,10 +89,7 @@ class filelist:
   def reconcile(self):
     if self.NEED_RECONCILE:
       self.suspend_watch()
-      temp = os.walk(self.DIR_PATH).next()[2]
-      # increase the chance of a balanced tree
-      # and hitting python maximum recursion level
-      # random.shuffle(temp)
+      temp = get_file_list(self.DIR_PATH)
       temp_tree = bst.bst(temp)
       for my_file in self.LOCAL_FILE_LIST:
         if temp_tree.extract(my_file) != my_file: 

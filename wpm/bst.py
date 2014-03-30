@@ -55,20 +55,27 @@ class bst:
 class node:
 
   # class constructuctor, takes single value or a list
-  def __init__(self, value=None, root=None):
+  def __init__(self, value=None):
     self.left = None
     self.right = None
-    self.root = root
     if type(value) is list:
       self.value = None
-      for i in value:
-        self.insert(i)
+      value.sort()
+      self.from_list(self, value, 0, len(value)-1)
     else:
       self.value = value
 
   # print as a string
   def __str__(self):
     return "[%s, %s, %s]" % (self.left, str(self.value), self.right)
+
+  # convert list, make sure it is balanced
+  def from_list(self, node, list, start, end):
+    if (end - start) >= 0:
+      mid = int((end - start) / 2)
+      node.insert(list[start+mid])
+      self.from_list(node, list, start, start+mid-1)
+      self.from_list(node, list, start+mid+1, end)
 
   # convert to an ordered list
   def as_list(self):
@@ -82,27 +89,27 @@ class node:
     return result
 
   # check if this tree is empty
-  def isEmpty(self):
+  def is_empty(self):
     return self.left == self.right == self.value == None
 
   # insert an element in the right position in the tree
   def insert(self, value):
-    if self.isEmpty():
+    if self.is_empty():
       self.value = value
     elif value < self.value:
       if self.left is None:
-        self.left = node(value, self)
+        self.left = node(value)
       else:
         self.left.insert(value)
     else:
       if self.right is None:
-        self.right = node(value, self)
+        self.right = node(value)
       else:
         self.right.insert(value)
 
   # search for an element in the tree, complexity is log(n)
   def search(self, value):
-    if self.isEmpty():
+    if self.is_empty():
       return None
     elif value < self.value:
       if self.left is not None:
@@ -124,7 +131,7 @@ class node:
   # then find the right most element in the tree
   # and swap the right most element for the current value
   def extract(self, value, parent):
-    if self.isEmpty():
+    if self.is_empty():
       return None
     elif value < self.value:
       if self.left is not None:
