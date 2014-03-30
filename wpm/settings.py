@@ -127,7 +127,7 @@ class settings:
     try:
       image_file = gio.File.new_for_uri(filename)
       # size request is set on the container box which holds the Viewport
-      container = self.imgPreview.get_parent().get_parent()
+      container = self.imgPreview.get_parent()
       width, height = container.get_size_request()
       preview = pixbuf.Pixbuf.new_from_stream_at_scale(
         image_file.read(None), width, height, True, None
