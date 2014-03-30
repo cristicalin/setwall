@@ -47,26 +47,67 @@ class favoritesmanager():
       self.ARROW = gdk.Cursor(gdk.CursorType.ARROW)
       self.CROSS = gdk.Cursor(gdk.CursorType.DIAMOND_CROSS)
 
-    def onDeleteEvent(self, *args):
-      self.FAVORITES.hide_window()
-      return True
+    def get_selected(self):
+      selection = self.FAVORITES.TREE_VIEW.get_selection()
+      return selection.get_selected()
 
-    def onApply(self, *args):
-      print "onSaveClicked() not yet implemented"
-      self.FAVORITES.hide_window()
-
-    def onClose(self, *args):
-      self.FAVORITES.hide_window()
-
-    def onCursorChanged(self, *args):
-      selection = args[0].get_selection()
-      (model, tree_iter) = selection.get_selected()
+    def get_selected_data(self):
+      (model, tree_iter) = self.get_selected()
       if tree_iter is not None:
         filename = model[tree_iter][0]
         parent_iter = model.iter_parent(tree_iter)
         if parent_iter is not None:
           folder = model[parent_iter][0]
-          self.FAVORITES.show_preview(folder, filename)
+          return folder, filename
+      return None, None
+
+    def swap_iters(self, func):
+      (model, tree_iter) = self.get_selected()
+      if model is not None and tree_iter is not None:
+        try:
+          swap_iter = func(model, tree_iter)
+          model.swap(tree_iter, swap_iter)
+        except:
+          None
+
+    def onDeleteEvent(self, *args):
+      # prevent window from clearing out resources on detele call
+      self.FAVORITES.hide_window()
+      return True
+
+    def onSave(self, *args):
+      self.FAVORITES.save_favorites()
+      self.FAVORITES.hide_window()
+
+    def onClose(self, *args):
+      self.FAVORITES.hide_window()
+
+    def onSet(self, *args):
+      folder, filename = self.get_selected_data()
+      if folder is not None and filename is not None:
+        self.FAVORITES.APP.favorite_set(
+          data = { "folder": folder, "file": filename}
+        )
+
+    def onUp(self, *args):
+      self.swap_iters(lambda a, b: a.iter_previous(b))
+
+    def onDown(self, *args):
+      self.swap_iters(lambda a, b: a.iter_next(b))
+
+    def onDelete(self, *args):
+      (model, tree_iter) = self.get_selected()
+      if model is not None and tree_iter is not None:
+        parent_iter = model.iter_parent(tree_iter)
+        model.remove(tree_iter)
+        if parent_iter is not None:
+          if not model.iter_has_child(parent_iter):
+            model.remove(parent_iter)
+
+    def onCursorChanged(self, *args):
+      folder, filename = self.get_selected_data()
+      if folder is not None and filename is not None:
+        self.FAVORITES.show_preview(folder, filename)          
 
     def onZoomIn(self, *args):
       self.FAVORITES.display_zoomed_in_image()
@@ -103,7 +144,7 @@ class favoritesmanager():
   def __init__(self, app):
     self.APP = app
     self.SETTINGS = app.SETTINGS
-    self.FAVORITES = from_json(self.SETTINGS.get_favorites())
+    self.FAVORITES_LIST = from_json(self.SETTINGS.get_favorites())
     self.NEED_SAVE = False
     self.BUILDER = gtk.Builder()
     try:
@@ -141,13 +182,13 @@ class favoritesmanager():
     folder = dirname(current)
     filename = basename(current)
 
-    if folder in self.FAVORITES:
+    if folder in self.FAVORITES_LIST:
       # only add file if not already present
-      if not filename in self.FAVORITES[folder]:
-        self.FAVORITES[folder].append(filename)
+      if not filename in self.FAVORITES_LIST[folder]:
+        self.FAVORITES_LIST[folder].append(filename)
         self.NEED_SAVE = True
     else:
-      self.FAVORITES[folder] = [filename]
+      self.FAVORITES_LIST[folder] = [filename]
       self.NEED_SAVE = True
 
     self.APP.MENU_OBJECT.append_favorite(folder, filename)
@@ -156,9 +197,9 @@ class favoritesmanager():
   def show_window(self):
     self.WINDOW.move(gdk.Screen.width()-self.WINDOW.get_size()[0]-50, 50)
     self.TREE_STORE.clear()
-    for folder in self.FAVORITES:
+    for folder in self.FAVORITES_LIST:
       folder_tree = self.TREE_STORE.append(None, [folder])
-      for filename in self.FAVORITES[folder]:
+      for filename in self.FAVORITES_LIST[folder]:
         self.TREE_STORE.append(folder_tree, [filename])
     self.PREVIEW.set_from_stock(gtk.STOCK_FILE, gtk.IconSize.DIALOG)
     self.STATUS_BAR.push(0, "Unknown")
@@ -227,14 +268,31 @@ class favoritesmanager():
     self.PREVIEW_H_ADJUSTMENT.set_value(adj_x)
     self.PREVIEW_V_ADJUSTMENT.set_value(adj_y)
 
+  def func(self, model, path, iter, json):
+    parent = model.iter_parent(iter)
+    obj = model[iter][0]
+    if parent is None:
+      json[obj] = []
+    else:
+      parent_name = model[parent][0]
+      json[parent_name].append(obj) 
+  
+  def save_favorites(self):
+    tmp_map = {}
+    self.TREE_STORE.foreach(self.func, tmp_map)
+    self.FAVORITES_LIST = tmp_map
+    self.set_need_save(True)
+    self.APP.save_json()
+    self.APP.MENU_OBJECT.update_favorites()
+    
   def hide_window(self):
     self.WINDOW.hide()
 
   def get_favorites(self):
-    return self.FAVORITES
+    return self.FAVORITES_LIST
 
   def get_json(self):
-    return to_json(self.FAVORITES)
+    return to_json(self.FAVORITES_LIST)
 
   def get_need_save(self):
     return self.NEED_SAVE

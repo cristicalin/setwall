@@ -12,7 +12,6 @@ TODO
 
 * implement favorites feature: should support multiple lists
   and restrict slideshow to current favorite list
-* implement favorites management dialog
 * support keyboard shortcut feature for next stop and previous
 * figure out how to set specific file name in settings dialog
   would be nice to click in the status bar and have a dropdown
@@ -37,3 +36,5 @@ DONE
 * speed up save and load on massive folders (30000+ images)
 * allow loading of previous list without reconciliation
   this speeds up loading with large folders (30000+ images)
+* implement favorites management dialog, support list
+  manipulation, saving and propagation

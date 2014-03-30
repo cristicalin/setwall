@@ -107,7 +107,8 @@ class application:
   # Set a Wallpaper from a favorites list
   # TODO: implement restriction code
   def favorite_set(self, item = None, data = None):
-    if item is not None and data is not None:
+    #if item is not None and data is not None:
+    if data is not None:
       # only change the path if necessary, this could be costly
       # in case of large Wallpaper folders and we want to avoid it
       if self.FILE_LIST.get_path() != data["folder"]:

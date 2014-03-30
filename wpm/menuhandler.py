@@ -33,7 +33,8 @@ class menuhandler():
       appindicator.IndicatorCategory.APPLICATION_STATUS
     )
     self.INDICATOR.set_status(appindicator.IndicatorStatus.ACTIVE)
-    self.INDICATOR.set_menu(self.get_app_menu())
+    self.MAIN_MENU = self.get_app_menu()
+    self.INDICATOR.set_menu(self.MAIN_MENU)
 
   # Build the application menu which is delivered
   # via the appindicator functionality
@@ -58,9 +59,9 @@ class menuhandler():
     favorites_menu_item = gtk.MenuItem()
     favorites_menu_item.set_label("Favorites");
     menu.append(favorites_menu_item)
-    self.FAVORITES = self.build_favorites_menu()
-    favorites_menu_item.set_submenu(self.FAVORITES)
-
+    favorites_menu_item.set_submenu(self.build_favorites_menu())
+    self.FAVORITES_MENU = favorites_menu_item
+    
     slideshow_menu = gtk.CheckMenuItem()
     slideshow_menu.set_label("Slideshow")
     slideshow_menu.connect("toggled", self.APP.toggle)
@@ -114,11 +115,13 @@ class menuhandler():
 
     add_favorite_menu = gtk.MenuItem()
     add_favorite_menu.set_label("Add Current")
+    add_favorite_menu.show()
     add_favorite_menu.connect("activate", self.APP.add_current_to_favorites)
     favorites_menu.append(add_favorite_menu)
 
     edit_favorites_menu = gtk.MenuItem()
     edit_favorites_menu.set_label("Edit Favorites")
+    edit_favorites_menu.show()
     edit_favorites_menu.connect("activate", self.APP.show_favorites)
     favorites_menu.append(edit_favorites_menu)
 
@@ -128,6 +131,7 @@ class menuhandler():
     for folder in favorites:
       folder_menu_item = gtk.MenuItem()
       folder_menu_item.set_label(folder)
+      folder_menu_item.show()
       favorites_menu.append(folder_menu_item)
       file_menu = gtk.Menu()
       for filename in favorites[folder]:
@@ -153,7 +157,7 @@ class menuhandler():
   # Append favorite menu item this gets called from favoritesmanager
   def append_favorite(self, folder, filename):
     found = False
-    for menu_item in self.FAVORITES.get_children():
+    for menu_item in self.FAVORITES_MENU.get_submenu().get_children():
       if menu_item.get_label() == folder:
         menu_item.get_submenu().append(
           self.create_file_menu_item(folder, filename)
@@ -169,6 +173,12 @@ class menuhandler():
         self.create_file_menu_item(folder, filename)
       )
       folder_menu_item.set_submenu(folder_menu)
+
+  # Update favorites menu item
+  def update_favorites(self):
+    new_favorites = self.build_favorites_menu()
+    new_favorites.show()
+    self.FAVORITES_MENU.set_submenu(new_favorites)
 
   # Handle toggling the slidedhow menu
   def toggle(self, active):

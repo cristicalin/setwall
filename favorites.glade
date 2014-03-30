@@ -11,6 +11,51 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
+  <object class="GtkImage" id="imgClose">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="xpad">3</property>
+    <property name="stock">gtk-close</property>
+  </object>
+  <object class="GtkImage" id="imgDown">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-go-down</property>
+  </object>
+  <object class="GtkImage" id="imgDelete">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-delete</property>
+  </object>
+  <object class="GtkImage" id="imgSave">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="xpad">3</property>
+    <property name="stock">gtk-floppy</property>
+  </object>
+  <object class="GtkImage" id="imgSet">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="xpad">3</property>
+    <property name="stock">gtk-fullscreen</property>
+  </object>
+  <object class="GtkImage" id="imgUp">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-go-up</property>
+  </object>
+  <object class="GtkImage" id="imgZoomIn">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="xpad">3</property>
+    <property name="stock">gtk-zoom-in</property>
+  </object>
+  <object class="GtkImage" id="imgZoomOut">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="xpad">3</property>
+    <property name="stock">gtk-zoom-out</property>
+  </object>
   <object class="GtkTreeStore" id="tsFavorites">
     <columns>
       <!-- column-name favorite -->
@@ -51,80 +96,21 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkBox" id="box5">
+                          <object class="GtkScrolledWindow" id="scrolledwindow1">
+                            <property name="width_request">200</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="orientation">vertical</property>
+                            <property name="shadow_type">in</property>
                             <child>
-                              <object class="GtkScrolledWindow" id="scrolledwindow1">
-                                <property name="width_request">200</property>
+                              <object class="GtkTreeView" id="tvFavorites">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="shadow_type">in</property>
-                                <child>
-                                  <object class="GtkTreeView" id="tvFavorites">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="has_focus">True</property>
-                                    <property name="is_focus">True</property>
-                                    <property name="model">tsFavorites</property>
-                                    <property name="search_column">0</property>
-                                    <property name="enable_tree_lines">True</property>
-                                    <signal name="cursor-changed" handler="onCursorChanged" swapped="no"/>
-                                  </object>
-                                </child>
+                                <property name="can_focus">True</property>
+                                <property name="model">tsFavorites</property>
+                                <property name="search_column">0</property>
+                                <property name="enable_tree_lines">True</property>
+                                <signal name="cursor-changed" handler="onCursorChanged" swapped="no"/>
+                                <signal name="row-activated" handler="onSet" swapped="no"/>
                               </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkButtonBox" id="buttonbox2">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="layout_style">center</property>
-                                <child>
-                                  <object class="GtkButton" id="btApply">
-                                    <property name="label">gtk-apply</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="receives_default">True</property>
-                                    <property name="relief">none</property>
-                                    <property name="use_stock">True</property>
-                                    <property name="always_show_image">True</property>
-                                    <signal name="clicked" handler="onApply" swapped="no"/>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkButton" id="btClose">
-                                    <property name="label">gtk-close</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="receives_default">True</property>
-                                    <property name="relief">none</property>
-                                    <property name="use_stock">True</property>
-                                    <property name="always_show_image">True</property>
-                                    <signal name="clicked" handler="onClose" swapped="no"/>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
                             </child>
                           </object>
                           <packing>
@@ -133,94 +119,36 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkBox" id="box3">
+                          <object class="GtkEventBox" id="eventbox1">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="orientation">vertical</property>
+                            <property name="events">GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_STRUCTURE_MASK</property>
+                            <property name="above_child">True</property>
+                            <signal name="button-press-event" handler="onMouseGrab" swapped="no"/>
+                            <signal name="button-release-event" handler="onMouseRelease" swapped="no"/>
+                            <signal name="motion-notify-event" handler="onMouseMove" swapped="no"/>
                             <child>
-                              <object class="GtkEventBox" id="eventbox1">
+                              <object class="GtkScrolledWindow" id="scrPreview">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_STRUCTURE_MASK</property>
-                                <property name="above_child">True</property>
-                                <signal name="button-press-event" handler="onMouseGrab" swapped="no"/>
-                                <signal name="button-release-event" handler="onMouseRelease" swapped="no"/>
-                                <signal name="motion-notify-event" handler="onMouseMove" swapped="no"/>
+                                <property name="hadjustment">adjPreviewHorizontal</property>
+                                <property name="vadjustment">adjPreviewVertical</property>
                                 <child>
-                                  <object class="GtkScrolledWindow" id="scrPreview">
+                                  <object class="GtkViewport" id="viewport1">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="hadjustment">adjPreviewHorizontal</property>
-                                    <property name="vadjustment">adjPreviewVertical</property>
+                                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_STRUCTURE_MASK</property>
                                     <child>
-                                      <object class="GtkViewport" id="viewport1">
+                                      <object class="GtkImage" id="imgPreview">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_STRUCTURE_MASK</property>
-                                        <child>
-                                          <object class="GtkImage" id="imgPreview">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="stock">gtk-file</property>
-                                            <property name="icon-size">6</property>
-                                          </object>
-                                        </child>
+                                        <property name="stock">gtk-file</property>
+                                        <property name="icon-size">6</property>
                                       </object>
                                     </child>
                                   </object>
                                 </child>
                               </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkButtonBox" id="buttonbox1">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="layout_style">center</property>
-                                <child>
-                                  <object class="GtkButton" id="btZoomIn">
-                                    <property name="label">gtk-zoom-in</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="receives_default">True</property>
-                                    <property name="relief">none</property>
-                                    <property name="use_stock">True</property>
-                                    <property name="always_show_image">True</property>
-                                    <signal name="clicked" handler="onZoomIn" swapped="no"/>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkButton" id="btZoomOut">
-                                    <property name="label">gtk-zoom-out</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="receives_default">True</property>
-                                    <property name="relief">none</property>
-                                    <property name="use_stock">True</property>
-                                    <property name="always_show_image">True</property>
-                                    <signal name="clicked" handler="onZoomOut" swapped="no"/>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
                             </child>
                           </object>
                           <packing>
@@ -233,6 +161,155 @@
                         <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButtonBox" id="buttonbox3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="layout_style">spread</property>
+                        <child>
+                          <object class="GtkButton" id="btUp">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="receives_default">True</property>
+                            <property name="image">imgUp</property>
+                            <property name="relief">none</property>
+                            <property name="always_show_image">True</property>
+                            <signal name="clicked" handler="onUp" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                            <property name="non_homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="btDown">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="receives_default">True</property>
+                            <property name="image">imgDown</property>
+                            <property name="relief">none</property>
+                            <property name="always_show_image">True</property>
+                            <signal name="clicked" handler="onDown" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                            <property name="non_homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="btDelete">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="receives_default">True</property>
+                            <property name="image">imgDelete</property>
+                            <property name="relief">none</property>
+                            <property name="always_show_image">True</property>
+                            <signal name="clicked" handler="onDelete" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">2</property>
+                            <property name="non_homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="btSet">
+                            <property name="label" translatable="yes">Set</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="receives_default">True</property>
+                            <property name="image">imgSet</property>
+                            <property name="relief">none</property>
+                            <property name="always_show_image">True</property>
+                            <signal name="clicked" handler="onSet" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">3</property>
+                            <property name="non_homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="btApply">
+                            <property name="label">Save</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="receives_default">True</property>
+                            <property name="image">imgSave</property>
+                            <property name="relief">none</property>
+                            <property name="always_show_image">True</property>
+                            <signal name="clicked" handler="onSave" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">4</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="btClose">
+                            <property name="label">Close</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="receives_default">True</property>
+                            <property name="image">imgClose</property>
+                            <property name="relief">none</property>
+                            <property name="always_show_image">True</property>
+                            <signal name="clicked" handler="onClose" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="btZoomIn">
+                            <property name="label">Zoom In</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="receives_default">True</property>
+                            <property name="image">imgZoomIn</property>
+                            <property name="relief">none</property>
+                            <property name="always_show_image">True</property>
+                            <signal name="clicked" handler="onZoomIn" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">6</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="btZoomOut">
+                            <property name="label">Zoom Out</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="receives_default">True</property>
+                            <property name="image">imgZoomOut</property>
+                            <property name="relief">none</property>
+                            <property name="always_show_image">True</property>
+                            <signal name="clicked" handler="onZoomOut" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">7</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
