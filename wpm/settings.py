@@ -157,7 +157,7 @@ class settings:
     finally:
       self.cbPath.handler_unblock_by_func(self.HANDLER.onPathChanged)
     if changed:
-      self.LOCAL_FILE_LIST.load_from_file(dirname)
+      self.LOCAL_FILE_LIST.load_from_path(dirname)
       self.LOCAL_FILE_LIST.sort()
 
   # recursively build the down path
