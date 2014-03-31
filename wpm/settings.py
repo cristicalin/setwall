@@ -20,10 +20,12 @@
 import sys
 import os
 import copy
+import threading
 
 from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
 from gi.repository import Gio as gio
+from gi.repository import GObject as gobject
 from gi.repository import GdkPixbuf as pixbuf
 
 import globals
@@ -68,6 +70,7 @@ class settings:
     self.APP_SETTINGS = gio.Settings.new("%s.%s" % (globals.BASE_ID, globals.APP_SETTINGS))
     self.APP = app
     self.LOCAL_FILE_LIST = None
+    self.PATH_LOCK = threading.Lock()
     # Store command line arguments in the settings for future reference
     # This means that if we want to change something we only need
     # to pass the correct command line value to the application one time
@@ -140,32 +143,50 @@ class settings:
       self.imgPreview.show()
 
   # We need to have the handlers blocked while we update the list
-  def set_path(self, dirname, changed = False):
-    self.cbPath.handler_block_by_func(self.HANDLER.onPathChanged)
+  def _set_path(self, dirname, changed):
+    self.PATH_LOCK.acquire()
+    temp_list = []
+    position = 0
     try:
-      self.cbPath.get_model().clear()
       names_list = get_dir_list(dirname)
       names_list.sort()
+      temp_list = []
       for name in names_list:
         if not name.startswith("."):
           path = os.path.join(dirname, name)
-          self.cbPath.append_text(path)
-      position = len(self.cbPath.get_model())
-      self.cbPath.append_text(dirname)
-      self.build_path(dirname)
-      self.cbPath.set_active(position)
+          temp_list.append(path)
+      temp_list.append(dirname)
+      self.build_path(dirname, temp_list)
+      position = temp_list.index(dirname)
+      if changed:
+        self.LOCAL_FILE_LIST.load_from_path(dirname)
+        self.LOCAL_FILE_LIST.sort()
     finally:
-      self.cbPath.handler_unblock_by_func(self.HANDLER.onPathChanged)
-    if changed:
-      self.LOCAL_FILE_LIST.load_from_path(dirname)
-      self.LOCAL_FILE_LIST.sort()
+      gobject.idle_add(self.update_cb_path, temp_list, position)      
+    self.PATH_LOCK.release()
+
+  # Set Path may be slow so we want to execute it in a separate thread
+  def set_path(self, dirname, changed = False):
+    self.cbPath.handler_block_by_func(self.HANDLER.onPathChanged)
+    thread = threading.Thread(target = self._set_path, args = (dirname, changed))
+    thread.start()
+
+  # Update the GUI element cbPath
+  def update_cb_path(self, my_list, position):
+    model = self.cbPath.get_model()
+    model.clear()
+    for i in my_list:
+      model.append([i, None])
+    self.cbPath.set_active(position)
+    self.cbPath.handler_unblock_by_func(self.HANDLER.onPathChanged)
 
   # recursively build the down path
-  def build_path(self, path):
+  def build_path(self, path, my_list):
     if len(path)>1:
       d = os.path.dirname(path)
-      self.cbPath.append_text(d)
-      self.build_path(d)
+      #self.cbPath.append_text(d)
+      my_list.append(d)
+      self.build_path(d, my_list)
 
   # save the settings
   def save(self):
