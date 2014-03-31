@@ -115,13 +115,11 @@ class menuhandler():
 
     add_favorite_menu = gtk.MenuItem()
     add_favorite_menu.set_label("Add Current")
-    add_favorite_menu.show()
     add_favorite_menu.connect("activate", self.APP.add_current_to_favorites)
     favorites_menu.append(add_favorite_menu)
 
     edit_favorites_menu = gtk.MenuItem()
     edit_favorites_menu.set_label("Edit Favorites")
-    edit_favorites_menu.show()
     edit_favorites_menu.connect("activate", self.APP.show_favorites)
     favorites_menu.append(edit_favorites_menu)
 
@@ -131,7 +129,6 @@ class menuhandler():
     for folder in favorites:
       folder_menu_item = gtk.MenuItem()
       folder_menu_item.set_label(folder)
-      folder_menu_item.show()
       favorites_menu.append(folder_menu_item)
       file_menu = gtk.Menu()
       for filename in favorites[folder]:
@@ -151,7 +148,6 @@ class menuhandler():
         "file": filename
       }
     )
-    file_menu_item.show()
     return file_menu_item
 
   # Append favorite menu item this gets called from favoritesmanager
@@ -173,11 +169,12 @@ class menuhandler():
         self.create_file_menu_item(folder, filename)
       )
       folder_menu_item.set_submenu(folder_menu)
+    self.FAVORITES_MENU.show_all()
 
   # Update favorites menu item
   def update_favorites(self):
     new_favorites = self.build_favorites_menu()
-    new_favorites.show()
+    new_favorites.show_all()
     self.FAVORITES_MENU.set_submenu(new_favorites)
 
   # Handle toggling the slidedhow menu
