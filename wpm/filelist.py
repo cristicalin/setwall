@@ -228,8 +228,8 @@ class filelist:
     self.LOCAL_FILE_LIST += new_list
     self.LOCAL_FILE_LIST_LOCK.release()
 
-  def list_insert(self, obj):
-    self.do_locked_op(obj, lambda a, b: a.insert(b))
+  def list_insert(self, pos, obj):
+    self.do_locked_op(obj, lambda a, b: a.insert(pos, b))
 
   def list_remove(self, obj):
     self.do_locked_op(obj, lambda a, b: a.remove(b))
