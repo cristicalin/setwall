@@ -19,8 +19,10 @@
 
 import os.path
 import random
-import pyinotify
 import copy
+import threading
+
+import pyinotify
 
 import bst
 
@@ -63,6 +65,7 @@ class filelist:
     self.DIR_PATH = None
     self.APP = app
     self.NEED_SAVE = False
+    self.LOCAL_FILE_LIST_LOCK = threading.Lock()
     self.NEED_RECONCILE = True
 
   # Load the file list from json, this saves time walking large folders
@@ -70,7 +73,7 @@ class filelist:
     if json is not None:
       self.suspend_watch()
       self.DIR_PATH = path
-      self.LOCAL_FILE_LIST = from_json(json)
+      self.set_list(from_json(json))
       self.instate_watch()
       self.NEED_RECONCILE = True
     else:
@@ -80,26 +83,32 @@ class filelist:
   def load_from_path(self, path):
     self.suspend_watch()
     self.DIR_PATH = path
-    self.LOCAL_FILE_LIST = get_file_list(self.DIR_PATH)
+    self.set_list(get_file_list(self.DIR_PATH))
     self.instate_watch()
     self.NEED_RECONCILE = False
 
   # reconcile in memory list with actual state on disk
   # used from the cli to reconcile file system state if differing from json
-  def reconcile(self):
+  def _reconcile(self):
     if self.NEED_RECONCILE:
       self.suspend_watch()
       temp = get_file_list(self.DIR_PATH)
       temp_tree = bst.bst(temp)
       for my_file in self.LOCAL_FILE_LIST:
         if temp_tree.extract(my_file) != my_file: 
-          self.LOCAL_FILE_LIST.remove(my_file)
+          self.list_remove(my_file)
       temp_list = temp_tree.as_list()
       if len(temp_list) > 0:
         self.LOCAL_FILE_LIST += temp_tree.as_list()
       self.NEED_SAVE = True
       self.instate_watch()
     self.NEED_RECONCILE = False
+
+  # we need to execute this in a separate thread because on large folders
+  # this takes a while to return and dbus invocation will throw an error
+  def reconcile(self):
+    thread = threading.Thread(target=self._reconcile)
+    thread.start()
 
   # suspend the watch, we usually do this to avoid a race condition
   def suspend_watch(self):
@@ -124,7 +133,7 @@ class filelist:
     cp = filelist(self.APP)
     cp.DIR_PATH = copy.deepcopy(self.DIR_PATH)
     cp.LOCAL_COUNT= copy.deepcopy(self.LOCAL_COUNT)
-    cp.LOCAL_FILE_LIST = copy.deepcopy(self.LOCAL_FILE_LIST)
+    cp.set_list(copy.deepcopy(self.LOCAL_FILE_LIST))
     cp.instate_watch()
     cp.NEED_SAVE = True
     return cp
@@ -184,18 +193,18 @@ class filelist:
 
   def set_index(self, file):
     try:
-      self.LOCAL_COUNT = self.LOCAL_FILE_LIST.index(file)
+      self.LOCAL_COUNT = self.list_index(file)
     except ValueError:
       self.LOCAL_COUNT = 0
 
   def add_file(self, file):
-    self.LOCAL_FILE_LIST.insert(self.LOCAL_COUNT+1, file)
+    self.list_insert(self.LOCAL_COUNT+1, file)
     self.NEED_SAVE = True
     if self.APP is not None:
       self.APP.file_changed("add", "%s/%s" % (self.DIR_PATH, file))
 
   def remove_file(self, file):
-    self.LOCAL_FILE_LIST.remove(file)
+    self.list_remove(file)
     self.NEED_SAVE = True
     if self.APP is not None:
       self.APP.file_changed("remove", "%s/%s" % (self.DIR_PATH, file))
@@ -203,14 +212,39 @@ class filelist:
   def get_list(self):
     return self.LOCAL_FILE_LIST
 
+  def do_locked_op(self, obj, func):
+    self.LOCAL_FILE_LIST_LOCK.acquire()
+    ret = func(self.LOCAL_FILE_LIST, obj)
+    self.LOCAL_FILE_LIST_LOCK.release()
+    return ret
+
+  def set_list(self, new_list):
+    self.LOCAL_FILE_LIST_LOCK.acquire()
+    self.LOCAL_FILE_LIST = new_list
+    self.LOCAL_FILE_LIST_LOCK.release()
+
+  def list_append(self, new_list):
+    self.LOCAL_FILE_LIST_LOCK.acquire()
+    self.LOCAL_FILE_LIST += new_list
+    self.LOCAL_FILE_LIST_LOCK.release()
+
+  def list_insert(self, obj):
+    self.do_locked_op(obj, lambda a, b: a.insert(b))
+
+  def list_remove(self, obj):
+    self.do_locked_op(obj, lambda a, b: a.remove(b))
+
+  def list_index(self, obj):
+    return self.do_locked_op(obj, lambda a, b: a.index(b))
+
   def randomize(self):
-    random.shuffle(self.LOCAL_FILE_LIST)
+    self.do_locked_op(None, lambda a, b: random.shuffle(a))
 
   def sort(self):
-    self.LOCAL_FILE_LIST.sort()
+    self.do_locked_op(None, lambda a, b: a.sort())
 
   def reverse(self):
-    self.LOCAL_FILE_LIST.reverse()
+    self.do_locked_op(None, lambda a, b: a.reverse())
 
   def get_need_save(self):
     return self.NEED_SAVE
