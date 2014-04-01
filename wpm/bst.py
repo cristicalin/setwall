@@ -164,6 +164,7 @@ if __name__ == "__main__":
   import os
   import random
   import sys
+  import utils
   reload(sys)
   sys.setdefaultencoding('utf-8')
   
@@ -181,6 +182,8 @@ if __name__ == "__main__":
   l1 = loads(json)
 
   for i in l1:
-    print a.extract(i)
-  print a.as_list()
+    fn = a.extract(i)
+    md5 = utils.md5sum(fn)
+    print "%s %s" % (md5, fn)
+  #print a.as_list()
 

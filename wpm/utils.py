@@ -21,7 +21,9 @@
 
 import os
 import os.path
+import hashlib
 
+from functools import partial
 from simplejson import *
 
 # Shorten long file names
@@ -56,6 +58,15 @@ def get_file_list(directory):
 # Get subdir list from a directory (os.listdir is much faster than os.walk for large folders)
 def get_dir_list(directory):
   return get_checked_list(directory, lambda a: os.path.isdir(a))
+
+# Compute md5sum
+def md5sum(filename):
+  with open(filename, mode='rb') as f:
+    d = hashlib.md5()
+    for buf in iter(partial(f.read, 128), b''):
+      d.update(buf)
+  return d.hexdigest()
+
 
 # this is for unit testing only
 if __name__ == "__main__":
