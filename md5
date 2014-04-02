@@ -1,0 +1,107 @@
+#!/usr/bin/python
+
+# SetWall - Wallpaper manager
+# 
+# Copyright (C) 2014  Cristian Andrei Calin <cristian.calin@outlook.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys
+import time
+import os
+import os.path
+import signal
+
+from threading import *
+from Queue import *
+
+from wpm.bst import *
+from wpm.utils import *
+
+finished = False
+
+# Printer thread
+def printer(q):
+  global finished
+  while not finished:
+    try:
+      item = q.get_nowait()
+      print "%s %s" % (item["md5"], item["file"])
+      q.task_done()
+    except:
+      None
+
+# Feeder thread
+def feeder(q, directory):
+  l = os.listdir(directory)
+  tree = bst(l)
+  for i in tree.as_list():
+    q.put(i)
+
+# MD5 comute thread
+def compute(q_in, q_out, directory):
+  global finished
+  while not finished:
+    try:
+      item = q_in.get_nowait()
+      filename = "%s/%s" % (directory, item)
+      if os.path.isfile(filename):
+        md5_sum = md5sum(filename)
+        q_out.put({"md5": md5_sum, "file": item})
+      q_in.task_done()
+    except:
+      None
+
+if __name__ == "__main__":
+  directory = sys.argv[1]
+  num_threads = int(sys.argv[2])
+  input_queue = Queue()
+  output_queue = Queue()
+
+  workers = []
+
+  #feeder(input_queue, directory)
+  thread_feeder = Thread(
+    target = feeder, 
+    kwargs = {"q": input_queue, "directory": directory}
+  )
+  thread_feeder.start()
+
+  # wait for the feeder to start feeding
+  while input_queue.empty():
+    time.sleep(0.05)
+
+  for i in range(num_threads):
+    t = Thread(
+      target = compute,
+      kwargs =  {"q_in": input_queue, "q_out": output_queue, "directory": directory}
+    )
+    workers.append(t)
+    t.start()
+
+  thread_printer = Thread(
+    target = printer, 
+    kwargs = {"q": output_queue}
+  )
+  thread_printer.start()
+
+  input_queue.join()
+  output_queue.join()
+  finished = True
+
+  #thread_feeder.join()
+  thread_printer.join()
+
+  for t in workers:
+    t.join()
