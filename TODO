@@ -10,6 +10,7 @@ BUGS
 
 TODO
 
+* use python Keybinder to set global key bindings
 * implement favorites feature: should support multiple lists
   and restrict slideshow to current favorite list
 * support keyboard shortcut feature for next stop and previous
