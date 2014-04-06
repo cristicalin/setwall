@@ -41,5 +41,15 @@
       <summary>Favorite Wallpapers List</summary>
       <description>Saved List of Favorite Wallpapers, do not edit this!</description>
     </key>
+    <key type="s" name="next-key">
+      <default>'F1'</default>
+      <summary>Next Key</summary>
+      <description>Global key combination to trigger next wallpaper.</description>
+    </key>
+    <key type="s" name="previous-key">
+      <default>'F12'</default>
+      <summary>Previous Key</summary>
+      <description>Global key combination to trigger previous wallpaper.</description>
+    </key>
   </schema>
 </schemalist>
