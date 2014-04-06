@@ -79,8 +79,6 @@ class application:
     # this stops the notifier
     self.FILE_LIST.close()
     gtk.main_quit()
-    # finally make a clean exit
-    sys.exit(0)
 
   def next_wallpaper(self, *args):
     self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_next_file())
