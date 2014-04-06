@@ -30,10 +30,18 @@ $ sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
 
 You can check by using gsettings command:
 
-gsettings list-keys com.kman.wallpaper-changer
+$ gsettings list-keys com.kman.wallpaper-changer
 
 NOTE: there seems to be a X11 resource leak in Nautilus,
 please make sure to disable the background-fade feature
 as that seems to slow down the leak or even prevent it
 
-gsettings set org.gnome.nautilus.desktop background-fade false
+$ gsettings set org.gnome.nautilus.desktop background-fade false
+
+In order to identify if the leak is happening you can run this:
+
+$ xrestop -b -m 1 | grep -c unknown.*PID
+
+Normally it should return a small number about the number (<20).
+xrestop is part of the xrestop package.
+
