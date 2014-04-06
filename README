@@ -3,6 +3,7 @@ Pre-requisite python modules:
 * urllib2
 * simplejson
 * pyinotify
+* Keybinder (gir1.2-keybinder-3.0)
 * Gtk3 bindings
 
 Installing the schema file, this is necessary for the gsettings to work:
