@@ -71,6 +71,8 @@ class application:
 
   # Greacefuly quit the application
   def quit_app(self, item = None):
+    # suspend the bindings
+    self.suspend_bindings()
     # make sure all windows are closed
     self.SETTINGS.hide_window()
     self.FAVORITES_MANAGER.hide_window()
