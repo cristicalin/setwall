@@ -70,10 +70,16 @@ class application:
 
   # Greacefuly quit the application
   def quit_app(self, item = None):
-    # we neet to stop both the notifier as well as the gtk main loop
+    # make sure all windows are closed
+    self.SETTINGS.hide_window()
+    self.FAVORITES_MANAGER.hide_window()
+    # save file list and favorites if need be
     self.save_json()
+    # this stops the notifier
     self.FILE_LIST.close()
     gtk.main_quit()
+    # finally make a clean exit
+    sys.exit(0)
 
   def next_wallpaper(self, item = None):
     self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_next_file())
@@ -201,7 +207,7 @@ class application:
 
   def main(self):
     gtk.main()
-    
+
 
 # main function call creates application object and starts processing
 # this is for unit testing only
