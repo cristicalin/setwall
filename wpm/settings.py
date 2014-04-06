@@ -27,6 +27,7 @@ from gi.repository import Gdk as gdk
 from gi.repository import Gio as gio
 from gi.repository import GObject as gobject
 from gi.repository import GdkPixbuf as pixbuf
+from gi.repository import Keybinder as keybinder
 
 import globals
 
@@ -66,6 +67,17 @@ class settings:
       self.SETTINGS.STATUS_BAR.push(0, filename)
       self.SETTINGS.show_preview(filename)
 
+    def onToggleKey(self, widget):
+      self.SETTINGS.flip_toggles(widget)
+      if widget.get_active():
+        self.disconnect()
+        self.KEY_HANDLER = self.SETTINGS.WINDOW.connect(
+          "key-press-event", self.onKeyPress,
+          [self.setKey, widget] 
+        )
+      else:
+        self.disconnect()
+
     def onKeyPress(self, widget, event, callback):
       key = gdk.keyval_name(event.keyval)
       ctrl = event.state & gdk.ModifierType.CONTROL_MASK
@@ -79,7 +91,19 @@ class settings:
       if shift:
         modifiers.append("<Shift>")
       modifiers.append(key)
-      callback("".join(modifiers))
+      callback[0](callback[1], "".join(modifiers))
+
+    def setKey(self, widget, key):
+      if keybinder.bind(key, lambda *args: None, None):
+        widget.set_label(key)
+        keybinder.unbind(key)
+
+    def disconnect(self):
+      try:
+        self.SETTINGS.WINDOW.disconnect(self.KEY_HANDLER)
+        self.KEY_HANDLER = None
+      except:
+        None
 
   def __init__(self, args = None, app = None):
     self.APP_SETTINGS = gio.Settings.new("%s.%s" % (globals.BASE_ID, globals.APP_SETTINGS))
@@ -125,10 +149,12 @@ class settings:
     self.spInterval = self.BUILDER.get_object("spInterval")
     self.cbPath = self.BUILDER.get_object("cbPath")
     self.imgPreview = self.BUILDER.get_object("imgPreview")
-    #self.WINDOW.connect("key-press-event", self.HANDLER.onKeyPress, self.get_key)
 
-  #def get_key(self, str):
-  #  print str
+    self.toggles = []
+    self.tgNext = self.BUILDER.get_object("tgNext")
+    self.toggles.append(self.tgNext)
+    self.tgPrevious = self.BUILDER.get_object("tgPrevious")
+    self.toggles.append(self.tgPrevious)
 
   def show_window(self):
     self.WINDOW.move(gdk.Screen.width()-self.WINDOW.get_size()[0]-50, 50)
@@ -137,11 +163,16 @@ class settings:
     self.ckReconcile.set_active(self.get_reconcile())
     self.ckVerifyPresence.set_active(self.get_verify_presence())
     self.spInterval.set_value(self.get_wallpaper_interval())
+    self.tgNext.set_label(self.get_next_key())
+    self.tgNext.set_active(False)
+    self.tgPrevious.set_label(self.get_previous_key())
+    self.tgPrevious.set_active(False)
     self.LOCAL_FILE_LIST = copy.copy(self.APP.FILE_LIST)
     self.set_path(self.get_wallpaper_path(), False)
     filename = "file://%s" % self.LOCAL_FILE_LIST.get_current_file()
     self.STATUS_BAR.push(0, filename)
     self.show_preview(filename)
+    self.APP.suspend_bindings()
     self.WINDOW.show_all()
 
   # Show a scaled down preview of a image
@@ -203,7 +234,6 @@ class settings:
   def build_path(self, path, my_list):
     if len(path)>1:
       d = os.path.dirname(path)
-      #self.cbPath.append_text(d)
       my_list.append(d)
       self.build_path(d, my_list)
 
@@ -217,13 +247,23 @@ class settings:
     self.set_wallpaper_save(self.ckLoadSavedList.get_active())
     self.set_reconcile(self.ckReconcile.get_active())
     self.set_verify_presence(self.ckVerifyPresence.get_active())
+    self.set_next_key(self.tgNext.get_label())
+    self.set_previous_key(self.tgPrevious.get_label())
     if self.APP is not None:
       self.APP.load_settings(True, self.LOCAL_FILE_LIST)
 
   def hide_window(self):
     if self.LOCAL_FILE_LIST is not None:
       self.LOCAL_FILE_LIST.close()
+    self.HANDLER.disconnect()
     self.WINDOW.hide()
+
+  def flip_toggles(self, toggle):
+    for i in self.toggles:
+      if i != toggle:
+        i.handler_block_by_func(self.HANDLER.onToggleKey)
+        i.set_active(False)
+        i.handler_unblock_by_func(self.HANDLER.onToggleKey)
 
   def get_window(self):
     return self.WINDOW
@@ -300,6 +340,18 @@ class settings:
 
   def set_favorites(self, favorites):
     self.APP_SETTINGS.set_string(globals.WALLPAPER_FAVORITES, favorites)
+
+  def get_next_key(self):
+    return self.APP_SETTINGS.get_string(globals.KEY_NEXT)
+
+  def set_next_key(self, key):
+    self.APP_SETTINGS.set_string(globals.KEY_NEXT, key)
+
+  def get_previous_key(self):
+    return self.APP_SETTINGS.get_string(globals.KEY_PREVIOUS)
+
+  def set_previous_key(self, key):
+    self.APP_SETTINGS.set_string(globals.KEY_PREVIOUS, key)
 
 # for unit testing purposes only
 if __name__ == "__main__":

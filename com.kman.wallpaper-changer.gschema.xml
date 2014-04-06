@@ -42,7 +42,7 @@
       <description>Saved List of Favorite Wallpapers, do not edit this!</description>
     </key>
     <key type="s" name="next-key">
-      <default>'F1'</default>
+      <default>'F11'</default>
       <summary>Next Key</summary>
       <description>Global key combination to trigger next wallpaper.</description>
     </key>

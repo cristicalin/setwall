@@ -10,10 +10,8 @@ BUGS
 
 TODO
 
-* use python Keybinder to set global key bindings
 * implement favorites feature: should support multiple lists
   and restrict slideshow to current favorite list
-* support keyboard shortcut feature for next stop and previous
 * figure out how to set specific file name in settings dialog
   would be nice to click in the status bar and have a dropdown
   list allow to select the file (maybe support preview in the
@@ -40,4 +38,9 @@ DONE
   manipulation, saving and propagation
 * implement a more balanced search optimized tree structure,
   when loading a list sort it first and use divide et impera
-  to split into a balanced binary sort tree
+  to split into a balanced binary sort tree, B+Trees may be
+  a better approach and should be studied in the future
+* use python Keybinder to set global key bindings
+* support keyboard shortcut feature for next and previous,
+  decided to drop supporting stop as there is no reason
+  to have a shortcut for a feature that is not that offenly used

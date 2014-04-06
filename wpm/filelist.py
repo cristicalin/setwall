@@ -113,9 +113,9 @@ class filelist:
   # suspend the watch, we usually do this to avoid a race condition
   def suspend_watch(self):
     if self.DIR_PATH is not None:
-      self.WATCH_MANAGER.del_watch(
-        self.WATCH_MANAGER.get_wd(self.DIR_PATH)
-      )
+      watch = self.WATCH_MANAGER.get_wd(self.DIR_PATH)
+      if watch is not None:
+        self.WATCH_MANAGER.del_watch(watch)
   
   # we instate the watch after the reace condition has passed
   # or upon a fresh load_from_*() or reconcile() call

@@ -23,6 +23,7 @@ import os
 import gi
 
 from gi.repository import GObject as gobject
+from gi.repository import Keybinder as keybinder
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from wpm.application import *
@@ -36,6 +37,8 @@ if __name__ == "__main__":
   (major, minor, rest) = gi.version_info
   if major==3 and minor < 11:
     gobject.threads_init()
+  # we need to initialize keybinding
+  keybinder.init()
   app = application()
   app.main()
   

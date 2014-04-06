@@ -27,6 +27,7 @@ from urllib2 import quote, unquote
 from apscheduler.scheduler import Scheduler
 
 from gi.repository import Gtk as gtk
+from gi.repository import Keybinder as keybinder
 
 # Local imports
 from globals import *
@@ -81,11 +82,11 @@ class application:
     # finally make a clean exit
     sys.exit(0)
 
-  def next_wallpaper(self, item = None):
+  def next_wallpaper(self, *args):
     self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_next_file())
     self.reset_schedule()
 
-  def previous_wallpaper(self, item = None):
+  def previous_wallpaper(self, *args):
     self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_previous_file())
     self.reset_schedule()
 
@@ -183,6 +184,17 @@ class application:
       self.save_json()
 
     self.reset_schedule()
+    # set up binding, we should not need to worry about the old ones
+    # the old binding are cleared when the settings dialog is opened
+    keybinder.bind(self.SETTINGS.get_next_key(), self.next_wallpaper, None)
+    keybinder.bind(self.SETTINGS.get_previous_key(), self.previous_wallpaper, None)
+
+
+  # Suspend key bindings, this is used when 
+  # opening settings dialog to prevent conflicts
+  def suspend_bindings(self):
+    keybinder.unbind(self.SETTINGS.get_next_key())
+    keybinder.unbind(self.SETTINGS.get_previous_key())
 
   # Set the file list index to the current wallpaper
   # this gets called multiple times so it became a function

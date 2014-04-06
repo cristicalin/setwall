@@ -39,6 +39,10 @@ WALLPAPER_SETTING = "org.gnome.desktop.background"
 PICTURE_URI = "picture-uri"
 PICTURE_OPTIONS = "picture-options"
 
+# Global keys
+KEY_NEXT = "next-key"
+KEY_PREVIOUS = "previous-key"
+
 # ScreenSaver parameters
 SCREEN_SAVER_NAME = "org.gnome.ScreenSaver"
 SCREEN_SAVER_PATH = "/%s" % SCREEN_SAVER_NAME.replace(".", "/")
