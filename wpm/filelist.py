@@ -218,17 +218,20 @@ class filelist:
   def do_locked_op(self, obj, func):
     self.LOCAL_FILE_LIST_LOCK.acquire()
     ret = func(self.LOCAL_FILE_LIST, obj)
+    self.set_need_save(True)
     self.LOCAL_FILE_LIST_LOCK.release()
     return ret
 
   def set_list(self, new_list):
     self.LOCAL_FILE_LIST_LOCK.acquire()
     self.LOCAL_FILE_LIST = new_list
+    self.set_need_save(True)
     self.LOCAL_FILE_LIST_LOCK.release()
 
   def list_append(self, new_list):
     self.LOCAL_FILE_LIST_LOCK.acquire()
     self.LOCAL_FILE_LIST += new_list
+    self.set_need_save(True)
     self.LOCAL_FILE_LIST_LOCK.release()
 
   def list_insert(self, pos, obj):
