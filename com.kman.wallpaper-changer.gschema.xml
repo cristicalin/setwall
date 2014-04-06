@@ -2,7 +2,7 @@
 <schemalist>
   <schema id="com.kman.wallpaper-changer" path="/com/kman/wallpaper-changer/">
     <key type="s" name="path">
-      <default>'/home/kman/Pictures'</default>
+      <default>'/usr/share/backgrounds'</default>
       <summary>Wallpapers Path</summary>
       <description>This is the path in which wallpaper files reside.</description>
     </key>
