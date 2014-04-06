@@ -127,107 +127,113 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkBox" id="box8">
+                              <object class="GtkExpander" id="expander3">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
-                                  <object class="GtkCheckButton" id="ckSchedule">
-                                    <property name="label" translatable="yes">Wallpapers Slideshow</property>
+                                  <object class="GtkBox" id="box8">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="xalign">0</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkCheckButton" id="ckVerifyPresence">
+                                        <property name="label" translatable="yes">Verify Wallpaper File Presence</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="xalign">0</property>
+                                        <property name="draw_indicator">True</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="ckSchedule">
+                                        <property name="label" translatable="yes">Wallpapers Slideshow</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="xalign">0</property>
+                                        <property name="draw_indicator">True</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">0</property>
-                                  </packing>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="label5">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Runtime Options</property>
+                                  </object>
                                 </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">False</property>
+                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkBox" id="box9">
+                              <object class="GtkExpander" id="expander2">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
-                                  <object class="GtkCheckButton" id="ckLoadSavedList">
-                                    <property name="label" translatable="yes">Load Previous Wallpapers List</property>
+                                  <object class="GtkBox" id="box7">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="xalign">0</property>
-                                    <property name="draw_indicator">True</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkCheckButton" id="ckLoadSavedList">
+                                        <property name="label" translatable="yes">Load Previous Wallpapers List</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="xalign">0</property>
+                                        <property name="draw_indicator">True</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="ckReconcile">
+                                        <property name="label" translatable="yes">Reconcile Wallpapers List</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="xalign">0</property>
+                                        <property name="draw_indicator">True</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">0</property>
-                                  </packing>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="label4">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Startup Options</property>
+                                  </object>
                                 </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">False</property>
+                                <property name="fill">True</property>
                                 <property name="position">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkBox" id="box4">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <object class="GtkCheckButton" id="ckReconcile">
-                                    <property name="label" translatable="yes">Reconcile Wallpapers List</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="xalign">0</property>
-                                    <property name="draw_indicator">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">3</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkBox" id="box5">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <child>
-                                  <object class="GtkCheckButton" id="ckVerifyPresence">
-                                    <property name="label" translatable="yes">Verify Wallpaper File Presence</property>
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="receives_default">False</property>
-                                    <property name="xalign">0</property>
-                                    <property name="draw_indicator">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">4</property>
                               </packing>
                             </child>
                             <child>
@@ -236,7 +242,86 @@
                                 <property name="can_focus">False</property>
                                 <property name="orientation">vertical</property>
                                 <child>
-                                  <placeholder/>
+                                  <object class="GtkExpander" id="expander1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <child>
+                                      <object class="GtkGrid" id="grid1">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <child>
+                                          <object class="GtkLabel" id="label1">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="halign">start</property>
+                                            <property name="label" translatable="yes">Next Wallpaper</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left_attach">0</property>
+                                            <property name="top_attach">0</property>
+                                            <property name="width">1</property>
+                                            <property name="height">1</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="label2">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="halign">start</property>
+                                            <property name="label" translatable="yes">Previous Wallpaper</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left_attach">0</property>
+                                            <property name="top_attach">1</property>
+                                            <property name="width">1</property>
+                                            <property name="height">1</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkToggleButton" id="tgNext">
+                                            <property name="label" translatable="yes">togglebutton</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="hexpand">True</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left_attach">1</property>
+                                            <property name="top_attach">0</property>
+                                            <property name="width">1</property>
+                                            <property name="height">1</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkToggleButton" id="tgPrevious">
+                                            <property name="label" translatable="yes">togglebutton</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="hexpand">True</property>
+                                          </object>
+                                          <packing>
+                                            <property name="left_attach">1</property>
+                                            <property name="top_attach">1</property>
+                                            <property name="width">1</property>
+                                            <property name="height">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child type="label">
+                                      <object class="GtkLabel" id="label3">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="label" translatable="yes">Key Bindings</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
                                 </child>
                               </object>
                               <packing>
