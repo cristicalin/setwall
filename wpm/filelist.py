@@ -145,8 +145,11 @@ class filelist:
     # This is to make sure we stop the inotify upon cleanup
     # unfortuantely Python does not guarantee the call to __del__
     # so I had to create this miserable hack
-    self.suspend_watch()
-    self.NOTIFIER.stop()
+    try:
+      self.suspend_watch()
+      self.NOTIFIER.stop()
+    except:
+      None
 
   def get_next_file(self, counter = 5):
     self.LOCAL_COUNT += 1
