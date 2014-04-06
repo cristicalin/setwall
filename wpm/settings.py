@@ -66,6 +66,21 @@ class settings:
       self.SETTINGS.STATUS_BAR.push(0, filename)
       self.SETTINGS.show_preview(filename)
 
+    def onKeyPress(self, widget, event, callback):
+      key = gdk.keyval_name(event.keyval)
+      ctrl = event.state & gdk.ModifierType.CONTROL_MASK
+      alt = event.state & gdk.ModifierType.MOD1_MASK
+      shift = event.state & gdk.ModifierType.SHIFT_MASK
+      modifiers = []
+      if ctrl:
+        modifiers.append("<Ctrl>")
+      if alt:
+        modifiers.append("<Alt>")
+      if shift:
+        modifiers.append("<Shift>")
+      modifiers.append(key)
+      callback("".join(modifiers))
+
   def __init__(self, args = None, app = None):
     self.APP_SETTINGS = gio.Settings.new("%s.%s" % (globals.BASE_ID, globals.APP_SETTINGS))
     self.APP = app
@@ -110,6 +125,10 @@ class settings:
     self.spInterval = self.BUILDER.get_object("spInterval")
     self.cbPath = self.BUILDER.get_object("cbPath")
     self.imgPreview = self.BUILDER.get_object("imgPreview")
+    #self.WINDOW.connect("key-press-event", self.HANDLER.onKeyPress, self.get_key)
+
+  #def get_key(self, str):
+  #  print str
 
   def show_window(self):
     self.WINDOW.move(gdk.Screen.width()-self.WINDOW.get_size()[0]-50, 50)
