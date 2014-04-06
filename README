@@ -1,10 +1,26 @@
+This application is designed to work with appindicator (designed by Ubuntu) and
+work best with Unity Desktop. To use the application with Gnome 3 desktop, you
+need to install support for old application icons. One such example is this
+extension: https://extensions.gnome.org/extension/495/topicons/
+
 Pre-requisite python modules:
+
+Ubuntu
 * apsheduler (python-apscheduler)
 * urllib2 (part of main python)
 * simplejson (python-simplejson)
 * pyinotify (python-pyinotify)
 * Keybinder (gir1.2-keybinder-3.0)
 * Gtk3 bindings (gir1.2-gtk-3.0)
+
+Fedora
+* AppIndicator3 (libappindicator-gtk3)
+* apsheduler (pip install apscheduler)
+* urllib2 (part of main python)
+* simplejson (part of main python)
+* pyinotify (python-inotify)
+* Keybinder (keybinder3-devel)
+* Gtk3 bindings (gtk3-devel)
 
 Installing the schema file, this is necessary for the gsettings to work:
 

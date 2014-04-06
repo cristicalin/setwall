@@ -152,6 +152,8 @@ class filelist:
       None
 
   def get_next_file(self, counter = 5):
+    if len(self.LOCAL_FILE_LIST) <= 0:
+      return None
     self.LOCAL_COUNT += 1
     self.LOCAL_COUNT %= len(self.LOCAL_FILE_LIST)
     current_file = self.get_current_file()
@@ -164,6 +166,8 @@ class filelist:
       return current_file
 
   def get_previous_file(self, counter = 5):
+    if len(self.LOCAL_FILE_LIST) <= 0:
+      return None
     self.LOCAL_COUNT -= 1
     self.LOCAL_COUNT %= len(self.LOCAL_FILE_LIST)
     current_file = self.get_current_file()
@@ -176,11 +180,13 @@ class filelist:
       return current_file
 
   def get_current_file(self):
+    if len(self.LOCAL_FILE_LIST) <= 0:
+      return None
     tmp = None
     try:
       tmp = "%s/%s" % (self.DIR_PATH, self.LOCAL_FILE_LIST[self.LOCAL_COUNT])
     finally:
-      if self.APP is not None:
+      if self.APP is not None and tmp is not None:
         if self.APP.SETTINGS.get_verify_presence():
           if os.path.isfile(tmp):
             return tmp

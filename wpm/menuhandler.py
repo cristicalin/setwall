@@ -163,7 +163,7 @@ class menuhandler():
       folder_menu_item = gtk.MenuItem()
       folder_menu_item.set_label(folder)
       folder_menu_item.show()
-      self.FAVORITES.append(folder_menu_item)
+      self.FAVORITES_MENU.append(folder_menu_item)
       folder_menu = gtk.Menu()
       folder_menu.append(
         self.create_file_menu_item(folder, filename)
