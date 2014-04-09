@@ -186,9 +186,13 @@ class application:
     self.reset_schedule()
     # set up binding, we should not need to worry about the old ones
     # the old binding are cleared when the settings dialog is opened
+    self.resume_bindings()
+
+  # This needs to be in a separate method because we also
+  # need to call it on the settings hide_window method
+  def resume_bindings(self):
     keybinder.bind(self.SETTINGS.get_next_key(), self.next_wallpaper, None)
     keybinder.bind(self.SETTINGS.get_previous_key(), self.previous_wallpaper, None)
-
 
   # Suspend key bindings, this is used when 
   # opening settings dialog to prevent conflicts

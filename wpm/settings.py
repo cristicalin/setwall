@@ -257,6 +257,8 @@ class settings:
       self.LOCAL_FILE_LIST.close()
     self.HANDLER.disconnect()
     self.WINDOW.hide()
+    if self.APP is not None:
+      self.APP.resume_bindings()
 
   def flip_toggles(self, toggle):
     for i in self.toggles:
