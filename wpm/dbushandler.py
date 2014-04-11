@@ -60,14 +60,17 @@ class dbushandler(dbus.service.Object):
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
                        in_signature='', out_signature='s')
   def next(self):
-    wallpaper = self.APP.next_wallpaper()
-    return wallpaper
+    return self.APP.next_wallpaper()
 
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
                      in_signature='', out_signature='s')
   def previous(self):
-    wallpaper = self.APP.previous_wallpaper()
-    return wallpaper
+    return self.APP.previous_wallpaper()
+
+  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+                     in_signature='', out_signature='s')
+  def get(self):
+    return self.APP.FILE_LIST.get_current_file()
 
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
                        in_signature='', out_signature='')
