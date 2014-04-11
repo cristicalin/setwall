@@ -36,7 +36,9 @@ if __name__ == '__main__':
       "%s/%s" % (APP_PATH, APP_NAME)
     )
     if len(sys.argv) == 2:
-      exec "session_obj.%s()" % sys.argv[1]
+      exec "result = session_obj.%s()" % sys.argv[1]
+      if result is not None:
+        print result
     elif len(sys.argv) > 2:
       exec "session_obj.%s(\"%s\")" % (sys.argv[1], "\",\"".join(sys.argv[2:]))
   except dbus.DBusException as e:

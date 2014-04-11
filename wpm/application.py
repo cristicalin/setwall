@@ -87,13 +87,17 @@ class application:
     self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_current_file())
     self.reset_schedule()
 
-  def next_wallpaper(self, *args):
-    self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_next_file())
+  def _set_wallpaper(self, method):
+    wallpaper = method()
+    self.WALLPAPER_MANAGER.set_wallpaper(wallpaper)
     self.reset_schedule()
+    return wallpaper
+
+  def next_wallpaper(self, *args):
+    return self._set_wallpaper(self.FILE_LIST.get_next_file)
 
   def previous_wallpaper(self, *args):
-    self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_previous_file())
-    self.reset_schedule()
+    return self._set_wallpaper(self.FILE_LIST.get_previous_file)
 
   # add current wallpaper to favorites
   def add_current_to_favorites(self, item = None):

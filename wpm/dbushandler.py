@@ -58,14 +58,16 @@ class dbushandler(dbus.service.Object):
     self.APP.set_wallpaper(wallpaper)
 
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
-                       in_signature='', out_signature='')
+                       in_signature='', out_signature='s')
   def next(self):
-    self.APP.next_wallpaper()
+    wallpaper = self.APP.next_wallpaper()
+    return wallpaper
 
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
-                     in_signature='', out_signature='')
+                     in_signature='', out_signature='s')
   def previous(self):
-    self.APP.previous_wallpaper()
+    wallpaper = self.APP.previous_wallpaper()
+    return wallpaper
 
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
                        in_signature='', out_signature='')
