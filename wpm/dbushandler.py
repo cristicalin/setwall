@@ -53,6 +53,11 @@ class dbushandler(dbus.service.Object):
     )
 
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+                       in_signature='s', out_signature='')
+  def set(self, wallpaper):
+    self.APP.set_wallpaper(wallpaper)
+
+  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
                        in_signature='', out_signature='')
   def next(self):
     self.APP.next_wallpaper()

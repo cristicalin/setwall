@@ -82,6 +82,11 @@ class application:
     self.FILE_LIST.close()
     gtk.main_quit()
 
+  def set_wallpaper(self, wallpaper):
+    self.FILE_LIST.set_index(wallpaper)
+    self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_current_file())
+    self.reset_schedule()
+
   def next_wallpaper(self, *args):
     self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_next_file())
     self.reset_schedule()
@@ -122,9 +127,7 @@ class application:
         self.SETTINGS.set_wallpaper_path(data["folder"])
         self.FILE_LIST.load_from_path(data["folder"])
         self.FILE_LIST.randomize()
-      self.FILE_LIST.set_index(data["file"])
-      self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_current_file())
-      self.reset_schedule()
+      self.set_wallpaper(data["file"])
       
   # notify of folder structure changes
   def file_changed(self, action, filename):

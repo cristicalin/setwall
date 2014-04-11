@@ -35,7 +35,10 @@ if __name__ == '__main__':
       "%s.%s" % (BASE_ID, APP_NAME),
       "%s/%s" % (APP_PATH, APP_NAME)
     )
-    exec "session_obj.%s()" % sys.argv[1]
+    if len(sys.argv) == 2:
+      exec "session_obj.%s()" % sys.argv[1]
+    elif len(sys.argv) == 3:
+      exec "session_obj.%s(\"%s\")" % (sys.argv[1], sys.argv[2])
   except dbus.DBusException as e:
     print "%s could not be contacted" % APP_FRIENDLY_NAME
     print e
