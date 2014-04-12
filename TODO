@@ -21,7 +21,7 @@ TODO
 * support decent fork()'ing on initial launch, there seems
   that DBus fails to connect after fork() leaving the application
   stuck in connecting to DBus and exiting with a timeout
-* support other desktop environments (Gnome3, Mate, KDE, Xfce)
+* support other desktop environments (Mate, KDE, Xfce)
 
 DONE
 
@@ -45,3 +45,4 @@ DONE
 * support keyboard shortcut feature for next and previous,
   decided to drop supporting stop as there is no reason
   to have a shortcut for a feature that is not that offenly used
+* Gnome 3 support added and validated
