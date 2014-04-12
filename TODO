@@ -46,3 +46,4 @@ DONE
   decided to drop supporting stop as there is no reason
   to have a shortcut for a feature that is not that offenly used
 * Gnome 3 support added and validated
+* allow CLI to return values or set specific values
