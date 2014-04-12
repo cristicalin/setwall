@@ -4,8 +4,8 @@ Done tasks/ideas are listed at the end of the document.
 BUGS
 * [FIXED] when closing windows using the X button on the window
   title bar the contents get mangled / objects get invalidated
-* when disabling wallpaper save feature and clicking apply
-  the list gets reset improperly
+* [FIXED ]when disabling wallpaper save feature and clicking 
+  apply the list gets reset improperly
 * [FIXED] UTF-8 encoding comparison in BST fails
 * [FIXED] Gnome3 notifications does not support <br/>
 
@@ -22,6 +22,14 @@ TODO
   that DBus fails to connect after fork() leaving the application
   stuck in connecting to DBus and exiting with a timeout
 * support other desktop environments (Mate, KDE, Xfce)
+* implement a B+Tree structure to replace the BST
+* split GUI and backend into two different apps tied together
+  by DBus communication, like wp interacts with setwall currently
+* possibly support running the backend code on a separate machine
+  sort of a wallpaper server that clients fetch files from
+* clean out constructors and put initalizer code into
+  separate methods
+* support displaying this on apple TV using airplay protocol
 
 DONE
 
@@ -46,4 +54,4 @@ DONE
   decided to drop supporting stop as there is no reason
   to have a shortcut for a feature that is not that offenly used
 * Gnome 3 support added and validated
-* allow CLI to return values or set specific values
+* allow CLI to return values or set specific values 

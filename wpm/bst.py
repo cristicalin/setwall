@@ -54,7 +54,7 @@ class bst:
 # The node implementation
 class node:
 
-  # class constructuctor, takes single value or a list
+  # class constructor, takes single value or a list
   def __init__(self, value=None):
     self.left = None
     self.right = None
