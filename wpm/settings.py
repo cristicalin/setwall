@@ -98,6 +98,9 @@ class settings:
       if self.BINDINGS_MANAGER.is_usable(name, key):
         widget.set_label(key)
 
+    def onLeave(self, widget):
+      widget.set_active(False)
+
     def disconnect(self, resume = False):
       try:
         self.SETTINGS.WINDOW.disconnect(self.KEY_HANDLER)

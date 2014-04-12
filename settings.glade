@@ -295,6 +295,7 @@
                                                     <property name="can_focus">False</property>
                                                     <property name="receives_default">True</property>
                                                     <property name="hexpand">True</property>
+                                                    <signal name="leave" handler="onLeave" swapped="no"/>
                                                   </object>
                                                   <packing>
                                                     <property name="left_attach">1</property>
@@ -310,6 +311,7 @@
                                                     <property name="can_focus">False</property>
                                                     <property name="receives_default">True</property>
                                                     <property name="hexpand">True</property>
+                                                    <signal name="leave" handler="onLeave" swapped="no"/>
                                                   </object>
                                                   <packing>
                                                     <property name="left_attach">1</property>
