@@ -1,7 +1,7 @@
-This application is designed to work with appindicator (designed by Ubuntu) 
-but integrates into both Unity Desktop and Gnome 3. To use the application 
-with the Gnome 3 desktop, you will need to install support for old application
-icons. One such example is this extension: 
+Setwall is a wallpaper manager designed to work with appindicator (designed 
+by Ubuntu) but integrates into both Unity Desktop and Gnome 3. To use the 
+application with the Gnome 3 desktop, you will need to install support for 
+old application icons. One such example is this extension: 
 https://extensions.gnome.org/extension/495/topicons/
 
 Pre-requisite python modules:
