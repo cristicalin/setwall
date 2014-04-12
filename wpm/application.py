@@ -27,7 +27,6 @@ from urllib2 import quote, unquote
 from apscheduler.scheduler import Scheduler
 
 from gi.repository import Gtk as gtk
-from gi.repository import Keybinder as keybinder
 
 # Local imports
 from globals import *
@@ -38,6 +37,7 @@ from dbushandler import *
 from menuhandler import *
 from utils import *
 from favoritesmanager import *
+from bindingsmanager import *
 
 # This is the main application class
 class application:
@@ -59,6 +59,7 @@ class application:
     parser.add_argument("-s", "--schedule", type=bool,
                         help="Scheduled wallpaper changes")
     args = parser.parse_args()
+    self.BINDINGS_MANAGER = bindingsmanager()
     self.SETTINGS = settings(args = args, app = self)
     self.FAVORITES_MANAGER = favoritesmanager(self)
     self.MENU_OBJECT = menuhandler(self)
@@ -72,7 +73,7 @@ class application:
   # Greacefuly quit the application
   def quit_app(self, item = None):
     # suspend the bindings
-    self.suspend_bindings()
+    self.BINDINGS_MANAGER.suspend_bindings()
     # make sure all windows are closed
     self.SETTINGS.hide_window()
     self.FAVORITES_MANAGER.hide_window()
@@ -192,20 +193,12 @@ class application:
 
     self.reset_schedule()
     # set up binding, we should not need to worry about the old ones
-    # the old binding are cleared when the settings dialog is opened
-    self.resume_bindings()
-
-  # This needs to be in a separate method because we also
-  # need to call it on the settings hide_window method
-  def resume_bindings(self):
-    keybinder.bind(self.SETTINGS.get_next_key(), self.next_wallpaper, None)
-    keybinder.bind(self.SETTINGS.get_previous_key(), self.previous_wallpaper, None)
-
-  # Suspend key bindings, this is used when 
-  # opening settings dialog to prevent conflicts
-  def suspend_bindings(self):
-    keybinder.unbind(self.SETTINGS.get_next_key())
-    keybinder.unbind(self.SETTINGS.get_previous_key())
+    self.BINDINGS_MANAGER.set_binding(
+      KEY_NEXT, self.SETTINGS.get_next_key(), self.next_wallpaper
+    )
+    self.BINDINGS_MANAGER.set_binding(
+      KEY_PREVIOUS, self.SETTINGS.get_previous_key(), self.previous_wallpaper
+    )
 
   # Set the file list index to the current wallpaper
   # this gets called multiple times so it became a function

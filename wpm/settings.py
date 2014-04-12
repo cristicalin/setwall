@@ -27,7 +27,6 @@ from gi.repository import Gdk as gdk
 from gi.repository import Gio as gio
 from gi.repository import GObject as gobject
 from gi.repository import GdkPixbuf as pixbuf
-from gi.repository import Keybinder as keybinder
 
 import globals
 
@@ -42,6 +41,7 @@ class settings:
 
     def __init__(self, settings):
       self.SETTINGS = settings
+      self.BINDINGS_MANAGER = settings.APP.BINDINGS_MANAGER
 
     def onApply(self, *args):
       self.SETTINGS.save()
@@ -67,18 +67,19 @@ class settings:
       self.SETTINGS.STATUS_BAR.push(0, filename)
       self.SETTINGS.show_preview(filename)
 
-    def onToggleKey(self, widget):
+    def onToggleKey(self, widget, user_data):
       self.SETTINGS.flip_toggles(widget)
       if widget.get_active():
+        self.BINDINGS_MANAGER.suspend_bindings()
         self.disconnect()
         self.KEY_HANDLER = self.SETTINGS.WINDOW.connect(
           "key-press-event", self.onKeyPress,
-          [self.setKey, widget] 
+          [self.setKey, widget, user_data] 
         )
       else:
-        self.disconnect()
+        self.disconnect(True)
 
-    def onKeyPress(self, widget, event, callback):
+    def onKeyPress(self, widget, event, data):
       key = gdk.keyval_name(event.keyval)
       ctrl = event.state & gdk.ModifierType.CONTROL_MASK
       alt = event.state & gdk.ModifierType.MOD1_MASK
@@ -91,17 +92,18 @@ class settings:
       if shift:
         modifiers.append("<Shift>")
       modifiers.append(key)
-      callback[0](callback[1], "".join(modifiers))
+      data[0](data[1], data[2], "".join(modifiers))
 
-    def setKey(self, widget, key):
-      if keybinder.bind(key, lambda *args: None, None):
+    def setKey(self, widget, name, key):
+      if self.BINDINGS_MANAGER.is_usable(name, key):
         widget.set_label(key)
-        keybinder.unbind(key)
 
-    def disconnect(self):
+    def disconnect(self, resume = False):
       try:
         self.SETTINGS.WINDOW.disconnect(self.KEY_HANDLER)
         self.KEY_HANDLER = None
+        if resume:
+          self.BINDINGS_MANAGER.resume_bindings()
       except:
         None
 
@@ -150,10 +152,13 @@ class settings:
     self.cbPath = self.BUILDER.get_object("cbPath")
     self.imgPreview = self.BUILDER.get_object("imgPreview")
 
-    self.toggles = []
     self.tgNext = self.BUILDER.get_object("tgNext")
-    self.toggles.append(self.tgNext)
+    self.tgNext.connect("toggled", self.HANDLER.onToggleKey, globals.KEY_NEXT)
     self.tgPrevious = self.BUILDER.get_object("tgPrevious")
+    self.tgPrevious.connect("toggled", self.HANDLER.onToggleKey, globals.KEY_PREVIOUS)
+
+    self.toggles = []
+    self.toggles.append(self.tgNext)
     self.toggles.append(self.tgPrevious)
 
   def show_window(self):
@@ -172,7 +177,6 @@ class settings:
     filename = "file://%s" % self.LOCAL_FILE_LIST.get_current_file()
     self.STATUS_BAR.push(0, filename)
     self.show_preview(filename)
-    self.APP.suspend_bindings()
     self.WINDOW.show_all()
 
   # Show a scaled down preview of a image
@@ -255,10 +259,8 @@ class settings:
   def hide_window(self):
     if self.LOCAL_FILE_LIST is not None:
       self.LOCAL_FILE_LIST.close()
-    self.HANDLER.disconnect()
+    self.HANDLER.disconnect(True)
     self.WINDOW.hide()
-    if self.APP is not None:
-      self.APP.resume_bindings()
 
   def flip_toggles(self, toggle):
     for i in self.toggles:

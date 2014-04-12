@@ -40,6 +40,7 @@ class bindingsmanager:
     binding = {}
     binding["key"] = key
     binding["callback"] = callback
+    binding["suspended"] = False
     ret = keybinder.bind(key, callback, None)
     self.BINDINGS[name] = binding
     return ret
@@ -64,15 +65,17 @@ class bindingsmanager:
   def suspend_bindings(self):
     for name in self.BINDINGS:
       keybinder.unbind(self.BINDINGS[name]["key"])
+      self.BINDINGS[name]["suspended"] = True
 
-  # resume all bindings
+  # resume all bindings that were suspended
   # return the number of resumed bindings
   def resume_bindings(self):
     count = 0
     for name in self.BINDINGS:
-      count += keybinder.bind(
-        self.BINDINGS[name]["key"], self.BINDINGS[name]["callback"], None
-      )
+      if self.BINDINGS[name]["suspended"]:
+        count += keybinder.bind(
+          self.BINDINGS[name]["key"], self.BINDINGS[name]["callback"], None
+        )
     return count
 
 if __name__ == "__main__":
@@ -82,12 +85,16 @@ if __name__ == "__main__":
   def test_call1(*args):
     print "test_call1()"
 
+  def test_call2(*args):
+    print "test_call1()"
+
   def quit(*args):
     print "quit()"
     Gtk.main_quit()
 
   bm = bindingsmanager()
   key_1 = "<Ctrl><Alt>1"
+  key_2 = "<Ctrl><Alt>2"
   key_quit = "<Ctrl><Alt>q"
   
   print bm.set_binding("key_1", key_1, test_call1)
@@ -95,6 +102,7 @@ if __name__ == "__main__":
   bm.suspend_bindings()
   print bm.is_usable("key_1", key_1)
   print bm.is_usable("key_1", key_quit)
+  print bm.set_binding("key_1", key_2, test_call1)
   bm.resume_bindings()
 
   Gtk.main()
