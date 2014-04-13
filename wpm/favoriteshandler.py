@@ -126,4 +126,4 @@ class favoriteshandler:
 
 # this is for unit testing only
 if __name__ == "__main__":
-  fm = favoriteshandler()
+  fh = favoriteshandler()

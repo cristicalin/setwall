@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from gi.repository import Gdk as gdk
+
 # This class is used only to provide callbacks for the settings dialog
 class settingshandler:
 
