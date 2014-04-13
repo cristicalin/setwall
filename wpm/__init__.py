@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 __all__ = [
   'application',
   'settings',
@@ -29,6 +29,7 @@ __all__ = [
   'dbushandler',
   'menuhandler',
   'favoritesmanager',
+  'favoriteshandler',
   'bindingsmanager'
 ]
 __author__ = 'Calin Cristian Andrei <cristian.calin@outlook.com>'
