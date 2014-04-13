@@ -30,87 +30,17 @@ from gi.repository import GdkPixbuf as pixbuf
 
 import globals
 
+from settingshandler import *
 from utils import *
 
 # The settings class is a container for the application settings
 # as well as a handler for the settings configuration window
 class settings:
 
-  # This inner class is used only to provide callbacks
-  class handler:
-
-    def __init__(self, settings):
-      self.SETTINGS = settings
-      self.BINDINGS_MANAGER = settings.APP.BINDINGS_MANAGER
-
-    def onApply(self, *args):
-      self.SETTINGS.save()
-      self.SETTINGS.hide_window()
-
-    def onDeleteEvent(self, *args):
-      self.SETTINGS.hide_window()
-      return True
-      
-    def onClose(self, *args):
-      self.SETTINGS.hide_window()
-      
-    def onPathChanged(self, *args):
-      self.SETTINGS.set_path(args[0].get_active_text(), True)
-
-    def onPrevious(self, *args):
-      filename = "file://%s" % self.SETTINGS.LOCAL_FILE_LIST.get_previous_file()
-      self.SETTINGS.STATUS_BAR.push(0, filename)
-      self.SETTINGS.show_preview(filename)
-
-    def onNext(self, *args):
-      filename = "file://%s" % self.SETTINGS.LOCAL_FILE_LIST.get_next_file()
-      self.SETTINGS.STATUS_BAR.push(0, filename)
-      self.SETTINGS.show_preview(filename)
-
-    def onToggleKey(self, widget, user_data):
-      self.SETTINGS.flip_toggles(widget)
-      if widget.get_active():
-        self.BINDINGS_MANAGER.suspend_bindings()
-        self.disconnect()
-        self.KEY_HANDLER = self.SETTINGS.WINDOW.connect(
-          "key-press-event", self.onKeyPress,
-          [self.setKey, widget, user_data] 
-        )
-      else:
-        self.disconnect(True)
-
-    def onKeyPress(self, widget, event, data):
-      key = gdk.keyval_name(event.keyval)
-      ctrl = event.state & gdk.ModifierType.CONTROL_MASK
-      alt = event.state & gdk.ModifierType.MOD1_MASK
-      shift = event.state & gdk.ModifierType.SHIFT_MASK
-      modifiers = []
-      if ctrl:
-        modifiers.append("<Ctrl>")
-      if alt:
-        modifiers.append("<Alt>")
-      if shift:
-        modifiers.append("<Shift>")
-      modifiers.append(key)
-      data[0](data[1], data[2], "".join(modifiers))
-
-    def setKey(self, widget, name, key):
-      if self.BINDINGS_MANAGER.is_usable(name, key):
-        widget.set_label(key)
-
-    def onLeave(self, widget):
-      widget.set_active(False)
-
-    def disconnect(self, resume = False):
-      try:
-        self.SETTINGS.WINDOW.disconnect(self.KEY_HANDLER)
-        self.KEY_HANDLER = None
-        if resume:
-          self.BINDINGS_MANAGER.resume_bindings()
-      except:
-        None
-
   def __init__(self, args = None, app = None):
+    # These are Gnome specific settings for wallpaper and we need
+    # a separate object to interact with them
+    self.WALLPAPER_SETTINGS = gio.Settings.new(globals.WALLPAPER_SETTING)
     self.APP_SETTINGS = gio.Settings.new("%s.%s" % (globals.BASE_ID, globals.APP_SETTINGS))
     self.APP = app
     self.LOCAL_FILE_LIST = None
@@ -126,10 +56,6 @@ class settings:
       if args.schedule != None:
         self.APP_SETTINGS.set_boolean(globals.WALLPAPER_SCHEDULE, args.schedule)
 
-    # These are Gnome specific settings for wallpaper and we need
-    # a separate object to interact with them
-    self.WALLPAPER_SETTINGS = gio.Settings.new(globals.WALLPAPER_SETTING)
-
     # Now build the windows and other Gtk objects
     self.BUILDER = gtk.Builder()
     try:
@@ -137,7 +63,7 @@ class settings:
                                             globals.GLADE_SETTINGS_FILE))
     except:
       self.BUILDER.add_from_file(globals.GLADE_SETTINGS_FILE)
-    self.HANDLER = self.handler(self)
+    self.HANDLER = settingshandler(self)
     self.BUILDER.connect_signals(self.HANDLER)
 
     self.WINDOW = self.BUILDER.get_object("wcMain")
