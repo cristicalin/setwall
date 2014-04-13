@@ -37,10 +37,10 @@ if __name__ == '__main__':
     )
     if len(sys.argv) == 2:
       exec "result = session_obj.%s()" % sys.argv[1]
-      if result is not None:
-        print result
     elif len(sys.argv) > 2:
-      exec "session_obj.%s(\"%s\")" % (sys.argv[1], "\",\"".join(sys.argv[2:]))
+      exec "result = session_obj.%s(\"%s\")" % (sys.argv[1], "\",\"".join(sys.argv[2:]))
+    if result is not None:
+      print result
   except dbus.DBusException as e:
     print "%s could not be contacted" % APP_FRIENDLY_NAME
     print e
