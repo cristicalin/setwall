@@ -53,13 +53,37 @@ def get_checked_list(directory, check_func):
       file_list.append(i)
   return file_list
 
-# Get file list from a directory (os.listdir is much faster than os.walk for large folders)
-def get_file_list(directory):
-  return get_checked_list(directory, lambda a: os.path.isfile(a))
+# Walk the file list to build up
+def _walk_files(user_data, dir, files):
+  (file_list, directory) = user_data
+  for f in files:
+    path = dir.replace("%s/" % directory, "")
+    file_list.append("%s/%s" % (path, f))
 
-# Get subdir list from a directory (os.listdir is much faster than os.walk for large folders)
-def get_dir_list(directory):
-  return get_checked_list(directory, lambda a: os.path.isdir(a))
+# Walk the file list to build up
+def _walk_dirs(user_data, dir, files):
+  (file_list, directory) = user_data
+  file_list.append(dir.replace("%s/" % directory, ""))
+
+# Get the recursive file list
+def get_recursive_list(directory, func):
+  file_list = []
+  os.path.walk(directory, func, (file_list, directory))
+  return file_list
+
+# Get file list from a directory
+def get_file_list(directory, recursive = False):
+  if recursive:
+    return get_recursive_list(directory.rstrip("/"), _walk_files)
+  else:
+    return get_checked_list(directory, lambda a: os.path.isfile(a))
+
+# Get subdir list from a directory
+def get_dir_list(directory, recursive = False):
+  if recursive:
+    return get_recursive_list(directory.rstrip("/"), _walk_dirs)
+  else:
+    return get_checked_list(directory, lambda a: os.path.isdir(a))
 
 # Compute md5sum
 def md5sum(filename):
@@ -68,7 +92,6 @@ def md5sum(filename):
     for buf in iter(partial(f.read, 128), b''):
       d.update(buf)
   return d.hexdigest()
-
 
 # Check if a specified file is a valid image by looking at the content type
 def is_image(filename):
@@ -85,3 +108,7 @@ if __name__ == "__main__":
   print shorten("very long string more than 16 chars in length", 16)
 
   print to_json({"abd":["dwds", "dda"]})
+
+  print get_file_list("/etc/", True)
+
+  print get_dir_list("/etc/", True)
