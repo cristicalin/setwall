@@ -6,6 +6,11 @@
       <summary>Wallpapers Path</summary>
       <description>This is the path in which wallpaper files reside.</description>
     </key>
+    <key type="b" name="recursive">
+      <default>false</default>
+      <summary>Recursively walk Wallpapers Path</summary>
+      <description>Set this to load all wallpaper files from the path not just first level. This makes sense if you have a multilevel structure and you want to point the app to the top level.</description>
+    </key>
     <key type="i" name="interval">
       <default>300</default>
       <summary>Wallpapers Switch Interval</summary>
@@ -29,7 +34,12 @@
     <key type="b" name="verify-presence">
       <default>true</default>
       <summary>Verify Wallpaper File Presence</summary>
-      <description>Set this to true if you want to verify the presence of the file on the filesystem before setting a wallpaper. This makes sense if you disable reconcile.</description>
+      <description>Set this to true if you want to verify the presence of the file on the filesystem before setting a wallpaper, if not the file is purged from the list. This makes sense if you disable reconcile.</description>
+    </key>
+    <key type="b" name="verify-image">
+      <default>true</default>
+      <summary>Verify Wallpaper File is an Image</summary>
+      <description>Set this to true if you want to verify that the current file is actually an image. If not then the file is purged from the list.</description>
     </key>
     <key type="s" name="saved-list">
       <default>'[]'</default>
