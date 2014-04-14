@@ -49,7 +49,7 @@ def get_checked_list(directory, check_func):
   file_list = []
   tmp = os.listdir(directory)
   for i in tmp:
-    if check_func("%s/%s" % (directory, i)):
+    if check_func("%s/%s" % (directory, i)) and not i.startswith("."):
       file_list.append(i)
   return file_list
 
