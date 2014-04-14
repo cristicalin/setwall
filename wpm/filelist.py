@@ -123,11 +123,15 @@ class filelist:
   # we instate the watch after the reace condition has passed
   # or upon a fresh load_from_*() or reconcile() call
   def instate_watch(self):
-    self.WATCH_MANAGER.add_watch(
-      self.DIR_PATH,
-      pyinotify.IN_DELETE | pyinotify.IN_CLOSE_WRITE,
-      rec=False
-    )
+    # only instate a new watch if another one is not already present
+    if self.DIR_PATH is not None:
+      watch = self.WATCH_MANAGER.get_wd(self.DIR_PATH)
+      if watch is None:
+        self.WATCH_MANAGER.add_watch(
+          self.DIR_PATH,
+          pyinotify.IN_DELETE | pyinotify.IN_CLOSE_WRITE,
+          rec=False
+        )
 
   # we need to support copy in order to allow settings
   # to display preview of an independent file list
