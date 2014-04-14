@@ -156,6 +156,11 @@ class settings:
   # Set Path may be slow so we want to execute it in a separate thread
   def set_path(self, dirname, changed = False):
     self.cbPath.handler_block_by_func(self.HANDLER.onPathChanged)
+    # initially set only the current path
+    self.update_cb_path([dirname], 0)
+    # then spin up a thread to populate the rest
+    # we do this in a thread to defer the loading and
+    # allow the settings dialog to load faster
     thread = threading.Thread(target = self._set_path, args = (dirname, changed))
     thread.start()
 
