@@ -23,6 +23,8 @@ import os
 import os.path
 import hashlib
 
+from gi.repository import Gio as gio
+
 from functools import partial
 from simplejson import *
 
@@ -68,10 +70,14 @@ def md5sum(filename):
   return d.hexdigest()
 
 
-# Check if a specified file is a valid image
+# Check if a specified file is a valid image by looking at the content type
 def is_image(filename):
-  # TODO: implement using GdkPixmap to load and render file
-  return True
+  file_handle = gio.File.new_for_path(filename)
+  query_info = file_handle.query_info(
+    "standard::content-type", gio.FileQueryInfoFlags.NONE, None
+  )
+  (base, specific) = query_info.get_content_type().split("/")
+  return (base == "image")
 
 # this is for unit testing only
 if __name__ == "__main__":
