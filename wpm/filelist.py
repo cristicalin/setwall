@@ -84,7 +84,9 @@ class filelist:
   def load_from_path(self, path):
     self.suspend_watch()
     self.DIR_PATH = path
-    self.set_list(get_file_list(self.DIR_PATH))
+    self.set_list(
+      get_file_list(self.DIR_PATH), self.SETTINGS.get_wallpaper_recursive()
+    )
     self.instate_watch()
     self.NEED_RECONCILE = False
 
@@ -93,7 +95,7 @@ class filelist:
   def _reconcile(self):
     if self.NEED_RECONCILE:
       self.suspend_watch()
-      temp = get_file_list(self.DIR_PATH)
+      temp = get_file_list(self.DIR_PATH, self.SETTINGS.get_wallpaper_recursive())
       temp_tree = bst.bst(temp)
       for my_file in self.LOCAL_FILE_LIST:
         if temp_tree.extract(my_file) != my_file: 
