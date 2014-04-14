@@ -26,6 +26,7 @@ APP_ICON = "preferences-desktop-wallpaper"
 BASE_ID = "com.kman"
 
 WALLPAPER_PATH = "path"
+WALLPAPER_RECURSIVE = "recursive"
 WALLPAPER_INTERVAL = "interval"
 WALLPAPER_SCHEDULE = "schedule"
 WALLPAPER_SAVED_LIST = "saved-list"
@@ -33,6 +34,7 @@ WALLPAPER_SAVE = "save"
 WALLPAPER_FAVORITES = "favorites"
 WALLPAPER_RECONCILE = "reconcile"
 WALLPAPER_VERIFY_PRESENCE = "verify-presence"
+WALLPAPER_VERIFY_IMAGE = "verify-image"
 
 # These are gnome specific parameters
 WALLPAPER_SETTING = "org.gnome.desktop.background"

@@ -73,10 +73,12 @@ class settings:
                                           gtk.IconSize.DIALOG)
     self.WINDOW.set_icon(window_icon)
 
+    self.ckRecursive = self.BUILDER.get_object("ckRecursive")
     self.ckSchedule = self.BUILDER.get_object("ckSchedule")
     self.ckLoadSavedList = self.BUILDER.get_object("ckLoadSavedList")
     self.ckReconcile = self.BUILDER.get_object("ckReconcile")
     self.ckVerifyPresence = self.BUILDER.get_object("ckVerifyPresence")
+    self.ckVerifyImage = self.BUILDER.get_object("ckVerifyImage")
     self.spInterval = self.BUILDER.get_object("spInterval")
     self.cbPath = self.BUILDER.get_object("cbPath")
     self.imgPreview = self.BUILDER.get_object("imgPreview")
@@ -92,10 +94,12 @@ class settings:
 
   def show_window(self):
     self.WINDOW.move(gdk.Screen.width()-self.WINDOW.get_size()[0]-50, 50)
+    self.ckRecursive.set_active(self.get_wallpaper_recursive())
     self.ckSchedule.set_active(self.get_wallpaper_schedule())
     self.ckLoadSavedList.set_active(self.get_wallpaper_save())
     self.ckReconcile.set_active(self.get_reconcile())
     self.ckVerifyPresence.set_active(self.get_verify_presence())
+    self.ckVerifyImage.set_active(self.get_verify_image())
     self.spInterval.set_value(self.get_wallpaper_interval())
     self.tgNext.set_label(self.get_next_key())
     self.tgNext.set_active(False)
@@ -176,10 +180,12 @@ class settings:
     if (os.path.isdir(path)):
       self.set_wallpaper_path(path)
     self.set_wallpaper_interval(self.spInterval.get_value())
+    self.set_wallpaper_recursive(self.ckRecursive.get_active())
     self.set_wallpaper_schedule(self.ckSchedule.get_active())
     self.set_wallpaper_save(self.ckLoadSavedList.get_active())
     self.set_reconcile(self.ckReconcile.get_active())
     self.set_verify_presence(self.ckVerifyPresence.get_active())
+    self.set_verify_image(self.ckVerifyImage.get_active())
     self.set_next_key(self.tgNext.get_label())
     self.set_previous_key(self.tgPrevious.get_label())
     if self.APP is not None:
@@ -213,6 +219,13 @@ class settings:
   def set_wallpaper_path(self, wallpaper_path):
     self.APP_SETTINGS.set_string(globals.WALLPAPER_PATH,
                                  wallpaper_path)
+
+  def get_wallpaper_recursive(self):
+    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_RECURSIVE)
+
+  def set_wallpaper_recursive(self, wallpaper_recursive):
+    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_RECURSIVE,
+                                  wallpaper_recursive)
 
   def get_wallpaper_interval(self):
     return self.APP_SETTINGS.get_int(globals.WALLPAPER_INTERVAL)
@@ -251,7 +264,15 @@ class settings:
     return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_VERIFY_PRESENCE)
 
   def set_verify_presence(self, verify_presence):
-    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_VERIFY_PRESENCE, verify_presence)
+    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_VERIFY_PRESENCE,
+                                  verify_presence)
+
+  def get_verify_image(self):
+    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_VERIFY_IMAGE)
+
+  def set_verify_image(self, verify_image):
+    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_VERIFY_IMAGE,
+                                  verify_image)
 
   def get_wallpaper(self):
     return self.WALLPAPER_SETTINGS.get_string(globals.PICTURE_URI)

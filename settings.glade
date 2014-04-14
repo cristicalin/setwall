@@ -189,7 +189,7 @@
                                               </packing>
                                             </child>
                                             <child>
-                                              <object class="GtkCheckButton" id="ckRecursion">
+                                              <object class="GtkCheckButton" id="ckRecursive">
                                                 <property name="label" translatable="yes">Recursively Walk Wallpapers Folder</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
