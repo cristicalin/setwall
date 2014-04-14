@@ -54,22 +54,33 @@ def get_checked_list(directory, check_func):
   return file_list
 
 # Walk the file list to build up
-def _walk_files(user_data, dir, files):
-  (file_list, directory) = user_data
+def _walk_files(file_list, directory, dir_path, subdirs, files):
+  for sdir in subdirs:
+    if sdir.startswith("."):
+      subdirs.remove(sdir)
   for f in files:
-    path = dir.replace("%s/" % directory, "")
-    file_list.append("%s/%s" % (path, f))
+    # include only non-hidden files
+    if not f.startswith("."):
+      path = dir_path.replace(directory, "")
+      tmp = ("%s/%s" % (path, f)).lstrip("/")
+      if len(tmp) > 0:
+        file_list.append(tmp)
 
 # Walk the file list to build up
-def _walk_dirs(user_data, dir, files):
-  (file_list, directory) = user_data
-  file_list.append(dir.replace("%s/" % directory, ""))
+def _walk_dirs(dir_list, directory, dir_path, subdirs, files):
+  for sdir in subdirs:
+    if sdir.startswith("."):
+      subdirs.remove(sdir)
+  tmp = (dir_path.replace(directory, "")).lstrip("/")
+  if len(tmp) > 0:
+    dir_list.append(tmp.lstrip("/"))
 
 # Get the recursive file list
 def get_recursive_list(directory, func):
-  file_list = []
-  os.path.walk(directory, func, (file_list, directory))
-  return file_list
+  my_list = []
+  for dir_path, subdirs, files_list in os.walk(directory):
+    func(my_list, directory, dir_path, subdirs, files_list)
+  return my_list
 
 # Get file list from a directory
 def get_file_list(directory, recursive = False):
@@ -109,6 +120,6 @@ if __name__ == "__main__":
 
   print to_json({"abd":["dwds", "dda"]})
 
-  print get_file_list("/etc/", True)
+  print get_file_list("/dev/", True)
 
-  print get_dir_list("/etc/", True)
+  print get_dir_list("/dev/", True)

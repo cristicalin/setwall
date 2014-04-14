@@ -136,14 +136,18 @@ class settings:
     temp_list = []
     position = 0
     try:
+      # put children first
       names_list = get_dir_list(dirname)
       names_list.sort()
       temp_list = []
       for name in names_list:
+        # show only non-hidden files
         if not name.startswith("."):
           path = os.path.join(dirname, name)
           temp_list.append(path)
+      # then append the actual folder
       temp_list.append(dirname)
+      # then append the list of parent folders
       self.build_path(dirname, temp_list)
       position = temp_list.index(dirname)
       if changed:

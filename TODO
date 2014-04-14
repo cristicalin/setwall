@@ -31,8 +31,8 @@ TODO
   separate methods
 * support displaying this on apple TV using airplay protocol
 * support XML wallpapers (gnome slideshow)
-* add check that current file is an image
-* add support for recursion into wallpapers folder
+* clean out settings class to separate settings management
+  from the settings dialog code
 
 DONE
 
@@ -58,3 +58,5 @@ DONE
   to have a shortcut for a feature that is not that offenly used
 * Gnome 3 support added and validated
 * allow CLI to return values or set specific values 
+* added check that current file is an image
+* added support for recursion into wallpapers folder

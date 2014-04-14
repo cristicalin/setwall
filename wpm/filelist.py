@@ -84,9 +84,8 @@ class filelist:
   def load_from_path(self, path):
     self.suspend_watch()
     self.DIR_PATH = path
-    self.set_list(
-      get_file_list(self.DIR_PATH, self.SETTINGS.get_wallpaper_recursive())
-    )
+    tmp = get_file_list(self.DIR_PATH, self.SETTINGS.get_wallpaper_recursive())
+    self.set_list(tmp)
     self.instate_watch()
     self.NEED_RECONCILE = False
 
