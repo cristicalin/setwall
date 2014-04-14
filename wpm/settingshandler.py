@@ -40,6 +40,11 @@ class settingshandler:
   def onPathChanged(self, *args):
     self.SETTINGS.set_path(args[0].get_active_text(), True)
 
+  def onSlideshowToggle(self, *args):
+    self.SETTINGS.spInterval.set_sensitive(
+      self.SETTINGS.ckSchedule.get_active()
+    )
+
   def onPrevious(self, *args):
     filename = "file://%s" % self.SETTINGS.LOCAL_FILE_LIST.get_previous_file()
     self.SETTINGS.STATUS_BAR.push(0, filename)

@@ -101,6 +101,7 @@ class settings:
     self.ckVerifyPresence.set_active(self.get_verify_presence())
     self.ckVerifyImage.set_active(self.get_verify_image())
     self.spInterval.set_value(self.get_wallpaper_interval())
+    self.spInterval.set_sensitive(self.ckSchedule.get_active())
     self.tgNext.set_label(self.get_next_key())
     self.tgNext.set_active(False)
     self.tgPrevious.set_label(self.get_previous_key())
