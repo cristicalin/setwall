@@ -85,7 +85,7 @@ class filelist:
     self.suspend_watch()
     self.DIR_PATH = path
     self.set_list(
-      get_file_list(self.DIR_PATH), self.SETTINGS.get_wallpaper_recursive()
+      get_file_list(self.DIR_PATH, self.SETTINGS.get_wallpaper_recursive())
     )
     self.instate_watch()
     self.NEED_RECONCILE = False

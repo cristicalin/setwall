@@ -158,6 +158,8 @@ class settings:
     self.cbPath.handler_block_by_func(self.HANDLER.onPathChanged)
     # initially set only the current path
     self.update_cb_path([dirname], 0)
+    # disable path change handler again
+    self.cbPath.handler_block_by_func(self.HANDLER.onPathChanged)
     # then spin up a thread to populate the rest
     # we do this in a thread to defer the loading and
     # allow the settings dialog to load faster
