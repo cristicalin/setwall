@@ -64,6 +64,7 @@ class filelist:
     self.NOTIFIER.start()
     self.DIR_PATH = None
     self.APP = app
+    self.SETTINGS = app.SETTINGS
     self.NEED_SAVE = False
     self.LOCAL_FILE_LIST_LOCK = threading.Lock()
     self.NEED_RECONCILE = True
@@ -151,51 +152,46 @@ class filelist:
     except:
       None
 
-  def get_next_file(self, counter = 5):
+  def _get_file(self, add):
     if len(self.LOCAL_FILE_LIST) <= 0:
       return None
-    self.LOCAL_COUNT += 1
+    self.LOCAL_COUNT += add
     self.LOCAL_COUNT %= len(self.LOCAL_FILE_LIST)
-    current_file = self.get_current_file()
+    try:
+      full_filename = "%s/%s" % (self.DIR_PATH,
+                                 self.LOCAL_FILE_LIST[self.LOCAL_COUNT])
+      filename = self.LOCAL_FILE_LIST[self.LOCAL_COUNT]
+      if self.SETTINGS.get_verify_presence():
+        if not os.path.isfile(full_filename):
+          self.LOCAL_FILE_LIST.remove(filename)
+          return None
+      if self.SETTINGS.get_verify_image():
+        if not is_image(full_filename):
+          self.LOCAL_FILE_LIST.remove(filename)
+          return None
+      return full_filename
+    except Exception as e:
+      print e
+      return None
+
+  def _get_file_counter(self, add, counter = 5):
+    current_file = self._get_file(add)
     if current_file is None:
       if counter > 0:
-        return self.get_next_file(counter - 1)
+        return self._get_file_counter(add, counter - 1)
       else:
         return None
     else:
       return current_file
+
+  def get_next_file(self, counter = 5):
+    return self._get_file_counter(1)
 
   def get_previous_file(self, counter = 5):
-    if len(self.LOCAL_FILE_LIST) <= 0:
-      return None
-    self.LOCAL_COUNT -= 1
-    self.LOCAL_COUNT %= len(self.LOCAL_FILE_LIST)
-    current_file = self.get_current_file()
-    if current_file is None:
-      if counter > 0:
-        return self.get_previous_file(counter - 1)
-      else:
-        return None
-    else:
-      return current_file
+    return self._get_file_counter(-1)
 
   def get_current_file(self):
-    if len(self.LOCAL_FILE_LIST) <= 0:
-      return None
-    tmp = None
-    try:
-      tmp = "%s/%s" % (self.DIR_PATH, self.LOCAL_FILE_LIST[self.LOCAL_COUNT])
-    finally:
-      if self.APP is not None and tmp is not None:
-        if self.APP.SETTINGS.get_verify_presence():
-          if os.path.isfile(tmp):
-            return tmp
-          else:
-            return None
-        else:
-          return tmp
-      else:
-        return tmp
+    return self._get_file_counter(0)
 
   def get_path(self):
     return self.DIR_PATH

@@ -68,6 +68,11 @@ def md5sum(filename):
   return d.hexdigest()
 
 
+# Check if a specified file is a valid image
+def is_image(filename):
+  # TODO: implement using GdkPixmap to load and render file
+  return True
+
 # this is for unit testing only
 if __name__ == "__main__":
   
