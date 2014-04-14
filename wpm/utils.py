@@ -54,10 +54,7 @@ def get_checked_list(directory, check_func):
   return file_list
 
 # Walk the file list to build up
-def _walk_files(file_list, directory, dir_path, subdirs, files):
-  for sdir in subdirs:
-    if sdir.startswith("."):
-      subdirs.remove(sdir)
+def _walk_files(file_list, directory, dir_path, files):
   for f in files:
     # include only non-hidden files
     if not f.startswith("."):
@@ -67,10 +64,7 @@ def _walk_files(file_list, directory, dir_path, subdirs, files):
         file_list.append(tmp)
 
 # Walk the file list to build up
-def _walk_dirs(dir_list, directory, dir_path, subdirs, files):
-  for sdir in subdirs:
-    if sdir.startswith("."):
-      subdirs.remove(sdir)
+def _walk_dirs(dir_list, directory, dir_path, files):
   tmp = (dir_path.replace(directory, "")).lstrip("/")
   if len(tmp) > 0:
     dir_list.append(tmp.lstrip("/"))
@@ -79,7 +73,10 @@ def _walk_dirs(dir_list, directory, dir_path, subdirs, files):
 def get_recursive_list(directory, func):
   my_list = []
   for dir_path, subdirs, files_list in os.walk(directory):
-    func(my_list, directory, dir_path, subdirs, files_list)
+    for sdir in subdirs:
+      if sdir.startswith("."):
+        subdirs.remove(sdir)
+    func(my_list, directory, dir_path, files_list)
   return my_list
 
 # Get file list from a directory
