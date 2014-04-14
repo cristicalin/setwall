@@ -189,10 +189,10 @@ class filelist:
     else:
       return current_file
 
-  def get_next_file(self, counter = 5):
+  def get_next_file(self):
     return self._get_file_counter(1)
 
-  def get_previous_file(self, counter = 5):
+  def get_previous_file(self):
     return self._get_file_counter(-1)
 
   def get_current_file(self):
@@ -204,7 +204,8 @@ class filelist:
   def set_index(self, file):
     try:
       self.LOCAL_COUNT = self.list_index(file)
-    except ValueError:
+    except ValueError as ve:
+      print ve
       self.LOCAL_COUNT = 0
 
   def add_file(self, file):
@@ -224,22 +225,28 @@ class filelist:
 
   def do_locked_op(self, obj, func):
     self.LOCAL_FILE_LIST_LOCK.acquire()
-    ret = func(self.LOCAL_FILE_LIST, obj)
-    self.set_need_save(True)
-    self.LOCAL_FILE_LIST_LOCK.release()
+    try:
+      ret = func(self.LOCAL_FILE_LIST, obj)
+      self.set_need_save(True)
+    finally:
+      self.LOCAL_FILE_LIST_LOCK.release()
     return ret
 
   def set_list(self, new_list):
     self.LOCAL_FILE_LIST_LOCK.acquire()
-    self.LOCAL_FILE_LIST = new_list
-    self.set_need_save(True)
-    self.LOCAL_FILE_LIST_LOCK.release()
+    try:
+      self.LOCAL_FILE_LIST = new_list
+      self.set_need_save(True)
+    finally:
+      self.LOCAL_FILE_LIST_LOCK.release()
 
   def list_append(self, new_list):
     self.LOCAL_FILE_LIST_LOCK.acquire()
-    self.LOCAL_FILE_LIST += new_list
-    self.set_need_save(True)
-    self.LOCAL_FILE_LIST_LOCK.release()
+    try:
+      self.LOCAL_FILE_LIST += new_list
+      self.set_need_save(True)
+    finally:
+      self.LOCAL_FILE_LIST_LOCK.release()
 
   def list_insert(self, pos, obj):
     self.do_locked_op(obj, lambda a, b: a.insert(pos, b))

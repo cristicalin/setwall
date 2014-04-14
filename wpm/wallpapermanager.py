@@ -48,6 +48,14 @@ class wallpapermanager:
     except:
       return None
 
+  def get_wallpaper_full(self):
+    try:
+      old_wallpaper = self.SETTINGS.get_wallpaper()
+      tmp = old_wallpaper.replace("file://", "")
+      return unquote(tmp)
+    except:
+      return None
+
   def set_wallpaper(self, filename):
     with self._LOCK:
       old_wallpaper = self.get_wallpaper()

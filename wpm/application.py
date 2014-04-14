@@ -83,16 +83,15 @@ class application:
     self.FILE_LIST.close()
     gtk.main_quit()
 
-  def set_wallpaper(self, wallpaper):
-    self.FILE_LIST.set_index(wallpaper)
-    self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_current_file())
-    self.reset_schedule()
-
   def _set_wallpaper(self, method):
     wallpaper = method()
     self.WALLPAPER_MANAGER.set_wallpaper(wallpaper)
     self.reset_schedule()
     return wallpaper
+
+  def set_wallpaper(self, wallpaper):
+    self.FILE_LIST.set_index(wallpaper)
+    return self._set_wallpaper(self.FILE_LIST.get_current_file)
 
   def next_wallpaper(self, *args):
     return self._set_wallpaper(self.FILE_LIST.get_next_file)
@@ -203,8 +202,10 @@ class application:
   # Set the file list index to the current wallpaper
   # this gets called multiple times so it became a function
   def set_index(self):
-    self.FILE_LIST.set_index(self.WALLPAPER_MANAGER.get_wallpaper())
-
+    current_wallpaper = self.WALLPAPER_MANAGER.get_wallpaper_full()
+    tmp = current_wallpaper.replace(self.FILE_LIST.get_path(), "")
+    self.FILE_LIST.set_index(tmp.lstrip("/"))
+    
   # Save the current file_list json format to the settings only if it
   # actually requires saving, save the favorites always 
   def save_json(self):
