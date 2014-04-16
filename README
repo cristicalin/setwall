@@ -6,7 +6,7 @@ https://extensions.gnome.org/extension/495/topicons/
 
 Pre-requisite python modules:
 
-Ubuntu
+Ubuntu 13.10+
 * apsheduler (python-apscheduler)
 * urllib2 (part of main python)
 * simplejson (python-simplejson)
@@ -48,3 +48,13 @@ $ xrestop -b -m 1 | grep -c unknown.*PID
 Normally it should return a small number about the number (<20).
 xrestop is part of the xrestop package.
 
+On Ubuntu 12.04 the keybinder-3 package needs to be built by hand.
+Instructions on building keybinder-3:
+* download the sources (.dsc, .orig.tar.gz, .debian.tar.gz) from
+  http://packages.ubuntu.com/source/quantal/keybinder-3.0
+* apt-get install pbuilder
+* sudo pbuilder --init
+* sudo pbuilder --update
+* sudo pbuilder --build *.dsc
+* dpkg -i /var/cache/pbuilder/result/*.deb
+* apt-get -f install (to fix dependencies)
