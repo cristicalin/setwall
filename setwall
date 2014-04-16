@@ -33,7 +33,10 @@ if __name__ == "__main__":
   reload(sys)
   sys.setdefaultencoding('utf-8')
   # allow other threads to execute
-  (major, minor, rest) = gi.version_info
+  try:
+    (major, minor, rest) = gi.version_info
+  except:
+    (major, minor) = (3, 4)
   if major==3 and minor < 11:
     gobject.threads_init()
   app = application()
