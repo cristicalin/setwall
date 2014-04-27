@@ -31,10 +31,8 @@ Installing the schema file, this is necessary for the gsettings to work:
 
     $ sudo cp com.kman.wallpaper-changer.gschema.xml \
       /usr/share/glib-2.0/schemas/
-
     $ sudo chown root:root \
       /usr/share/glib-2.0/schemas/com.kman.wallpaper-changer.gschema.xml
-
     $ sudo glib-compile-schemas /usr/share/glib-2.0/schemas/
 
 You can check by using gsettings command:
@@ -54,13 +52,12 @@ In order to identify if the leak is happening you can run this:
 Normally it should return a small number about the number (<20).
 xrestop is part of the xrestop package.
 
-On Ubuntu 12.04 the keybinder-3 package needs to be built by hand. 
-Instructions on building keybinder-3:
+*Instructions on building keybinder-3 (Ubuntu 12.04 needs this):*
 * download the sources (.dsc, .orig.tar.gz, .debian.tar.gz) from
   http://packages.ubuntu.com/source/quantal/keybinder-3.0
 * apt-get install pbuilder
 * sudo pbuilder --init
 * sudo pbuilder --update
-* sudo pbuilder --build *.dsc
-* dpkg -i /var/cache/pbuilder/result/*.deb
+* sudo pbuilder --build \*.dsc
+* dpkg -i /var/cache/pbuilder/result/\*.deb
 * apt-get -f install (to fix dependencies)
