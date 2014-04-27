@@ -8,9 +8,9 @@ old application icons. One such example is this extension:
 https://extensions.gnome.org/extension/495/topicons/
 
 Pre-requisite python modules:
-
-Ubuntu 13.10+
 --------------
+
+**Ubuntu 13.10+**
 * apsheduler (python-apscheduler)
 * urllib2 (part of main python)
 * simplejson (python-simplejson)
@@ -18,8 +18,7 @@ Ubuntu 13.10+
 * Keybinder (gir1.2-keybinder-3.0)
 * Gtk3 bindings (gir1.2-gtk-3.0)
 
-Fedora
---------------
+**Fedora 20+**
 * AppIndicator3 (libappindicator-gtk3)
 * apsheduler (pip install apscheduler)
 * urllib2 (part of main python)
@@ -42,7 +41,7 @@ You can check by using gsettings command:
 
     $ gsettings list-keys com.kman.wallpaper-changer
 
-NOTE: there seems to be a X11 resource leak in Nautilus,
+*NOTE:* there seems to be a X11 resource leak in Nautilus,
 please make sure to disable the background-fade feature
 as that seems to slow down the leak or even prevent it
 
@@ -55,7 +54,7 @@ In order to identify if the leak is happening you can run this:
 Normally it should return a small number about the number (<20).
 xrestop is part of the xrestop package.
 
-On Ubuntu 12.04 the keybinder-3 package needs to be built by hand.
+On Ubuntu 12.04 the keybinder-3 package needs to be built by hand. 
 Instructions on building keybinder-3:
 * download the sources (.dsc, .orig.tar.gz, .debian.tar.gz) from
   http://packages.ubuntu.com/source/quantal/keybinder-3.0
