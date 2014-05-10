@@ -1,0 +1,46 @@
+Description: this fixes a crash when pressing Ctrl+Alt+O on the desktop
+ This patch addresses a crash in action_open_item_location_callback
+ where the return of nautilus_view_get_selection is not properly
+ checked and a null dereference is possible.
+ .
+ nautilus (1:3.10.1-0ubuntu9.1) trusty; urgency=medium
+ .
+   * debian/patches/fix_crash_on_ctrl_alt_o.patch
+     - Fix crash on Ctrl+Alt+O
+Author: Cristian Calin <cristian.calin@outlook.com>
+Bug-Ubuntu: https://bugs.launchpad.net/bugs/000000
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: <vendor|upstream|other>, <url of original patch>
+Bug: <url in upstream bugtracker>
+Bug-Debian: http://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: <no|not-needed|url proving that it has been forwarded>
+Reviewed-By: <name and email of someone who approved the patch>
+Last-Update: <YYYY-MM-DD>
+
+--- nautilus-3.10.1.orig/src/nautilus-view.c
++++ nautilus-3.10.1/src/nautilus-view.c
+@@ -1144,6 +1144,10 @@ action_open_item_location_callback (GtkA
+ 	view = NAUTILUS_VIEW (callback_data);
+ 	selection = nautilus_view_get_selection (view);
+ 
++	if (selection == NULL) {
++		return;
++	}
++
+ 	item = NAUTILUS_FILE (selection->data);
+ 	activation_location = nautilus_file_get_activation_location (item);
+ 	activation_file = nautilus_file_get (activation_location);
+@@ -1154,6 +1158,7 @@ action_open_item_location_callback (GtkA
+ 	nautilus_file_unref (location);
+ 	nautilus_file_unref (activation_file);
+ 	g_object_unref (activation_location);
++
+ 	nautilus_file_list_free (selection);
+ }
+ 
