@@ -61,5 +61,10 @@
       <summary>Previous Key</summary>
       <description>Global key combination to trigger previous wallpaper.</description>
     </key>
+    <key type="s" name="favorite-key">
+      <default>'F9'</default>
+      <summary>Favorite Key</summary>
+      <description>Global key combination to add current wallpaper to the favorites.</description>
+    </key>
   </schema>
 </schemalist>

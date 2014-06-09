@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 #!/usr/bin/python
 
 # SetWall - Wallpaper manager
@@ -87,10 +90,25 @@ class settings:
     self.tgNext.connect("toggled", self.HANDLER.onToggleKey, globals.KEY_NEXT)
     self.tgPrevious = self.BUILDER.get_object("tgPrevious")
     self.tgPrevious.connect("toggled", self.HANDLER.onToggleKey, globals.KEY_PREVIOUS)
+    self.tgFavorite = self.BUILDER.get_object("tgFavorite")
+    self.tgFavorite.connect("toggled", self.HANDLER.onToggleKey, globals.KEY_FAVORITE)
 
     self.toggles = []
-    self.toggles.append(self.tgNext)
-    self.toggles.append(self.tgPrevious)
+    self.toggles.append([
+      self.tgNext,
+      self.get_next_key,
+      self.set_next_key
+    ])
+    self.toggles.append([
+      self.tgPrevious,
+      self.get_previous_key,
+      self.set_previous_key
+    ])
+    self.toggles.append([
+      self.tgFavorite,
+      self.get_favorite_key,
+      self.set_favorite_key
+    ])
 
   def show_window(self):
     self.WINDOW.move(gdk.Screen.width()-self.WINDOW.get_size()[0]-50, 50)
@@ -102,10 +120,9 @@ class settings:
     self.ckVerifyImage.set_active(self.get_verify_image())
     self.spInterval.set_value(self.get_wallpaper_interval())
     self.spInterval.set_sensitive(self.ckSchedule.get_active())
-    self.tgNext.set_label(self.get_next_key())
-    self.tgNext.set_active(False)
-    self.tgPrevious.set_label(self.get_previous_key())
-    self.tgPrevious.set_active(False)
+    for toggle in self.toggles:
+      toggle[0].set_label(toggle[1]())
+      toggle[0].set_active(False)
     self.LOCAL_FILE_LIST = copy.copy(self.APP.FILE_LIST)
     self.set_path(self.get_wallpaper_path(), False)
     filename = "file://%s" % self.LOCAL_FILE_LIST.get_current_file()
@@ -196,8 +213,8 @@ class settings:
     self.set_reconcile(self.ckReconcile.get_active())
     self.set_verify_presence(self.ckVerifyPresence.get_active())
     self.set_verify_image(self.ckVerifyImage.get_active())
-    self.set_next_key(self.tgNext.get_label())
-    self.set_previous_key(self.tgPrevious.get_label())
+    for toggle in self.toggles:
+      toggle[2](toggle[0].get_label())
     if self.APP is not None:
       self.APP.load_settings(True, self.LOCAL_FILE_LIST)
 
@@ -209,10 +226,10 @@ class settings:
 
   def flip_toggles(self, toggle):
     for i in self.toggles:
-      if i != toggle:
-        i.handler_block_by_func(self.HANDLER.onToggleKey)
-        i.set_active(False)
-        i.handler_unblock_by_func(self.HANDLER.onToggleKey)
+      if i[0] != toggle:
+        i[0].handler_block_by_func(self.HANDLER.onToggleKey)
+        i[0].set_active(False)
+        i[0].handler_unblock_by_func(self.HANDLER.onToggleKey)
 
   def get_window(self):
     return self.WINDOW
@@ -316,6 +333,12 @@ class settings:
 
   def set_previous_key(self, key):
     self.APP_SETTINGS.set_string(globals.KEY_PREVIOUS, key)
+
+  def get_favorite_key(self):
+    return self.APP_SETTINGS.get_string(globals.KEY_FAVORITE)
+
+  def set_favorite_key(self, key):
+    self.APP_SETTINGS.set_string(globals.KEY_FAVORITE, key)
 
 # for unit testing purposes only
 if __name__ == "__main__":

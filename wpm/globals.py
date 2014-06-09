@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 #!/usr/bin/python
 
 # SetWall - Wallpaper manager
@@ -44,6 +47,7 @@ PICTURE_OPTIONS = "picture-options"
 # Global keys
 KEY_NEXT = "next-key"
 KEY_PREVIOUS = "previous-key"
+KEY_FAVORITE = "favorite-key"
 
 # ScreenSaver parameters
 SCREEN_SAVER_NAME = "org.gnome.ScreenSaver"

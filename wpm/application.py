@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 #!/usr/bin/python
 
 # SetWall - Wallpaper manager
@@ -100,7 +103,7 @@ class application:
     return self._set_wallpaper(self.FILE_LIST.get_previous_file)
 
   # add current wallpaper to favorites
-  def add_current_to_favorites(self, item = None):
+  def add_current_to_favorites(self, *args):
     self.FAVORITES_MANAGER.add_favorite(self.FILE_LIST.get_current_file())
     self.SETTINGS.set_favorites(self.FAVORITES_MANAGER.get_json())
 
@@ -198,6 +201,9 @@ class application:
     self.BINDINGS_MANAGER.set_binding(
       KEY_PREVIOUS, self.SETTINGS.get_previous_key(), self.previous_wallpaper
     )
+    self.BINDINGS_MANAGER.set_binding(
+      KEY_FAVORITE, self.SETTINGS.get_favorite_key(), self.add_current_to_favorites
+    )    
 
   # Set the file list index to the current wallpaper
   # this gets called multiple times so it became a function
