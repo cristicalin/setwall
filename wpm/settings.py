@@ -87,28 +87,31 @@ class settings:
     self.imgPreview = self.BUILDER.get_object("imgPreview")
 
     self.tgNext = self.BUILDER.get_object("tgNext")
-    self.tgNext.connect("toggled", self.HANDLER.onToggleKey, globals.KEY_NEXT)
     self.tgPrevious = self.BUILDER.get_object("tgPrevious")
-    self.tgPrevious.connect("toggled", self.HANDLER.onToggleKey, globals.KEY_PREVIOUS)
     self.tgFavorite = self.BUILDER.get_object("tgFavorite")
-    self.tgFavorite.connect("toggled", self.HANDLER.onToggleKey, globals.KEY_FAVORITE)
 
     self.toggles = []
     self.toggles.append([
       self.tgNext,
       self.get_next_key,
-      self.set_next_key
+      self.set_next_key,
+      globals.KEY_NEXT
     ])
     self.toggles.append([
       self.tgPrevious,
       self.get_previous_key,
-      self.set_previous_key
+      self.set_previous_key,
+      globals.KEY_PREVIOUS
     ])
     self.toggles.append([
       self.tgFavorite,
       self.get_favorite_key,
-      self.set_favorite_key
+      self.set_favorite_key,
+      globals.KEY_FAVORITE
     ])
+
+    for toggle in self.toggles:
+      toggle[0].connect("toggled", self.HANDLER.onToggleKey, toggle[3])
 
   def show_window(self):
     self.WINDOW.move(gdk.Screen.width()-self.WINDOW.get_size()[0]-50, 50)
