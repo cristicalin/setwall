@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#!/usr/bin/python
-
 # SetWall - Wallpaper manager
 # 
 # Copyright (C) 2014  Cristian Andrei Calin <cristian.calin@outlook.com>
