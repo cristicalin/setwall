@@ -102,8 +102,14 @@ class application:
 
   # add current wallpaper to favorites
   def add_current_to_favorites(self, *args):
-    self.FAVORITES_MANAGER.add_favorite(self.FILE_LIST.get_current_file())
+    filename = self.FILE_LIST.get_current_file()
+    self.FAVORITES_MANAGER.add_favorite(filename)
     self.SETTINGS.set_favorites(self.FAVORITES_MANAGER.get_json())
+    self.WALLPAPER_MANAGER.show_notification(
+      "Favorite Added",
+      "%s added to favorites list." % shorten(filename.split("/")[-1], 32),
+      "file://%s" % quote(filename)
+    )
 
   def toggle(self, item = None):
     if item != None:
