@@ -43,14 +43,26 @@ class filelist:
     def __init__(self, list):
       self.LIST = list
       pyinotify.ProcessEvent.__init__(self)
-      
-    def process_IN_CLOSE_WRITE(self, event):
+
+    def add(self, event):
       if not event.dir:
         self.LIST.add_file(event.name)
 
-    def process_IN_DELETE(self, event):
+    def remove(self, event):     
       if not event.dir:
         self.LIST.remove_file(event.name)
+      
+    def process_IN_CLOSE_WRITE(self, event):
+      self.add(event)
+
+    def process_IN_MOVED_TO(self, event):
+      self.add(event)
+
+    def process_IN_DELETE(self, event):
+      self.remove(event)
+
+    def process_IN_MOVED_FROM(self, event):
+      self.remove(event)
 
   def __init__(self, app = None):
     # Initialize the notifier and watch the folder for any changes
@@ -129,7 +141,8 @@ class filelist:
       if watch is None:
         self.WATCH_MANAGER.add_watch(
           self.DIR_PATH,
-          pyinotify.IN_DELETE | pyinotify.IN_CLOSE_WRITE,
+          pyinotify.IN_DELETE | pyinotify.IN_CLOSE_WRITE |
+          pyinotify.IN_MOVED_FROM | pyinotify.IN_MOVED_TO,
           rec=False
         )
 
