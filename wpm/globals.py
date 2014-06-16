@@ -36,6 +36,7 @@ WALLPAPER_FAVORITES = "favorites"
 WALLPAPER_RECONCILE = "reconcile"
 WALLPAPER_VERIFY_PRESENCE = "verify-presence"
 WALLPAPER_VERIFY_IMAGE = "verify-image"
+WALLPAPER_CURRENT_FAVORITE = "current-favorite-list"
 
 # These are gnome specific parameters
 WALLPAPER_SETTING = "org.gnome.desktop.background"

@@ -132,11 +132,24 @@ class menuhandler():
       folder_menu_item.set_label(folder)
       favorites_menu.append(folder_menu_item)
       file_menu = gtk.Menu()
+      file_menu.append(self.create_favorite_menu_header(folder))
+      file_menu.append(gtk.SeparatorMenuItem())
       for filename in favorites[folder]:
         file_menu.append(self.create_file_menu_item(folder, filename))
       folder_menu_item.set_submenu(file_menu)
 
     return favorites_menu
+
+  # Create favorite menu header
+  def create_favorite_menu_header(self, folder):
+    favorite_menu_header = gtk.CheckMenuItem()
+    favorite_menu_header.set_label("Use This List")
+    # TODO: implement the toggle function
+    favorite_menu_header.connect("toggled", lambda **kwargs: None)
+    favorite_menu_header.set_active(
+      self.SETTINGS.get_current_favorite_list() == folder
+    )
+    return favorite_menu_header
 
   # Create a file menu item
   def create_file_menu_item(self, folder, filename):

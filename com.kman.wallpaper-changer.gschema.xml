@@ -66,5 +66,10 @@
       <summary>Favorite Key</summary>
       <description>Global key combination to add current wallpaper to the favorites.</description>
     </key>
+    <key type="s" name="current-favorite-list">
+      <default>''</default>
+      <summary>Current Favorite List</summary>
+      <description>This contains the name of the current favorites list, if one is active.</description>
+    </key>
   </schema>
 </schemalist>

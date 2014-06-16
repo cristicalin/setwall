@@ -341,6 +341,12 @@ class settings:
   def set_favorite_key(self, key):
     self.APP_SETTINGS.set_string(globals.KEY_FAVORITE, key)
 
+  def get_current_favorite_list(self):
+    return self.APP_SETTINGS.get_string(globals.WALLPAPER_CURRENT_FAVORITE)
+
+  def set_current_favorite_list(self, list):
+    self.APP_SETTINGS.set_string(globals.WALLPAPER_CURRENT_FAVORITE, list)
+
 # for unit testing purposes only
 if __name__ == "__main__":
 
