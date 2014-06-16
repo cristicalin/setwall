@@ -189,6 +189,12 @@ class favoritesmanager():
   def get_favorites(self):
     return self.FAVORITES_LIST
 
+  def get_favorites_list(self, list):
+    try:
+      return self.FAVORITES_LIST[list]
+    except:
+      return None
+
   def get_json(self):
     return to_json(self.FAVORITES_LIST)
 

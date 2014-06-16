@@ -27,6 +27,7 @@ import globals
 class menuhandler():
 
   def __init__(self, app):
+    self.FAVORITES_TOGGLES = []
     self.APP = app
     self.SETTINGS = app.SETTINGS
     self.INDICATOR = appindicator.Indicator.new(
@@ -65,8 +66,10 @@ class menuhandler():
     
     slideshow_menu = gtk.CheckMenuItem()
     slideshow_menu.set_label("Slideshow")
-    slideshow_menu.connect("toggled", self.APP.toggle)
+    handler = slideshow_menu.connect("toggled", self.APP.toggle)
+    slideshow_menu.handler_block(handler)
     slideshow_menu.set_active(self.SETTINGS.get_wallpaper_schedule())
+    slideshow_menu.handler_unblock(handler)
     menu.append(slideshow_menu)
     self.SLIDESHOW = slideshow_menu
 
@@ -99,16 +102,19 @@ class menuhandler():
         option.title()
       )
       menu_option.connect(
-        "activate", 
-        lambda item, data: self.SETTINGS.set_wallpaper_options(data),
-        option
+        "activate", self.set_wallpaper_options, option
       )
-      options_group = menu_option.get_group()
       if option == tmp_wp_options:
         menu_option.set_active(True)
+      options_group = menu_option.get_group()
       options_menu.append(menu_option)
 
     return options_menu
+
+  # Set wallpaper options
+  def set_wallpaper_options(self, item, data):
+    if item.get_active():
+      self.SETTINGS.set_wallpaper_options(data)
 
   # Build favorites submenu
   def build_favorites_menu(self):
@@ -144,12 +150,29 @@ class menuhandler():
   def create_favorite_menu_header(self, folder):
     favorite_menu_header = gtk.CheckMenuItem()
     favorite_menu_header.set_label("Use This List")
-    # TODO: implement the toggle function
-    favorite_menu_header.connect("toggled", lambda **kwargs: None)
+    self.FAVORITES_TOGGLES += [favorite_menu_header]
+    handler = favorite_menu_header.connect(
+      "toggled", self.call_set_favorite,
+      {
+        "folder": folder,
+        "file": None
+      }
+    )
+    favorite_menu_header.handler_block(handler)
     favorite_menu_header.set_active(
       self.SETTINGS.get_current_favorite_list() == folder
     )
+    favorite_menu_header.handler_unblock(handler)
     return favorite_menu_header
+
+  # Toggle the menu and call favorite_set appropriately
+  def call_set_favorite(self, item = None, data = None):
+    for menu in self.FAVORITES_TOGGLES:
+      if menu != item:
+        menu.handler_block_by_func(self.call_set_favorite)
+        menu.set_active(False)
+        menu.handler_unblock_by_func(self.call_set_favorite)
+    self.APP.favorite_set(item, data, item.get_active())
 
   # Create a file menu item
   def create_file_menu_item(self, folder, filename):
@@ -191,7 +214,7 @@ class menuhandler():
     new_favorites.show_all()
     self.FAVORITES_MENU.set_submenu(new_favorites)
 
-  # Handle toggling the slidedhow menu
+  # Handle toggling the slidedhow menu, to be called from the CLI
   def toggle(self, active):
     self.SLIDESHOW.set_active(active)
     self.SLIDESHOW.toggled()

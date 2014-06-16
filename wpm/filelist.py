@@ -215,6 +215,10 @@ class filelist:
   def get_path(self):
     return self.DIR_PATH
 
+  def set_path(self, path):
+    self.suspend_watch()
+    self.DIR_PATH = path
+
   def set_index(self, file):
     try:
       self.LOCAL_COUNT = self.list_index(file)
