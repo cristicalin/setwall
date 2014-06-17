@@ -81,6 +81,7 @@ class filelist:
     self.NEED_SAVE = False
     self.LOCAL_FILE_LIST_LOCK = threading.Lock()
     self.NEED_RECONCILE = True
+    self.RESTRICTED = False
 
   # Load the file list from json, this saves time walking large folders
   def load_from_json(self, path, json):
@@ -215,15 +216,20 @@ class filelist:
   def get_path(self):
     return self.DIR_PATH
 
-  def set_path(self, path):
+  def set_path(self, path, restricted = False):
     self.suspend_watch()
     self.DIR_PATH = path
+    self.RESTRICTED = restricted
+    if not restricted:
+      self.instate_watch()
+
+  def get_restricted(self):
+    return self.RESTRICTED
 
   def set_index(self, file):
     try:
       self.LOCAL_COUNT = self.list_index(file)
-    except ValueError as ve:
-      print ve
+    except:
       self.LOCAL_COUNT = 0
 
   def add_file(self, file):

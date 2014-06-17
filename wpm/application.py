@@ -128,24 +128,25 @@ class application:
     self.FAVORITES_MANAGER.show_window()
 
   # Set a Wallpaper from a favorites list
-  # TODO: implement restriction code
   def favorite_set(self, item = None, data = None, restricted = False):
     #if item is not None and data is not None:
     if data is not None:
       # only change the path if necessary, this could be costly
       # in case of large Wallpaper folders and we want to avoid it
       if not restricted:
-        if self.FILE_LIST.get_path() != data["folder"]:
+        if self.FILE_LIST.get_path() != data["folder"] or \
+           self.FILE_LIST.get_restricted():
           self.SETTINGS.set_wallpaper_path(data["folder"])
+          self.SETTINGS.set_current_favorite_list("")
           self.FILE_LIST.load_from_path(data["folder"])
-          self.FILE_LIST.randomize()
       else:
         self.SETTINGS.set_wallpaper_path(data["folder"])
         self.SETTINGS.set_current_favorite_list(data["folder"])
-        self.FILE_LIST.set_path(data["folder"])
+        self.FILE_LIST.set_path(data["folder"], restricted)
         self.FILE_LIST.set_list(
           self.FAVORITES_MANAGER.get_favorites_list(data["folder"])
         )
+      self.FILE_LIST.randomize()
       # This call to set_wallpaper() will always work even for favorites
       # lists because calling it with None will result in set_index(0)
       self.set_wallpaper(data["file"])
