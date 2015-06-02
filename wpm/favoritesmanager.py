@@ -41,7 +41,7 @@ class favoritesmanager():
   def __init__(self, app):
     self.APP = app
     self.SETTINGS = app.SETTINGS
-    self.FAVORITES_LIST = from_json(self.SETTINGS.get_favorites())
+    self.FAVORITES_LIST = self.SETTINGS.get_favorites()
     self.NEED_SAVE = False
     self.BUILDER = gtk.Builder()
     try:

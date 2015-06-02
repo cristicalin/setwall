@@ -343,7 +343,7 @@ class settings:
 
   def get_favorites(self):
     #return self.APP_SETTINGS.get_string(globals.WALLPAPER_FAVORITES)
-    return _get_list(globals.WALLPAPER_FAVORITES)
+    return self._get_list(globals.WALLPAPER_FAVORITES)
 
   def set_favorites(self, favorites):
     #self.APP_SETTINGS.set_string(globals.WALLPAPER_FAVORITES, favorites)
@@ -376,7 +376,7 @@ class settings:
   def get_optimize_stored_lists(self):
     return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_OPTIMIZE_STORED_LISTS)
 
-  def set_optimize_stores_lists(self, key):
+  def set_optimize_stored_lists(self, key):
     self.APP_SETTINGS.set_boolean(globals.WALLPAPER_OPTIMIZE_STORED_LISTS, key)
 
 # for unit testing purposes only
