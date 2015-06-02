@@ -71,5 +71,10 @@
       <summary>Current Favorite List</summary>
       <description>This contains the name of the current favorites list, if one is active.</description>
     </key>
+    <key type="b" name="optimize-stored-lists">
+      <default>false</default>
+      <summary>Optimize Stored Lists</summary>
+      <description>Set this to true to optimize the disk space used in GSettings for the saved and favorites lists.</description>
+    </key>
   </schema>
 </schemalist>

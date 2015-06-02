@@ -3,7 +3,7 @@
 
 # SetWall - Wallpaper manager
 # 
-# Copyright (C) 2014  Cristian Andrei Calin <cristian.calin@outlook.com>
+# Copyright (C) 2014,2015  Cristian Andrei Calin <cristian.calin@outlook.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -80,6 +80,7 @@ class settings:
     self.ckReconcile = self.BUILDER.get_object("ckReconcile")
     self.ckVerifyPresence = self.BUILDER.get_object("ckVerifyPresence")
     self.ckVerifyImage = self.BUILDER.get_object("ckVerifyImage")
+    self.ckOptimizeStoredLists = self.BUILDER.get_object("ckOptimizeStoredLists")
     self.spInterval = self.BUILDER.get_object("spInterval")
     self.cbPath = self.BUILDER.get_object("cbPath")
     self.imgPreview = self.BUILDER.get_object("imgPreview")
@@ -119,6 +120,7 @@ class settings:
     self.ckReconcile.set_active(self.get_reconcile())
     self.ckVerifyPresence.set_active(self.get_verify_presence())
     self.ckVerifyImage.set_active(self.get_verify_image())
+    self.ckOptimizeStoredLists.set_active(self.get_optimize_stored_lists())
     self.spInterval.set_value(self.get_wallpaper_interval())
     self.spInterval.set_sensitive(self.ckSchedule.get_active())
     for toggle in self.toggles:
@@ -214,6 +216,12 @@ class settings:
     self.set_reconcile(self.ckReconcile.get_active())
     self.set_verify_presence(self.ckVerifyPresence.get_active())
     self.set_verify_image(self.ckVerifyImage.get_active())
+    if self.get_optimize_stored_lists() != self.ckOptimizeStoredLists.get_active():
+      tmp_saved_list = self.get_saved_list()
+      tmp_favorites = self.get_favorites()
+      self.set_optimize_stored_lists(self.ckOptimizeStoredLists.get_active())
+      self.set_saved_list(tmp_saved_list)
+      self.set_favorites(tmp_favorites)
     for toggle in self.toggles:
       toggle[2](toggle[0].get_label())
     if self.APP is not None:
@@ -240,6 +248,20 @@ class settings:
 
   def get_builder(self):
     return self.BUILDER
+
+  def _set_list(self, settings_path, my_list):
+    if self.get_optimize_stored_lists():
+      value = encode_list(my_list)
+    else:
+      value = to_json(my_list)
+    self.APP_SETTINGS.set_string(settings_path, value)
+
+  def _get_list(self, settings_path):
+    value = self.APP_SETTINGS.get_string(settings_path)
+    if self.get_optimize_stored_lists():
+      return decode_list(value)
+    else:
+      return from_json(value)
 
   def get_wallpaper_path(self):
     return self.APP_SETTINGS.get_string(globals.WALLPAPER_PATH)
@@ -277,10 +299,12 @@ class settings:
                                   wallpaper_save)
 
   def get_saved_list(self):
-    return self.APP_SETTINGS.get_string(globals.WALLPAPER_SAVED_LIST)
+    #return self.APP_SETTINGS.get_string(globals.WALLPAPER_SAVED_LIST)
+    return self._get_list(globals.WALLPAPER_SAVED_LIST)
 
-  def set_saved_list(self, json):
-    self.APP_SETTINGS.set_string(globals.WALLPAPER_SAVED_LIST, json)
+  def set_saved_list(self, the_list):
+    #self.APP_SETTINGS.set_string(globals.WALLPAPER_SAVED_LIST, json)
+    self._set_list(globals.WALLPAPER_SAVED_LIST, the_list)
 
   def get_reconcile(self):
     return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_RECONCILE)
@@ -318,10 +342,12 @@ class settings:
     self.WALLPAPER_SETTINGS.set_string(globals.PICTURE_OPTIONS, options)
 
   def get_favorites(self):
-    return self.APP_SETTINGS.get_string(globals.WALLPAPER_FAVORITES)
+    #return self.APP_SETTINGS.get_string(globals.WALLPAPER_FAVORITES)
+    return _get_list(globals.WALLPAPER_FAVORITES)
 
   def set_favorites(self, favorites):
-    self.APP_SETTINGS.set_string(globals.WALLPAPER_FAVORITES, favorites)
+    #self.APP_SETTINGS.set_string(globals.WALLPAPER_FAVORITES, favorites)
+    self._set_list(globals.WALLPAPER_FAVORITES, favorites)
 
   def get_next_key(self):
     return self.APP_SETTINGS.get_string(globals.KEY_NEXT)
@@ -346,6 +372,12 @@ class settings:
 
   def set_current_favorite_list(self, list):
     self.APP_SETTINGS.set_string(globals.WALLPAPER_CURRENT_FAVORITE, list)
+
+  def get_optimize_stored_lists(self):
+    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_OPTIMIZE_STORED_LISTS)
+
+  def set_optimize_stores_lists(self, key):
+    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_OPTIMIZE_STORED_LISTS, key)
 
 # for unit testing purposes only
 if __name__ == "__main__":

@@ -83,12 +83,12 @@ class filelist:
     self.NEED_RECONCILE = True
     self.RESTRICTED = False
 
-  # Load the file list from json, this saves time walking large folders
-  def load_from_json(self, path, json):
-    if json is not None:
+  # Load the file list, this saves time walking large folders
+  def load_from_list(self, path, the_list):
+    if the_list is not None and len(the_list) > 0:
       self.suspend_watch()
       self.DIR_PATH = path
-      self.set_list(from_json(json))
+      self.set_list(the_list)
       self.instate_watch()
       self.NEED_RECONCILE = True
     else:

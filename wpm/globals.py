@@ -3,7 +3,7 @@
 
 # SetWall - Wallpaper manager
 # 
-# Copyright (C) 2014  Cristian Andrei Calin <cristian.calin@outlook.com>
+# Copyright (C) 2014,2015  Cristian Andrei Calin <cristian.calin@outlook.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ WALLPAPER_RECONCILE = "reconcile"
 WALLPAPER_VERIFY_PRESENCE = "verify-presence"
 WALLPAPER_VERIFY_IMAGE = "verify-image"
 WALLPAPER_CURRENT_FAVORITE = "current-favorite-list"
+WALLPAPER_OPTIMIZE_STORED_LISTS = "optimize-stored-lists"
 
 # These are gnome specific parameters
 WALLPAPER_SETTING = "org.gnome.desktop.background"

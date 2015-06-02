@@ -3,7 +3,7 @@
 
 # SetWall - Wallpaper manager
 # 
-# Copyright (C) 2014  Cristian Andrei Calin <cristian.calin@outlook.com>
+# Copyright (C) 2014,2015  Cristian Andrei Calin <cristian.calin@outlook.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@ class dbushandler(dbus.service.Object):
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
                        in_signature='', out_signature='')
   def save(self):
-    self.APP.save_json()
+    self.APP.save_lists()
 
   @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
                        in_signature='', out_signature='')
@@ -116,7 +116,7 @@ class dbushandler(dbus.service.Object):
   def reorder_func(self, func):
     func()
     self.APP.set_index()
-    self.APP.save_json()
+    self.APP.save_lists()
 
   # suspend schedule while screen saver / lock is in place
   def screen_saver_handler(self, active):

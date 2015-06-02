@@ -60,3 +60,5 @@ DONE
 * allow CLI to return values or set specific values 
 * added check that current file is an image
 * added support for recursion into wallpapers folder
+* implemented list encoding and compression to save time and
+  disk space for large lists (> 2MB)

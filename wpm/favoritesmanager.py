@@ -3,7 +3,7 @@
 
 # SetWall - Wallpaper manager
 # 
-# Copyright (C) 2014  Cristian Andrei Calin <cristian.calin@outlook.com>
+# Copyright (C) 2014,2015  Cristian Andrei Calin <cristian.calin@outlook.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -180,7 +180,7 @@ class favoritesmanager():
     self.TREE_STORE.foreach(self.walk_map, tmp_map)
     self.FAVORITES_LIST = tmp_map
     self.set_need_save(True)
-    self.APP.save_json()
+    self.APP.save_lists()
     self.APP.MENU_OBJECT.update_favorites()
     
   def hide_window(self):

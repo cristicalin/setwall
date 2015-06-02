@@ -3,7 +3,7 @@
 
 # SetWall - Wallpaper manager
 # 
-# Copyright (C) 2014  Cristian Andrei Calin <cristian.calin@outlook.com>
+# Copyright (C) 2014,2015  Cristian Andrei Calin <cristian.calin@outlook.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,9 @@
 import os
 import os.path
 import hashlib
+import msgpack
+import zlib
+import base64
 
 from gi.repository import Gio as gio
 
@@ -111,6 +114,23 @@ def is_image(filename):
   (base, specific) = query_info.get_content_type().split("/")
   return (base == "image")
 
+# Encode/Decode a huge list to optimize disk space
+def encode_list(my_list):
+  msg = msgpack.dumps(my_list)
+  zmsg = zlib.compress(msg)
+  return base64.standard_b64encode(zmsg)
+
+def decode_list(my_text):
+  # we assume this is a valid encoded object
+  # otherwise we return an empty list
+  try:
+    zmsg = base64.standard_b64decode(my_text)
+    msg = zlib.decompress(zmsg)
+    my_list = msgpack.loads(msg)
+    return my_list
+  except:
+    return []
+
 # this is for unit testing only
 if __name__ == "__main__":
   
@@ -121,3 +141,13 @@ if __name__ == "__main__":
   print get_file_list("/dev/", True)
 
   print get_dir_list("/dev/", True)
+
+  my_list = ["apples", "oranges", "plums", "grapes"]
+  print my_list
+  my_txt = encode_list(my_list)
+  decoded_list = decode_list(my_txt)
+  print decoded_list
+  if cmp(my_list, decoded_list) != 0:
+    print "Encode/Decode failed"
+  else:
+    print "Encode/Decode success"

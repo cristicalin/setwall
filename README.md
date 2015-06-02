@@ -17,6 +17,7 @@ Pre-requisite python modules:
 * pyinotify (python-pyinotify)
 * Keybinder (gir1.2-keybinder-3.0)
 * Gtk3 bindings (gir1.2-gtk-3.0)
+* msgpack (python-msgpack)
 
 **Fedora 20+**
 * AppIndicator3 (libappindicator-gtk3)
@@ -26,6 +27,7 @@ Pre-requisite python modules:
 * pyinotify (python-inotify)
 * Keybinder (keybinder3-devel)
 * Gtk3 bindings (gtk3-devel)
+* msgpack (python-msgpack)
 
 Installing the schema file, this is necessary for the gsettings to work:
 

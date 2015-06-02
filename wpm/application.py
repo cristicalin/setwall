@@ -3,7 +3,7 @@
 
 # SetWall - Wallpaper manager
 # 
-# Copyright (C) 2014  Cristian Andrei Calin <cristian.calin@outlook.com>
+# Copyright (C) 2014,2015  Cristian Andrei Calin <cristian.calin@outlook.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ class application:
     self.SETTINGS.hide_window()
     self.FAVORITES_MANAGER.hide_window()
     # save file list and favorites if need be
-    self.save_json()
+    self.save_lists()
     # this stops the notifier
     self.FILE_LIST.close()
     gtk.main_quit()
@@ -104,7 +104,7 @@ class application:
   def add_current_to_favorites(self, *args):
     filename = self.FILE_LIST.get_current_file()
     self.FAVORITES_MANAGER.add_favorite(filename)
-    self.SETTINGS.set_favorites(self.FAVORITES_MANAGER.get_json())
+    self.SETTINGS.set_favorites(self.FAVORITES_MANAGER.get_favorites())
     self.WALLPAPER_MANAGER.show_notification(
       "Favorite Added",
       "%s added to favorites list." % shorten(filename.split("/")[-1], 32),
@@ -191,7 +191,7 @@ class application:
   def load_settings(self, reload = False, file_list = None):
     if not reload:
       if self.SETTINGS.get_wallpaper_save():
-        self.FILE_LIST.load_from_json(self.SETTINGS.get_wallpaper_path(),
+        self.FILE_LIST.load_from_list(self.SETTINGS.get_wallpaper_path(),
                                       self.SETTINGS.get_saved_list())
         if self.SETTINGS.get_reconcile():
           self.FILE_LIST.reconcile()
@@ -205,8 +205,8 @@ class application:
         self.WALLPAPER_MANAGER.set_wallpaper(self.FILE_LIST.get_current_file())
       # Only save json upon a change
       # this means that we will not save indiscriminately
-      # so we also have to save_json() on exit
-      self.save_json()
+      # so we also have to save_lists() on exit
+      self.save_lists()
 
     self.reset_schedule()
     # set up binding, we should not need to worry about the old ones
@@ -227,14 +227,14 @@ class application:
     tmp = current_wallpaper.replace(self.FILE_LIST.get_path(), "")
     self.FILE_LIST.set_index(tmp.lstrip("/"))
     
-  # Save the current file_list json format to the settings only if it
+  # Save the current file list and favorites to the settings only if it
   # actually requires saving, save the favorites always 
-  def save_json(self):
+  def save_lists(self):
     if self.SETTINGS.get_wallpaper_save() and self.FILE_LIST.get_need_save():
-      self.SETTINGS.set_saved_list(self.FILE_LIST.get_json())
+      self.SETTINGS.set_saved_list(self.FILE_LIST.get_list())
       self.FILE_LIST.set_need_save(False)
     if self.FAVORITES_MANAGER.get_need_save():
-      self.SETTINGS.set_favorites(self.FAVORITES_MANAGER.get_json())
+      self.SETTINGS.set_favorites(self.FAVORITES_MANAGER.get_favorites())
       self.FAVORITES_MANAGER.set_need_save(False)
 
 
