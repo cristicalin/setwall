@@ -206,7 +206,7 @@
                                               </packing>
                                             </child>
                                             <child>
-                                              <object class="GtkCheckButton" id="ckOptimizeLists">
+                                              <object class="GtkCheckButton" id="ckOptimizeStoredLists">
                                                 <property name="label" translatable="yes">Optimize Stored Lists</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
