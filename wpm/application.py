@@ -25,7 +25,7 @@ import logging
 import copy
 
 from urllib2 import quote, unquote
-from apscheduler.scheduler import Scheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from gi.repository import Gtk as gtk
 
@@ -45,7 +45,7 @@ class application:
 
   # application class constructor
   def __init__(self):
-    self.SCHEDULER = Scheduler()
+    self.SCHEDULER = BackgroundScheduler()
     # make sure we properly clean up after ourselves 
     atexit.register(lambda: self.SCHEDULER.shutdown(wait=True))
     # make apscheduler happy
@@ -179,8 +179,9 @@ class application:
   # Resume the scheduler
   def resume_schedule(self):
     if self.SETTINGS.get_wallpaper_schedule():
-      self.SCHEDULER.add_interval_job(
+      self.SCHEDULER.add_job(
         self.next_wallpaper,
+	'interval',
         seconds = self.SETTINGS.get_wallpaper_interval()
       )
 
