@@ -174,7 +174,7 @@ class application:
   # Suspend the scheduler
   def suspend_schedule(self):
     for job in self.SCHEDULER.get_jobs():
-      self.SCHEDULER.unschedule_job(job)
+      job.remove()
 
   # Resume the scheduler
   def resume_schedule(self):
