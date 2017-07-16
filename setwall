@@ -23,6 +23,11 @@ import os
 
 import gi
 
+gi.require_version('Gtk', '3.0')
+gi.require_version('Notify', '0.7')
+gi.require_version('AppIndicator3', '0.1')
+gi.require_version('Keybinder', '3.0')
+
 from gi.repository import GObject as gobject
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
