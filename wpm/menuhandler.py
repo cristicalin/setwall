@@ -133,7 +133,8 @@ class menuhandler():
     favorites_menu.append(gtk.SeparatorMenuItem())
 
     favorites = self.APP.FAVORITES_MANAGER.get_favorites()
-    for folder in favorites:
+    #for folder in favorites:
+    for folder in []:
       folder_menu_item = gtk.MenuItem()
       folder_menu_item.set_label(folder)
       favorites_menu.append(folder_menu_item)
