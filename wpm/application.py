@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # SetWall - Wallpaper manager
@@ -24,7 +24,7 @@ import argparse
 import logging
 import copy
 
-from urllib2 import quote, unquote
+from urllib3 import quote, unquote
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from gi.repository import Gtk as gtk
