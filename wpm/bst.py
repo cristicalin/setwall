@@ -144,18 +144,18 @@ class node:
       # found the element, need to find the right most one
       result = self.value
       if self.left is not None and self.right is not None:
-	self.value = self.right.min_value()
-	self.right.extract(self.value, self)
+        self.value = self.right.min_value()
+        self.right.extract(self.value, self)
       elif parent.left == self:
         if self.left is not None:
-	  parent.left = self.left
-	else:
-	  parent.left = self.right
+          parent.left = self.left
+        else:
+          parent.left = self.right
       elif parent.right == self:
         if self.left is not None:
-	  parent.right = self.left
-	else:
-	  parent.right = self.right
+          parent.right = self.left
+        else:
+          parent.right = self.right
       else:
         parent.value = None
       return result
@@ -185,6 +185,6 @@ if __name__ == "__main__":
   for i in l1:
     fn = a.extract(i)
     md5 = utils.md5sum(fn)
-    print "%s %s" % (md5, fn)
+    print("%s %s" % (md5, fn))
   #print a.as_list()
 

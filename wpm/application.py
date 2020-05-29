@@ -24,21 +24,21 @@ import argparse
 import logging
 import copy
 
-from urllib3 import quote, unquote
+from urllib.parse import quote, unquote
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from gi.repository import Gtk as gtk
 
 # Local imports
-from globals import *
-from settings import *
-from filelist import *
-from wallpapermanager import *
-from dbushandler import *
-from menuhandler import *
-from utils import *
-from favoritesmanager import *
-from bindingsmanager import *
+from .globals import global_constants
+from .settings import *
+from .filelist import *
+from .wallpapermanager import *
+from .dbushandler import *
+from .menuhandler import *
+from .utils import *
+from .favoritesmanager import *
+from .bindingsmanager import *
 
 # This is the main application class
 class application:
@@ -49,10 +49,10 @@ class application:
     # make sure we properly clean up after ourselves 
     atexit.register(lambda: self.SCHEDULER.shutdown(wait=True))
     # make apscheduler happy
-    logging.basicConfig(format=LOG_FORMAT)
+    logging.basicConfig(format=global_constants.LOG_FORMAT)
 
     # Parse the command line arguments
-    parser = argparse.ArgumentParser(APP_FRIENDLY_NAME)
+    parser = argparse.ArgumentParser(global_constants.APP_FRIENDLY_NAME)
     parser.add_argument("-p", "--path", type=str,
                         help="Path in which wallpapers reside")
     parser.add_argument("-i", "--interval", type=int,
@@ -212,13 +212,13 @@ class application:
     self.reset_schedule()
     # set up binding, we should not need to worry about the old ones
     self.BINDINGS_MANAGER.set_binding(
-      KEY_NEXT, self.SETTINGS.get_next_key(), self.next_wallpaper
+      global_constants.KEY_NEXT, self.SETTINGS.get_next_key(), self.next_wallpaper
     )
     self.BINDINGS_MANAGER.set_binding(
-      KEY_PREVIOUS, self.SETTINGS.get_previous_key(), self.previous_wallpaper
+      global_constants.KEY_PREVIOUS, self.SETTINGS.get_previous_key(), self.previous_wallpaper
     )
     self.BINDINGS_MANAGER.set_binding(
-      KEY_FAVORITE, self.SETTINGS.get_favorite_key(), self.add_current_to_favorites
+      global_constants.KEY_FAVORITE, self.SETTINGS.get_favorite_key(), self.add_current_to_favorites
     )    
 
   # Set the file list index to the current wallpaper

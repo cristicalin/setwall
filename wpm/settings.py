@@ -29,10 +29,10 @@ from gi.repository import Gio as gio
 from gi.repository import GObject as gobject
 from gi.repository import GdkPixbuf as pixbuf
 
-import globals
+from .globals import global_constants
 
-from settingshandler import *
-from utils import *
+from .settingshandler import *
+from .utils import *
 
 # The settings class is a container for the application settings
 # as well as a handler for the settings configuration window
@@ -41,8 +41,8 @@ class settings:
   def __init__(self, args = None, app = None):
     # These are Gnome specific settings for wallpaper and we need
     # a separate object to interact with them
-    self.WALLPAPER_SETTINGS = gio.Settings.new(globals.WALLPAPER_SETTING)
-    self.APP_SETTINGS = gio.Settings.new("%s.%s" % (globals.BASE_ID, globals.APP_SETTINGS))
+    self.WALLPAPER_SETTINGS = gio.Settings.new(global_constants.WALLPAPER_SETTING)
+    self.APP_SETTINGS = gio.Settings.new("%s.%s" % (global_constants.BASE_ID, global_constants.APP_SETTINGS))
     self.APP = app
     self.LOCAL_FILE_LIST = None
     self.PATH_LOCK = threading.Lock()
@@ -51,25 +51,25 @@ class settings:
     # to pass the correct command line value to the application one time
     if args is not None:
       if args.path != None:
-        self.APP_SETTINGS.set_string(globals.WALLPAPER_PATH, args.path)
+        self.APP_SETTINGS.set_string(global_constants.WALLPAPER_PATH, args.path)
       if args.interval != None:
-        self.APP_SETTINGS.set_int(globals.WALLPAPER_INTERVAL, args.interval)
+        self.APP_SETTINGS.set_int(global_constants.WALLPAPER_INTERVAL, args.interval)
       if args.schedule != None:
-        self.APP_SETTINGS.set_boolean(globals.WALLPAPER_SCHEDULE, args.schedule)
+        self.APP_SETTINGS.set_boolean(global_constants.WALLPAPER_SCHEDULE, args.schedule)
 
     # Now build the windows and other Gtk objects
     self.BUILDER = gtk.Builder()
     try:
       self.BUILDER.add_from_file("%s/%s" % (os.path.dirname(sys.argv[0]),
-                                            globals.GLADE_SETTINGS_FILE))
+                                            global_constants.GLADE_SETTINGS_FILE))
     except:
-      self.BUILDER.add_from_file(globals.GLADE_SETTINGS_FILE)
+      self.BUILDER.add_from_file(global_constants.GLADE_SETTINGS_FILE)
     self.HANDLER = settingshandler(self)
     self.BUILDER.connect_signals(self.HANDLER)
 
     self.WINDOW = self.BUILDER.get_object("wcMain")
     self.STATUS_BAR = self.BUILDER.get_object("stStatus")
-    self.WINDOW.set_title(globals.APP_FRIENDLY_NAME)
+    self.WINDOW.set_title(global_constants.APP_FRIENDLY_NAME)
     window_icon = self.WINDOW.render_icon(gtk.STOCK_PREFERENCES,
                                           gtk.IconSize.DIALOG)
     self.WINDOW.set_icon(window_icon)
@@ -94,19 +94,19 @@ class settings:
       self.tgNext,
       self.get_next_key,
       self.set_next_key,
-      globals.KEY_NEXT
+      global_constants.KEY_NEXT
     ])
     self.toggles.append([
       self.tgPrevious,
       self.get_previous_key,
       self.set_previous_key,
-      globals.KEY_PREVIOUS
+      global_constants.KEY_PREVIOUS
     ])
     self.toggles.append([
       self.tgFavorite,
       self.get_favorite_key,
       self.set_favorite_key,
-      globals.KEY_FAVORITE
+      global_constants.KEY_FAVORITE
     ])
 
     for toggle in self.toggles:
@@ -145,7 +145,7 @@ class settings:
       )
       self.imgPreview.set_from_pixbuf(preview)
     except Exception as e:
-      print e
+      print(e)
       self.imgPreview.set_from_stock(gtk.STOCK_FILE, gtk.IconSize.DIALOG)
     finally:
       self.imgPreview.show()
@@ -264,131 +264,131 @@ class settings:
       return from_json(value)
 
   def get_wallpaper_path(self):
-    return self.APP_SETTINGS.get_string(globals.WALLPAPER_PATH)
+    return self.APP_SETTINGS.get_string(global_constants.WALLPAPER_PATH)
 
   def set_wallpaper_path(self, wallpaper_path):
-    self.APP_SETTINGS.set_string(globals.WALLPAPER_PATH,
+    self.APP_SETTINGS.set_string(global_constants.WALLPAPER_PATH,
                                  wallpaper_path)
 
   def get_wallpaper_recursive(self):
-    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_RECURSIVE)
+    return self.APP_SETTINGS.get_boolean(global_constants.WALLPAPER_RECURSIVE)
 
   def set_wallpaper_recursive(self, wallpaper_recursive):
-    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_RECURSIVE,
+    self.APP_SETTINGS.set_boolean(global_constants.WALLPAPER_RECURSIVE,
                                   wallpaper_recursive)
 
   def get_wallpaper_interval(self):
-    return self.APP_SETTINGS.get_int(globals.WALLPAPER_INTERVAL)
+    return self.APP_SETTINGS.get_int(global_constants.WALLPAPER_INTERVAL)
 
   def set_wallpaper_interval(self, wallpaper_interval):
-    self.APP_SETTINGS.set_int(globals.WALLPAPER_INTERVAL,
+    self.APP_SETTINGS.set_int(global_constants.WALLPAPER_INTERVAL,
                               wallpaper_interval)
 
   def get_wallpaper_schedule(self):
-    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_SCHEDULE)
+    return self.APP_SETTINGS.get_boolean(global_constants.WALLPAPER_SCHEDULE)
 
   def set_wallpaper_schedule(self, wallpaper_schedule):
-    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_SCHEDULE,
+    self.APP_SETTINGS.set_boolean(global_constants.WALLPAPER_SCHEDULE,
                                   wallpaper_schedule)
 
   def get_wallpaper_save(self):
-    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_SAVE)
+    return self.APP_SETTINGS.get_boolean(global_constants.WALLPAPER_SAVE)
 
   def set_wallpaper_save(self, wallpaper_save):
-    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_SAVE,
+    self.APP_SETTINGS.set_boolean(global_constants.WALLPAPER_SAVE,
                                   wallpaper_save)
 
   def get_saved_list(self):
-    #return self.APP_SETTINGS.get_string(globals.WALLPAPER_SAVED_LIST)
-    return self._get_list(globals.WALLPAPER_SAVED_LIST)
+    #return self.APP_SETTINGS.get_string(global_constants.WALLPAPER_SAVED_LIST)
+    return self._get_list(global_constants.WALLPAPER_SAVED_LIST)
 
   def set_saved_list(self, the_list):
-    #self.APP_SETTINGS.set_string(globals.WALLPAPER_SAVED_LIST, json)
-    self._set_list(globals.WALLPAPER_SAVED_LIST, the_list)
+    #self.APP_SETTINGS.set_string(global_constants.WALLPAPER_SAVED_LIST, json)
+    self._set_list(global_constants.WALLPAPER_SAVED_LIST, the_list)
 
   def get_reconcile(self):
-    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_RECONCILE)
+    return self.APP_SETTINGS.get_boolean(global_constants.WALLPAPER_RECONCILE)
 
   def set_reconcile(self, reconcile):
-    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_RECONCILE, reconcile)
+    self.APP_SETTINGS.set_boolean(global_constants.WALLPAPER_RECONCILE, reconcile)
 
   def get_verify_presence(self):
-    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_VERIFY_PRESENCE)
+    return self.APP_SETTINGS.get_boolean(global_constants.WALLPAPER_VERIFY_PRESENCE)
 
   def set_verify_presence(self, verify_presence):
-    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_VERIFY_PRESENCE,
+    self.APP_SETTINGS.set_boolean(global_constants.WALLPAPER_VERIFY_PRESENCE,
                                   verify_presence)
 
   def get_verify_image(self):
-    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_VERIFY_IMAGE)
+    return self.APP_SETTINGS.get_boolean(global_constants.WALLPAPER_VERIFY_IMAGE)
 
   def set_verify_image(self, verify_image):
-    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_VERIFY_IMAGE,
+    self.APP_SETTINGS.set_boolean(global_constants.WALLPAPER_VERIFY_IMAGE,
                                   verify_image)
 
   def get_wallpaper(self):
-    return self.WALLPAPER_SETTINGS.get_string(globals.PICTURE_URI)
+    return self.WALLPAPER_SETTINGS.get_string(global_constants.PICTURE_URI)
 
   def set_wallpaper(self, uri):
-    self.WALLPAPER_SETTINGS.set_string(globals.PICTURE_URI, uri)
+    self.WALLPAPER_SETTINGS.set_string(global_constants.PICTURE_URI, uri)
 
   def get_wallpaper_options_range(self):
-    return self.WALLPAPER_SETTINGS.get_range(globals.PICTURE_OPTIONS)
+    return self.WALLPAPER_SETTINGS.get_range(global_constants.PICTURE_OPTIONS)
 
   def get_wallpaper_options(self):
-    return self.WALLPAPER_SETTINGS.get_string(globals.PICTURE_OPTIONS)
+    return self.WALLPAPER_SETTINGS.get_string(global_constants.PICTURE_OPTIONS)
 
   def set_wallpaper_options(self, options):
-    self.WALLPAPER_SETTINGS.set_string(globals.PICTURE_OPTIONS, options)
+    self.WALLPAPER_SETTINGS.set_string(global_constants.PICTURE_OPTIONS, options)
 
   def get_favorites(self):
-    #return self.APP_SETTINGS.get_string(globals.WALLPAPER_FAVORITES)
-    return self._get_list(globals.WALLPAPER_FAVORITES)
+    #return self.APP_SETTINGS.get_string(global_constants.WALLPAPER_FAVORITES)
+    return self._get_list(global_constants.WALLPAPER_FAVORITES)
 
   def set_favorites(self, favorites):
-    #self.APP_SETTINGS.set_string(globals.WALLPAPER_FAVORITES, favorites)
-    self._set_list(globals.WALLPAPER_FAVORITES, favorites)
+    #self.APP_SETTINGS.set_string(global_constants.WALLPAPER_FAVORITES, favorites)
+    self._set_list(global_constants.WALLPAPER_FAVORITES, favorites)
 
   def get_next_key(self):
-    return self.APP_SETTINGS.get_string(globals.KEY_NEXT)
+    return self.APP_SETTINGS.get_string(global_constants.KEY_NEXT)
 
   def set_next_key(self, key):
-    self.APP_SETTINGS.set_string(globals.KEY_NEXT, key)
+    self.APP_SETTINGS.set_string(global_constants.KEY_NEXT, key)
 
   def get_previous_key(self):
-    return self.APP_SETTINGS.get_string(globals.KEY_PREVIOUS)
+    return self.APP_SETTINGS.get_string(global_constants.KEY_PREVIOUS)
 
   def set_previous_key(self, key):
-    self.APP_SETTINGS.set_string(globals.KEY_PREVIOUS, key)
+    self.APP_SETTINGS.set_string(global_constants.KEY_PREVIOUS, key)
 
   def get_favorite_key(self):
-    return self.APP_SETTINGS.get_string(globals.KEY_FAVORITE)
+    return self.APP_SETTINGS.get_string(global_constants.KEY_FAVORITE)
 
   def set_favorite_key(self, key):
-    self.APP_SETTINGS.set_string(globals.KEY_FAVORITE, key)
+    self.APP_SETTINGS.set_string(global_constants.KEY_FAVORITE, key)
 
   def get_current_favorite_list(self):
-    return self.APP_SETTINGS.get_string(globals.WALLPAPER_CURRENT_FAVORITE)
+    return self.APP_SETTINGS.get_string(global_constants.WALLPAPER_CURRENT_FAVORITE)
 
   def set_current_favorite_list(self, list):
-    self.APP_SETTINGS.set_string(globals.WALLPAPER_CURRENT_FAVORITE, list)
+    self.APP_SETTINGS.set_string(global_constants.WALLPAPER_CURRENT_FAVORITE, list)
 
   def get_optimize_stored_lists(self):
-    return self.APP_SETTINGS.get_boolean(globals.WALLPAPER_OPTIMIZE_STORED_LISTS)
+    return self.APP_SETTINGS.get_boolean(global_constants.WALLPAPER_OPTIMIZE_STORED_LISTS)
 
   def set_optimize_stored_lists(self, key):
-    self.APP_SETTINGS.set_boolean(globals.WALLPAPER_OPTIMIZE_STORED_LISTS, key)
+    self.APP_SETTINGS.set_boolean(global_constants.WALLPAPER_OPTIMIZE_STORED_LISTS, key)
 
 # for unit testing purposes only
 if __name__ == "__main__":
 
   class callback:
     def load_settings(self, reload):
-      print "callback(%d) called" % reload
+      print("callback(%d) called" % reload)
       exit(0)
 
   s = settings(app = callback())
-  print s.get_saved_list()
+  print(s.get_saved_list())
   s.show_window()
   
   #from json import JSONEncoder

@@ -22,7 +22,7 @@ import dbus
 import dbus.glib
 import dbus.service
 
-import globals
+from .globals import global_constants
 
 # This is a handler class for the DBus messages, it allows
 # the application to receive next and previous messages
@@ -35,80 +35,80 @@ class dbushandler(dbus.service.Object):
     # we need to kill the previous instance as a first thing
     try:
       running_obj = self.SESSION_BUS.get_object(
-        "%s.%s" % (globals.BASE_ID, globals.APP_NAME),
-        "%s/%s" % (globals.APP_PATH, globals.APP_NAME)
+        "%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
+        "%s/%s" % (global_constants.APP_PATH, global_constants.APP_NAME)
       )
       running_obj.quit()
     except dbus.DBusException as e:
       None
     self.SESSION_NAME = dbus.service.BusName(
-      "%s.%s" % (globals.BASE_ID, globals.APP_NAME), self.SESSION_BUS
+      "%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME), self.SESSION_BUS
     )
     dbus.service.Object.__init__(
-      self, self.SESSION_BUS, "%s/%s" % (globals.APP_PATH, globals.APP_NAME)
+      self, self.SESSION_BUS, "%s/%s" % (global_constants.APP_PATH, global_constants.APP_NAME)
     )
     self.SESSION_BUS.add_signal_receiver(
       self.screen_saver_handler,
-      dbus_interface = globals.SCREEN_SAVER_NAME,
-      signal_name = globals.SCREEN_SAVER_SIGNAL
+      dbus_interface = global_constants.SCREEN_SAVER_NAME,
+      signal_name = global_constants.SCREEN_SAVER_SIGNAL
     )
 
-  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+  @dbus.service.method("%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
                        in_signature='s', out_signature='')
   def set(self, wallpaper):
     self.APP.set_wallpaper(wallpaper)
 
-  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+  @dbus.service.method("%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
                        in_signature='', out_signature='s')
   def next(self):
     return self.APP.next_wallpaper()
 
-  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+  @dbus.service.method("%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
                      in_signature='', out_signature='s')
   def previous(self):
     return self.APP.previous_wallpaper()
 
-  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+  @dbus.service.method("%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
                      in_signature='', out_signature='s')
   def get(self):
     return self.APP.FILE_LIST.get_current_file()
 
-  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+  @dbus.service.method("%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
                        in_signature='', out_signature='')
   def toggle(self):
     self.APP.toggle()
 
-  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+  @dbus.service.method("%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
                        in_signature='', out_signature='')
   def randomize(self):
     self.reorder_func(self.APP.FILE_LIST.randomize)
 
-  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+  @dbus.service.method("%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
                        in_signature='', out_signature='')
   def sort(self):
     self.reorder_func(self.APP.FILE_LIST.sort)
 
-  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+  @dbus.service.method("%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
                        in_signature='', out_signature='')
   def reverse(self):
     self.reorder_func(self.APP.FILE_LIST.reverse)
 
-  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+  @dbus.service.method("%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
                        in_signature='', out_signature='')
   def favorite(self):
     self.APP.add_current_to_favorites()
 
-  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+  @dbus.service.method("%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
                        in_signature='', out_signature='')
   def save(self):
     self.APP.save_lists()
 
-  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+  @dbus.service.method("%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
                        in_signature='', out_signature='')
   def reconcile(self):
     self.APP.reconcile()
 
-  @dbus.service.method("%s.%s" % (globals.BASE_ID, globals.APP_NAME),
+  @dbus.service.method("%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
                        in_signature='', out_signature='')
   def quit(self):
     self.APP.quit_app()
@@ -127,4 +127,4 @@ class dbushandler(dbus.service.Object):
 
 # this is for unit testing only
 if __name__ == "__main__":
-  print "testing"
+  print("testing")

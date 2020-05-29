@@ -134,20 +134,20 @@ def decode_list(my_text):
 # this is for unit testing only
 if __name__ == "__main__":
   
-  print shorten("very long string more than 16 chars in length", 16)
+  print(shorten("very long string more than 16 chars in length", 16))
 
-  print to_json({"abd":["dwds", "dda"]})
+  print(to_json({"abd":["dwds", "dda"]}))
 
-  print get_file_list("/dev/", True)
+  print(get_file_list("/dev/", True))
 
-  print get_dir_list("/dev/", True)
+  print(get_dir_list("/dev/", True))
 
   my_list = ["apples", "oranges", "plums", "grapes"]
-  print my_list
+  print(my_list)
   my_txt = encode_list(my_list)
   decoded_list = decode_list(my_txt)
-  print decoded_list
+  print(decoded_list)
   if cmp(my_list, decoded_list) != 0:
-    print "Encode/Decode failed"
+    print("Encode/Decode failed")
   else:
-    print "Encode/Decode success"
+    print("Encode/Decode success")
