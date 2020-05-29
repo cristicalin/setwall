@@ -49,7 +49,7 @@ class application:
     # make sure we properly clean up after ourselves 
     atexit.register(lambda: self.SCHEDULER.shutdown(wait=True))
     # make apscheduler happy
-    logging.basicConfig(format=global_constants.LOG_FORMAT)
+    logging.basicConfig(format=global_constants.LOG_FORMAT, level=logging.DEBUG)
 
     # Parse the command line arguments
     parser = argparse.ArgumentParser(global_constants.APP_FRIENDLY_NAME)

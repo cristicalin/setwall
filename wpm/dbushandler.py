@@ -22,6 +22,8 @@ import dbus
 import dbus.glib
 import dbus.service
 
+import logging
+
 from .globals import global_constants
 
 # This is a handler class for the DBus messages, it allows
@@ -40,6 +42,7 @@ class dbushandler(dbus.service.Object):
       )
       running_obj.quit()
     except dbus.DBusException as e:
+      logging.error(e)
       None
     self.SESSION_NAME = dbus.service.BusName(
       "%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME), self.SESSION_BUS

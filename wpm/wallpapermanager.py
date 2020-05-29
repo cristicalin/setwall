@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 from urllib.parse import quote, unquote
 from threading import Lock
 
@@ -79,6 +81,7 @@ class wallpapermanager:
       self.notification.set_icon_from_pixbuf(resized_icon)
       self.notification.update(title, message, None)
     except Exception as ex:
+      logging.error(ex)
       self.notification.update(title, message, global_constants.APP_ICON)
     finally:
       self.notification.show()

@@ -118,7 +118,7 @@ def is_image(filename):
 def encode_list(my_list):
   msg = msgpack.dumps(my_list)
   zmsg = zlib.compress(msg)
-  return base64.standard_b64encode(zmsg)
+  return str(base64.standard_b64encode(zmsg))
 
 def decode_list(my_text):
   # we assume this is a valid encoded object
@@ -126,7 +126,7 @@ def decode_list(my_text):
   try:
     zmsg = base64.standard_b64decode(my_text)
     msg = zlib.decompress(zmsg)
-    my_list = msgpack.loads(msg)
+    my_list = msgpack.loads(msg, encoding="utf-8")
     return my_list
   except:
     return []

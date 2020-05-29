@@ -22,6 +22,7 @@ import os.path
 import random
 import copy
 import threading
+import logging
 
 import pyinotify
 
@@ -191,11 +192,12 @@ class filelist:
           return None
       return full_filename
     except Exception as e:
-      print(e)
+      logging.error(e)
       return None
 
   def _get_file_counter(self, add, counter = 5):
     current_file = self._get_file(add)
+    logging.warning(current_file)
     if current_file is None:
       if counter > 0:
         return self._get_file_counter(add, counter - 1)

@@ -60,5 +60,5 @@ class global_constants():
   GLADE_FAVORITES_FILE = "favorites.glade"
 
   # Logging formatter
-  LOG_FORMAT = '%(asctime)-15s %(message)s'
+  LOG_FORMAT = '%(asctime)-15s %(pathname)s %(lineno)s %(message)s'
 

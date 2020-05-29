@@ -22,6 +22,7 @@ import sys
 import os
 import copy
 import threading
+import logging
 
 from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
@@ -145,7 +146,7 @@ class settings:
       )
       self.imgPreview.set_from_pixbuf(preview)
     except Exception as e:
-      print(e)
+      logging.error(e)
       self.imgPreview.set_from_stock(gtk.STOCK_FILE, gtk.IconSize.DIALOG)
     finally:
       self.imgPreview.show()
@@ -383,6 +384,12 @@ class settings:
 if __name__ == "__main__":
 
   class callback:
+    BINDINGS_MANAGER = None
+    class FILE_LIST:
+      def get_current_file():
+        return "Test.File.jpeg"
+      def close():
+        exit(0)
     def load_settings(self, reload):
       print("callback(%d) called" % reload)
       exit(0)

@@ -22,6 +22,7 @@ from __future__ import division
 
 import sys
 import os.path
+import logging
 
 from os.path import *
 from simplejson import *
@@ -117,7 +118,7 @@ class favoritesmanager():
       self.ZOOMED = True
       self.display_zoomed_out_image()
     except Exception as e:
-      print(e)
+      logging.error(e)
       self.PREVIEW.set_from_stock(gtk.STOCK_FILE, gtk.IconSize.DIALOG)
       self.STATUS_BAR.push(0, "Unknown")
       self.PREVIEW.show()
