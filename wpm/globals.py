@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # SetWall - Wallpaper manager
@@ -18,46 +18,47 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# These need to be consistent with the gschema.xml file
-APP_NAME = "wallpaper_changer"
-APP_SETTINGS = APP_NAME.replace("_", "-")
-APP_FRIENDLY_NAME = " ".join(map(lambda s: s.capitalize(), APP_NAME.split("_")))
-APP_PATH = "/com/kman"
-APP_ICON = "preferences-desktop-wallpaper"
-BASE_ID = "com.kman"
+class global_constants():
+  # These need to be consistent with the gschema.xml file
+  APP_NAME = "wallpaper_changer"
+  APP_SETTINGS = APP_NAME.replace("_", "-")
+  APP_FRIENDLY_NAME = " ".join(map(lambda s: s.capitalize(), APP_NAME.split("_")))
+  APP_PATH = "/com/kman"
+  APP_ICON = "preferences-desktop-wallpaper"
+  BASE_ID = "com.kman"
 
-WALLPAPER_PATH = "path"
-WALLPAPER_RECURSIVE = "recursive"
-WALLPAPER_INTERVAL = "interval"
-WALLPAPER_SCHEDULE = "schedule"
-WALLPAPER_SAVED_LIST = "saved-list"
-WALLPAPER_SAVE = "save"
-WALLPAPER_FAVORITES = "favorites"
-WALLPAPER_RECONCILE = "reconcile"
-WALLPAPER_VERIFY_PRESENCE = "verify-presence"
-WALLPAPER_VERIFY_IMAGE = "verify-image"
-WALLPAPER_CURRENT_FAVORITE = "current-favorite-list"
-WALLPAPER_OPTIMIZE_STORED_LISTS = "optimize-stored-lists"
+  WALLPAPER_PATH = "path"
+  WALLPAPER_RECURSIVE = "recursive"
+  WALLPAPER_INTERVAL = "interval"
+  WALLPAPER_SCHEDULE = "schedule"
+  WALLPAPER_SAVED_LIST = "saved-list"
+  WALLPAPER_SAVE = "save"
+  WALLPAPER_FAVORITES = "favorites"
+  WALLPAPER_RECONCILE = "reconcile"
+  WALLPAPER_VERIFY_PRESENCE = "verify-presence"
+  WALLPAPER_VERIFY_IMAGE = "verify-image"
+  WALLPAPER_CURRENT_FAVORITE = "current-favorite-list"
+  WALLPAPER_OPTIMIZE_STORED_LISTS = "optimize-stored-lists"
 
-# These are gnome specific parameters
-WALLPAPER_SETTING = "org.gnome.desktop.background"
-PICTURE_URI = "picture-uri"
-PICTURE_OPTIONS = "picture-options"
+  # These are gnome specific parameters
+  WALLPAPER_SETTING = "org.gnome.desktop.background"
+  PICTURE_URI = "picture-uri"
+  PICTURE_OPTIONS = "picture-options"
 
-# Global keys
-KEY_NEXT = "next-key"
-KEY_PREVIOUS = "previous-key"
-KEY_FAVORITE = "favorite-key"
+  # Global keys
+  KEY_NEXT = "next-key"
+  KEY_PREVIOUS = "previous-key"
+  KEY_FAVORITE = "favorite-key"
 
-# ScreenSaver parameters
-SCREEN_SAVER_NAME = "org.gnome.ScreenSaver"
-SCREEN_SAVER_PATH = "/%s" % SCREEN_SAVER_NAME.replace(".", "/")
-SCREEN_SAVER_SIGNAL = "ActiveChanged"
+  # ScreenSaver parameters
+  SCREEN_SAVER_NAME = "org.gnome.ScreenSaver"
+  SCREEN_SAVER_PATH = "/%s" % SCREEN_SAVER_NAME.replace(".", "/")
+  SCREEN_SAVER_SIGNAL = "ActiveChanged"
 
-# Glade form file
-GLADE_SETTINGS_FILE = "settings.glade"
-GLADE_FAVORITES_FILE = "favorites.glade"
+  # Glade form file
+  GLADE_SETTINGS_FILE = "settings.glade"
+  GLADE_FAVORITES_FILE = "favorites.glade"
 
-# Logging formatter
-LOG_FORMAT = '%(asctime)-15s %(message)s'
+  # Logging formatter
+  LOG_FORMAT = '%(asctime)-15s %(pathname)s %(lineno)s %(message)s'
 

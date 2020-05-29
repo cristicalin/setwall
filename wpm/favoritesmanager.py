@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # SetWall - Wallpaper manager
@@ -22,6 +22,7 @@ from __future__ import division
 
 import sys
 import os.path
+import logging
 
 from os.path import *
 from simplejson import *
@@ -31,10 +32,10 @@ from gi.repository import Gdk as gdk
 from gi.repository import Gio as gio
 from gi.repository import GdkPixbuf as pixbuf
 
-import globals
+from .globals import global_constants
 
-from favoriteshandler import *
-from utils import *
+from .favoriteshandler import *
+from .utils import *
 
 class favoritesmanager():
 
@@ -46,9 +47,9 @@ class favoritesmanager():
     self.BUILDER = gtk.Builder()
     try:
       self.BUILDER.add_from_file("%s/%s" % (os.path.dirname(sys.argv[0]),
-                                            globals.GLADE_FAVORITES_FILE))
+                                            global_constants.GLADE_FAVORITES_FILE))
     except:
-      self.BUILDER.add_from_file(globals.GLADE_FAVORITES_FILE)
+      self.BUILDER.add_from_file(global_constants.GLADE_FAVORITES_FILE)
     self.HANDLER = favoriteshandler(self)
     self.BUILDER.connect_signals(self.HANDLER)
 
@@ -66,7 +67,7 @@ class favoritesmanager():
     column.pack_start(cell, False)
     column.add_attribute(cell, "text", 0)
     self.STATUS_BAR = self.BUILDER.get_object("stBar")
-    self.WINDOW.set_title("%s Favorites" % globals.APP_FRIENDLY_NAME)
+    self.WINDOW.set_title("%s Favorites" % global_constants.APP_FRIENDLY_NAME)
     window_icon = self.WINDOW.render_icon(gtk.STOCK_DIALOG_INFO,
                                           gtk.IconSize.DIALOG)
     self.WINDOW.set_icon(window_icon)
@@ -117,7 +118,7 @@ class favoritesmanager():
       self.ZOOMED = True
       self.display_zoomed_out_image()
     except Exception as e:
-      print e
+      logging.error(e)
       self.PREVIEW.set_from_stock(gtk.STOCK_FILE, gtk.IconSize.DIALOG)
       self.STATUS_BAR.push(0, "Unknown")
       self.PREVIEW.show()

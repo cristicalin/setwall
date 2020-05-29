@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # SetWall - Wallpaper manager
@@ -118,7 +118,7 @@ def is_image(filename):
 def encode_list(my_list):
   msg = msgpack.dumps(my_list)
   zmsg = zlib.compress(msg)
-  return base64.standard_b64encode(zmsg)
+  return str(base64.standard_b64encode(zmsg))
 
 def decode_list(my_text):
   # we assume this is a valid encoded object
@@ -126,7 +126,7 @@ def decode_list(my_text):
   try:
     zmsg = base64.standard_b64decode(my_text)
     msg = zlib.decompress(zmsg)
-    my_list = msgpack.loads(msg)
+    my_list = msgpack.loads(msg, encoding="utf-8")
     return my_list
   except:
     return []
@@ -134,20 +134,20 @@ def decode_list(my_text):
 # this is for unit testing only
 if __name__ == "__main__":
   
-  print shorten("very long string more than 16 chars in length", 16)
+  print(shorten("very long string more than 16 chars in length", 16))
 
-  print to_json({"abd":["dwds", "dda"]})
+  print(to_json({"abd":["dwds", "dda"]}))
 
-  print get_file_list("/dev/", True)
+  print(get_file_list("/dev/", True))
 
-  print get_dir_list("/dev/", True)
+  print(get_dir_list("/dev/", True))
 
   my_list = ["apples", "oranges", "plums", "grapes"]
-  print my_list
+  print(my_list)
   my_txt = encode_list(my_list)
   decoded_list = decode_list(my_txt)
-  print decoded_list
+  print(decoded_list)
   if cmp(my_list, decoded_list) != 0:
-    print "Encode/Decode failed"
+    print("Encode/Decode failed")
   else:
-    print "Encode/Decode success"
+    print("Encode/Decode success")

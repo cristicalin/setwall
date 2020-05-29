@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # SetWall - Wallpaper manager
@@ -18,16 +18,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from urllib2 import quote, unquote
+import logging
+
+from urllib.parse import quote, unquote
 from threading import Lock
 
 from gi.repository import Gio as gio
 from gi.repository import GdkPixbuf as pixbuf
 from gi.repository import Notify as notify
 
-import globals
+from .globals import global_constants
 
-from utils import *
+from .utils import *
 
 # This handles setting the wallpaper on the Gnome desktop
 # and returning the name of the current wallpaper file
@@ -36,7 +38,7 @@ from utils import *
 class wallpapermanager:
 
   def __init__(self, my_settings):
-    notify.init(globals.APP_NAME)
+    notify.init(global_constants.APP_NAME)
     self.notification = notify.Notification.new("", "", None)
     self.SETTINGS = my_settings
     self._LOCK = Lock()
@@ -79,7 +81,8 @@ class wallpapermanager:
       self.notification.set_icon_from_pixbuf(resized_icon)
       self.notification.update(title, message, None)
     except Exception as ex:
-      self.notification.update(title, message, globals.APP_ICON)
+      logging.error(ex)
+      self.notification.update(title, message, global_constants.APP_ICON)
     finally:
       self.notification.show()
 
@@ -87,4 +90,4 @@ if __name__ == "__main__":
   from settings import *
   s = settings()
   wpm = wallpapermanager(s)
-  print wpm.get_wallpaper()
+  print(wpm.get_wallpaper())

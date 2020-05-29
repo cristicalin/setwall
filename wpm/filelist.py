@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # SetWall - Wallpaper manager
@@ -22,12 +22,13 @@ import os.path
 import random
 import copy
 import threading
+import logging
 
 import pyinotify
 
-import bst
+from .bst import bst
 
-from utils import *
+from .utils import *
 
 # File list maintains a randomized list of files in a directory
 # and behaves like a circular list so get_next and get_previous
@@ -109,7 +110,7 @@ class filelist:
     if self.NEED_RECONCILE:
       self.suspend_watch()
       temp = get_file_list(self.DIR_PATH, self.SETTINGS.get_wallpaper_recursive())
-      temp_tree = bst.bst(temp)
+      temp_tree = bst(temp)
       for my_file in self.LOCAL_FILE_LIST:
         if temp_tree.extract(my_file) != my_file: 
           self.list_remove(my_file)
@@ -191,11 +192,12 @@ class filelist:
           return None
       return full_filename
     except Exception as e:
-      print e
+      logging.error(e)
       return None
 
   def _get_file_counter(self, add, counter = 5):
     current_file = self._get_file(add)
+    logging.warning(current_file)
     if current_file is None:
       if counter > 0:
         return self._get_file_counter(add, counter - 1)
@@ -303,12 +305,12 @@ if __name__ == "__main__":
 
   class callback:
     def file_changed(action, file):
-      print "file_changed(%s: %s)" % (action, file)
+      print("file_changed(%s: %s)" % (action, file))
 
   fl = filelist(callback())
   fl.load_from_path(".")
   l = fl.get_list()
   fl.close()
 
-  print l
-  print fl.get_current_file()
+  print(l)
+  print(fl.get_current_file())

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # SetWall - Wallpaper manager
@@ -29,7 +29,7 @@ class bindingsmanager:
 
   # remove a particular binding from our management
   def remove_binding(self, name):
-    if self.BINDINGS.has_key(name):
+    if name in self.BINDINGS:
       keybinder.unbind(self.BINDINGS[name]["key"])
       del self.BINDINGS[name]
 
@@ -84,13 +84,13 @@ if __name__ == "__main__":
   from gi.repository import Gtk
   
   def test_call1(*args):
-    print "test_call1()"
+    print("test_call1()")
 
   def test_call2(*args):
-    print "test_call1()"
+    print("test_call1()")
 
   def quit(*args):
-    print "quit()"
+    print("quit()")
     Gtk.main_quit()
 
   bm = bindingsmanager()
@@ -98,12 +98,12 @@ if __name__ == "__main__":
   key_2 = "<Ctrl><Alt>2"
   key_quit = "<Ctrl><Alt>q"
   
-  print bm.set_binding("key_1", key_1, test_call1)
-  print bm.set_binding("quit", key_quit, quit)
+  print(bm.set_binding("key_1", key_1, test_call1))
+  print(bm.set_binding("quit", key_quit, quit))
   bm.suspend_bindings()
-  print bm.is_usable("key_1", key_1)
-  print bm.is_usable("key_1", key_quit)
-  print bm.set_binding("key_1", key_2, test_call1)
+  print(bm.is_usable("key_1", key_1))
+  print(bm.is_usable("key_1", key_quit))
+  print(bm.set_binding("key_1", key_2, test_call1))
   bm.resume_bindings()
 
   Gtk.main()

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # SetWall - Wallpaper manager
@@ -21,7 +21,7 @@
 from gi.repository import Gtk as gtk
 from gi.repository import AppIndicator3 as appindicator
 
-import globals
+from .globals import global_constants
 
 # Manage setwall application menu
 class menuhandler():
@@ -31,7 +31,7 @@ class menuhandler():
     self.APP = app
     self.SETTINGS = app.SETTINGS
     self.INDICATOR = appindicator.Indicator.new(
-      globals.APP_SETTINGS, globals.APP_ICON,
+      global_constants.APP_SETTINGS, global_constants.APP_ICON,
       appindicator.IndicatorCategory.APPLICATION_STATUS
     )
     self.INDICATOR.set_status(appindicator.IndicatorStatus.ACTIVE)
@@ -133,7 +133,8 @@ class menuhandler():
     favorites_menu.append(gtk.SeparatorMenuItem())
 
     favorites = self.APP.FAVORITES_MANAGER.get_favorites()
-    for folder in favorites:
+    #for folder in favorites:
+    for folder in []:
       folder_menu_item = gtk.MenuItem()
       folder_menu_item.set_label(folder)
       favorites_menu.append(folder_menu_item)

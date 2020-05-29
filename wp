@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # SetWall - Wallpaper manager
@@ -33,22 +33,22 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from wpm.application import *
 
 # Import global constants
-from wpm.globals import *
+from wpm.globals import global_constants
 
 if __name__ == '__main__':
   try:
     session_bus = dbus.SessionBus()
     session_obj = session_bus.get_object(
-      "%s.%s" % (BASE_ID, APP_NAME),
-      "%s/%s" % (APP_PATH, APP_NAME)
+      "%s.%s" % (global_constants.BASE_ID, global_constants.APP_NAME),
+      "%s/%s" % (global_constants.APP_PATH, global_constants.APP_NAME)
     )
     if len(sys.argv) == 2:
-      exec "result = session_obj.%s()" % sys.argv[1]
+      exec("result = session_obj.%s()" % sys.argv[1])
     elif len(sys.argv) > 2:
-      exec "result = session_obj.%s(\"%s\")" % (sys.argv[1], "\",\"".join(sys.argv[2:]))
+      exec("result = session_obj.%s(\"%s\")" % (sys.argv[1], "\",\"".join(sys.argv[2:])))
     if result is not None:
-      print result
+      print(result)
   except dbus.DBusException as e:
-    print "%s could not be contacted" % APP_FRIENDLY_NAME
-    print e
+    print("%s could not be contacted" % global_constants.APP_FRIENDLY_NAME)
+    print(e)
     exit(1)
